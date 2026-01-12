@@ -1,36 +1,36 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
+// 在此文件中放置全站的全局数据
+// 你可以在站点的任何地方通过 `import` 引入这些数据
 
-import type {AnalyticsConfig} from "./types/analyticsTypes"
+import type { AnalyticsConfig } from "./types/analyticsTypes"
 
 /**
- * title {string} website title
- * favicon {string} website favicon url
- * description {string} website description
- * author {string} author
- * avatar {string} Avatar used in the profile
- * motto {string} used in the profile
- * url {string} Website link
- * baseUrl {string} When using GitHubPages, you must enter the repository name, startWith '/', e.g. /repo_name
- * recentBlogSize {number} Number of recent articles displayed in the sidebar
- * archivePageSize {number} Number of articles on archive pages
- * postPageSize {number} Number of articles on blog pages
- * feedPageSize {number} Number of articles on feed pages
- * beian {string} Chinese policy
+ * title {string} 网站标题
+ * favicon {string} 网站图标地址
+ * description {string} 网站描述
+ * author {string} 作者
+ * avatar {string} 个人头像
+ * motto {string} 个性签名
+ * url {string} 网站访问地址
+ * baseUrl {string} 使用 GitHub Pages 时需要填写仓库名，以 / 开头，例如 /repo_name
+ * recentBlogSize {number} 侧边栏显示的最新文章数量
+ * archivePageSize {number} 归档页每页显示的文章数量
+ * postPageSize {number} 博客页每页显示的文章数量
+ * feedPageSize {number} 动态流页每页显示的文章数量
+ * beian {string} 备案号（中国大陆）
  * asideTagsMaxSize {number}
- *    0: disable,
- *    > 0: display the limited number of tags in the sidebar
- *    All tags will be displayed in single page "/tags".
+ *    0：禁用
+ *    >0：侧边栏最多显示多少个标签
+ *    所有标签会在 /tags 页面中完整展示
  */
 export const site = {
-  title: 'Astro Theme Yi', // required
-  favicon: '/favicon.svg', // required
+  title: 'Astro Theme Yi', // 必填
+  favicon: '/favicon.svg', // 必填
   description: 'Welcome to my independent blog website! ',
-  author: "Astro-Yi", // required
-  avatar: '/avatar.png', // required
-  url: 'https://astro-yi-nu.vercel.app', // required
-  baseUrl: '', // When using GitHubPages, you must enter the repository name startWith '/'. e.g. '/astro-blog'
-  motto: 'Actions speak louder than words.',
+  author: "Astro-Yi", // 必填
+  avatar: '/avatar.png', // 必填
+  url: 'https://wdxzf.github.io', // 必填
+  baseUrl: '', // 使用 GitHub Pages 时填写，例如 '/astro-blog'
+  motto: '恰同学少年，风华正茂',
   recentBlogSize: 5,
   archivePageSize: 25,
   postPageSize: 10,
@@ -40,30 +40,30 @@ export const site = {
 }
 
 /**
- * busuanzi {boolean} link: https://busuanzi.ibruce.info/
- * lang {string} Default website language
- * codeFoldingStartLines {number}
- * ga {string|false}
- * memosUrl {string} memos server url
- * memosUsername {string} memos login name
- * memosPageSize {number} 10
+ * busuanzi {boolean} 访问统计 https://busuanzi.ibruce.info/
+ * lang {string} 默认网站语言
+ * codeFoldingStartLines {number} 超过多少行代码默认折叠
+ * ga {string|false} Google Analytics ID
+ * memosUrl {string} memos 服务地址
+ * memosUsername {string} memos 登录用户名
+ * memosPageSize {number} 每页 memos 数量，默认 10
  */
 export const config = {
   lang: 'en', // en | zh-cn | zh-Hant | cs
-  codeFoldingStartLines: 16, // Need to re-run the project to take effect
+  codeFoldingStartLines: 16, // 需要重新运行项目才能生效
 
-  // memos config
+  // memos 配置
   memosUrl: '', // https://xxxx.xxx.xx
-  memosUsername: '', // login name
-  memosPageSize: 10, // number
+  memosUsername: '', // 登录名
+  memosPageSize: 10, // 数量
 }
 
 /**
- * Navigator
- * name {string}
- * iconClass {string} icon style
- * href {string}  link url
- * target {string} optional "_self|_blank" open in current window / open in new window
+ * 导航菜单
+ * name {string} 显示名称
+ * iconClass {string} 图标样式
+ * href {string} 链接地址
+ * target {string} 可选 "_self|_blank" 在当前窗口或新窗口打开
  */
 export const categories = [
   {
@@ -117,7 +117,7 @@ export const categories = [
 ]
 
 /**
- * Personal link address
+ * 个人社交链接
  */
 export const infoLinks = [
   {
@@ -138,7 +138,7 @@ export const infoLinks = [
   {
     icon: 'ri-github-fill',
     name: 'github',
-    outlink: 'https://github.com/cirry/astro-yi',
+    outlink: 'https://github.com/wdxzf',
   },
   {
     icon: 'ri-rss-fill',
@@ -148,12 +148,12 @@ export const infoLinks = [
 ]
 
 /**
- * donate
- * enable {boolean}
- * tip {string}
- * wechatQRCode: Image addresses should be placed in the public directory.
- * alipayQRCode: Image addresses should be placed in the public directory.
- * paypalUrl {string}
+ * 打赏配置
+ * enable {boolean} 是否启用
+ * tip {string} 提示文字
+ * wechatQRCode 微信收款码（放在 public 目录）
+ * alipayQRCode 支付宝收款码（放在 public 目录）
+ * paypalUrl {string} PayPal 地址
  */
 export const donate = {
   enable: false,
@@ -164,11 +164,11 @@ export const donate = {
 }
 
 /**
- * Friendship Links Page
- * name {string}
- * url {string}
- * avatar {string}
- * description {string}
+ * 友情链接页面
+ * name {string} 名称
+ * url {string} 链接
+ * avatar {string} 头像
+ * description {string} 描述
  */
 export const friendshipLinks =
   [
@@ -181,22 +181,22 @@ export const friendshipLinks =
   ]
 
 /**
- * Comment Feature
- * enable {boolean}
- * type {string} required waline | giscus
- * walineConfig.serverUrl {string} server link
- * walineConfig.lang {string} link: https://waline.js.org/guide/features/i18n.html
- * walineConfig.pageSize {number} number of comments per page. default 10
- * walineConfig.wordLimit {number} Comment word s limit. When a single number is filled in, it 's the maximum number of comment words. No limit when set to 0
- * walineConfig.count {number} recent comment numbers
- * walineConfig.pageview {boolean} display the number of page views and comments of the article
- * walineConfig.reaction {string | string[]} Add emoji interaction function to the article
- * walineConfig.requiredMeta {string[]}  Set required fields, default anonymous
- * walineConfig.whiteList {string[]} set some pages not to display reaction
+ * 评论功能
+ * enable {boolean} 是否启用
+ * type {string} 必填 waline | giscus
+ * walineConfig.serverUrl {string} 服务端地址
+ * walineConfig.lang {string} 语言
+ * walineConfig.pageSize {number} 每页评论数
+ * walineConfig.wordLimit {number} 评论字数限制，0 表示不限制
+ * walineConfig.count {number} 最近评论数量
+ * walineConfig.pageview {boolean} 是否显示阅读量和评论数
+ * walineConfig.reaction {string | string[]} 是否启用表情互动
+ * walineConfig.requiredMeta {string[]} 必填字段
+ * walineConfig.whiteList {string[]} 不显示表情的页面
  */
 export const comment = {
   enable: false,
-  type: 'giscus', // waline | giscus,
+  type: 'giscus', // waline | giscus
   walineConfig: {
     serverUrl: "",
     lang: 'en',
@@ -209,7 +209,7 @@ export const comment = {
     whiteList: ['/message/', '/friends/'],
   },
 
-  // giscus config
+  // giscus 配置
   giscusConfig: {
     'data-repo': "",
     'data-repo-id': "",
@@ -224,15 +224,12 @@ export const comment = {
     'data-lang': "",
     'crossorigin': "",
   }
-
-  //
 }
 
 /**
- * Analytics Feature Configuration
+ * 统计分析配置
  *
- * This file centralizes the analytics configuration for the application.
- * It defines and exports the default settings for Umami and Google Analytics.
+ * 本文件统一管理 Umami 与 Google Analytics 的配置
  */
 export const analytics: AnalyticsConfig = {
   enable: false,

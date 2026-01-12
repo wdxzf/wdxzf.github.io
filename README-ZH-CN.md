@@ -55,6 +55,7 @@ npm run dev # preview
 
 ```bash
 npm run build # build
+pnpm dev 查看
 ```
 
 打包完成后，在根目录中会生成一个 dist 文件夹。将 'dist' 文件夹上传到 Web 服务器目录中，即可完成部署。
