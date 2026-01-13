@@ -7,6 +7,7 @@ mathjax: true
 category: [astro, feature]
 tags: [astro, feature]
 ogImage: https://astro-yi.obs.cn-east-3.myhuaweicloud.com/avatar.png
+draft: true
 ---
 
 ### Support Remixicon
