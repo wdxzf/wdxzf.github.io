@@ -23,12 +23,12 @@ import type { AnalyticsConfig } from "./types/analyticsTypes"
  *    所有标签会在 /tags 页面中完整展示
  */
 export const site = {
-  title: 'Astro Theme Yi', // 必填
-  favicon: '/favicon.svg', // 必填
-  description: 'Welcome to my independent blog website! ',
-  author: "Astro-Yi", // 必填
-  avatar: '/avatar.png', // 必填
-  url: 'https://wdxzf.github.io', // 必填
+  title: 'W Blog', // 名字
+  favicon: '/images/favicon.svg', // 站点符号
+  description: '欢迎来到我的博客!',
+  author: "W", // 必填
+  avatar: '/images/avatar.jpg', // 头像
+  url: 'https://wdxzf.github.io', // 站点链接
   baseUrl: '', // 使用 GitHub Pages 时填写，例如 '/astro-blog'
   motto: '恰同学少年，风华正茂',
   recentBlogSize: 5,
@@ -126,14 +126,14 @@ export const infoLinks = [
     outlink: '',
   },
   {
-    icon: 'ri-twitter-fill',
-    name: 'twitter',
-    outlink: '',
+    icon: 'ri-qq-fill',
+    name: 'QQ',
+    outlink: 'https://qm.qq.com/q/T5jNrN5lmk',
   },
   {
-    icon: 'ri-instagram-fill',
-    name: 'instagram',
-    outlink: '',
+    icon: 'ri-bilibili-fill',
+    name: 'bilibili',
+    outlink: 'https://space.bilibili.com/1751089388',
   },
   {
     icon: 'ri-github-fill',

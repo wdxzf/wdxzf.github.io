@@ -1,10 +1,12 @@
-# Astro Theme Yi
+# Astro Theme YI
 
 [[English]](./README.md) | [[简体中文]](./README-ZH-CN.md)
 
-Demo：[Astro-Theme-Yi](https://astro-yi-nu.vercel.app/)
+预览地址：[Astro-Theme-Yi](https://astro-yi-nu.vercel.app/)
 
-A content-focused Astro blog theme, Yi, in Chinese, it means fast and concise.
+更多配置内容，请参阅文章： [Astro-YI Write Skill](https://cirry.cn/blog/frontend/astro/config-and-write-skill)
+
+一款以内容为主的Astro博客主题————Yi，快速和简洁。
 
 ![](https://astro-yi.obs.cn-east-3.myhuaweicloud.com/9.png)
 
@@ -12,90 +14,93 @@ A content-focused Astro blog theme, Yi, in Chinese, it means fast and concise.
 
 ![](https://astro-yi.obs.cn-east-3.myhuaweicloud.com/8.png)
 
-### 🔥 Features
+### 🔥 特色功能
+- [x] 支持GithubPages
+- [x] 支持多端显示
+- [x] 支持暗黑显示
+- [x] 集成Memos
+- [x] 支持国际化
+- [x] 支持搜索功能
+- [x] 友好的SEO
+- [x] 支持站点地图和rss
+- [x] 支持草稿箱
+- [x] 支持waline评论系统
+- [x] 支持图片懒加载和预览
+- [x] 支持文章永久固定链接
+- [x] 支持meriand
+- [x] 支持mathjax
+- [x] 支持expressive-code
 
-- [x] Support github pages.
-- [x] Supports multi-platform display.
-- [x] Supports dark mode.
-- [x] Supports Memos.
-- [x] supports i18n.
-- [x] Supports search functionality.
-- [x] SEO-friendly
-- [x] Supports sitemap and RSS.
-- [x] Supports article drafts.
-- [x] Supports Waline/Giscus Comment.
-- [x] Image lazy loading and scaling support.
-- [x] Supports fixed permalinks for articles.
-- [x] Supports meriand
-- [x] Supports mathjax
-- [x] Supports expressive code
+......等等
 
-......
-
-### Vercel Deplyment
+### Vercel一键部署
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https%3A%2F%2Fgithub.com%2Fcirry%2Fastro-yi)
 
-Give it a try! Click the button above, and you can deploy with just one click.
+试试吧，点击上面的按钮，就可以一键部署了。
 
-### 👨🏻‍💻 Manual Installation
+### 👨🏻‍💻 手动部署
 
-Recommended for use `nodejs >= 20`,`pnpm >= 8`。
+推荐使用：`nodejs >= 20`，`pnpm >= 8`。
 
 ```bash
 git clone https://github.com/cirry/astro-yi.git
 cd astro-yi
-npm install -g pnpm # install pnpm
-pnpm i  # installs dependencies
-npm run dev # preview, starts local dev server at localhost:4321
+npm install -g pnpm
+pnpm i 
+npm run dev # preview
 ```
+
+将您最喜欢的文章写在 `src/content/blog` 文件夹中，在 `src/content/feed` 文件夹中编写您想发布的动态内容。
 
 ```bash
-npm run build # build your production site to ./dist 
+npm run build # build
+pnpm dev 查看
 ```
-After the packaging is completed, Upload the `dist` folder to the web server directory.
 
-### GitHub Pages deployment
+打包完成后，在根目录中会生成一个 dist 文件夹。将 'dist' 文件夹上传到 Web 服务器目录中，即可完成部署。
 
-In /src/consts.ts, modify the contents of the site field:
+### github pages部署
+
+只需在`/src/consts.ts`中修改`site`对象中的`url`和`baseUrl`属性：
 
 ```js
 export const site = {
   // ...
-  url: 'https://wdxzf.github.io', // required,  website origin
-  baseUrl: '/wdxzf.github.io', // When using GitHubPages, you must enter the repository name startwith '/'
+  url: 'https://wdxzf.github.io', // 必填 你的网站主域名
+  baseUrl: 'wdxzf.github.io', // 必填，仓库名称
   // ...
 }
 ```
 
-## Configuration
+## 配置
 
-The only profile for this blog is: `src/consts.ts`, you can make some modifications according to your needs.
+本博客的唯一的配置文件就是：`src/consts.ts`，您可以根据自己的需求进行一些修改。
 
 ```ts
 /**
- * title {string} website title
- * favicon {string} website favicon url
- * description {string} website description
- * author {string} author
- * avatar {string} Avatar used in the profile
- * motto {string} used in the profile
- * url {string} Website link
- * baseUrl {string} When using GitHubPages, you must enter the repository name
- * recentBlogSize {number} Number of recent articles displayed in the sidebar
- * archivePageSize {number} Number of articles on archive pages
- * postPageSize {number} Number of articles on blog pages
- * feedPageSize {number} Number of articles on feed pages
- * beian {string} Chinese policy
+ * Site information
+ * title：网站标题
+ * description：网站描述
+ * author：作者
+ * motto：格言
+ * url：网站地址
+ * baseUrl： 当使用github pages时，必须填入仓库名称，用/开头
+ * recentBlogSize：最近文章数量
+ * archivePageSize：归档页面每页显示的数量
+ * postPageSize：文章页面每页显示的数量
+ * feedPageSize：动态页面每页显示数量
+ * beian：备案号
  */
 export const site = {
     title: 'Astro Theme Yi',
     favicon: '/favicon.svg',
     description: 'Welcome to my independent blog website! ',
-    author: "xxxxx",
+    author: "Cirry",
     avatar: '/avatar.png',
-    motto: 'Keep moving.',
+    motto: '最重要的事情只有一件',
     url: 'https://astro-yi-nu.vercel.app',
+    baseUrl: '', // 用斜杠开头 '/astro-blog'
     recentBlogSize: 5,
     archivePageSize: 25,
     postPageSize: 10,
@@ -104,8 +109,10 @@ export const site = {
   }
 
 /**
+ * busuanzi：是否开启不蒜子统计功能
  * lang {string} Default website language: English
  * codeFoldingStartLines {number} default 16
+ * ga {string} google analytics code
  * memosUrl {string} memos server url
  * memosUsername {string} memos login name
  * memosPageSize {number} 10
@@ -121,87 +128,76 @@ export const config = {
 }
 
 /**
- * Navigator
+ * 导航栏
  */
 export const categories = [
   {
-    name: "Homepage",
+    name: "首页",
     iconClass: "ri-home-4-line",
     href: "/",
   },
   {
-    name: "Blog",
+    name: "博客",
     iconClass: "ri-draft-line",
     href: "/blog/1",
   },
   {
-    name: "Feed",
+    name: "动态",
     iconClass: "ri-lightbulb-flash-line",
     href: "/feed/1",
   },
   {
-    name: "Archive",
+    name: "归档",
     iconClass: "ri-archive-line",
     href: "/archive/1",
   },
   {
-    name: "Message",
+    name: "留言",
     iconClass: "ri-chat-1-line",
-    href: "/message/",
+    href: "/message",
   },
   {
-    name: "Search",
+    name: "搜索",
     iconClass: "ri-search-line",
     href: "/search",
   },
   {
-    name: "More",
+    name: "更多",
     iconClass: "ri-more-fill",
     href: "javascript:void(0);",
     children: [
       {
-        name: 'About',
+        name: '关于本站',
         iconClass: 'ri-information-line',
         href: '/about',
       },
       {
-        name: 'Friends',
+        name: '友情链接',
         iconClass: 'ri-user-5-line',
         href: '/friends',
-        target: '_self', // _self | _blank
       },
     ]
   }
 ]
 
 /**
- * Personal link address
+ * 个人链接地址
  */
 export const infoLinks = [
   {
-    icon: 'ri-telegram-fill',
-    name: 'telegram',
-    outlink: 'xxxxxxx',
-  },
-  {
-    icon: 'ri-twitter-fill',
-    name: 'twitter',
-    outlink: 'xxxxxxx',
-  },
-  {
-    icon: 'ri-instagram-fill',
-    name: 'instagram',
-    outlink: 'xxxxxxx',
-  },
-  {
-    icon: 'ri-github-fill',
-    name: 'github',
-    outlink: 'https://github.com/cirry',
+    icon: "ri-bilibili-fill",
+    name: "bilibili",
+    outlink: "https://space.bilibili.com/xxxxxxxx",
   },
   {
     icon: 'ri-mail-fill',
     name: 'xxxxxxx@gmail.com',
     outlink: 'mailto:xxxxxxx@gmail.com',
+  },
+  {
+    icon: 'ri-github-fill',
+    name: 'github',
+    outlink: 'https://github.com/cirry',
   },
   {
     icon: 'ri-rss-fill',
@@ -211,25 +207,21 @@ export const infoLinks = [
 ]
 
 /**
- * Donation feature
- * Please replace the image and paypal link before use.
+ * 赞赏功能
+ * 请在使用之前更换图像和 PayPal 链接。
  * enable {boolean}
  * tip {string}
  */
 export const donate = {
   enable: false,
-  tip: "Thanks for the coffee !!!☕",
+  tip: "感谢大佬送来的咖啡☕",
   wechatQRCode: "/WeChatQR.png",
   alipayQRCode: "/AliPayQR.png",
-  paypalUrl: "https://paypal.me/xxxxxxxx",
+  paypalUrl: "https://paypal.me/cirry0?country.x=C2&locale.x=zh_XC",
 }
 
 /**
- * Friends Links Page
- * name {string}
- * url {string}
- * avatar {string}
- * description {string}
+ * 友情链接配置
  */
 export const friendshipLinks =
   [
@@ -237,21 +229,21 @@ export const friendshipLinks =
       name: "Cirry's Blog",
       url: 'https://cirry.cn',
       avatar: "https://cirry.cn/avatar.png",
-      description: 'frontend development'
+      description: '前端开发的日常'
     },
   ]
 
 /**
- * Comment Feature
- * enable {boolean}
- * type {string} giscus and waline are currently supported.
- * walineConfig.serverUrl {string} server link
- * walineConfig.pageSize {number} number of comments per page. default 10
- * walineConfig.wordLimit {number} Comment word s limit. When a single number is filled in, it 's the maximum number of comment words. No limit when set to 0
- * walineConfig.count {number} recent comment numbers
- * walineConfig.pageview {boolean} display the number of page views and comments of the article
- * walineConfig.reaction {string | string[]} Add emoji interaction function to the article
- * walineConfig.requiredMeta {string[]}  Set required fields, default anonymous
+ * 评论功能
+ * enable 是否开启评论功能
+ * type 目前支持waline和giscus评论系统
+ * walineConfig.serverUrl 评论服务器地址
+ * walineConfig.pageSize 每页评论数量
+ * walineConfig.wordLimit 评论内容字数限制，默认为空不限制
+ * walineConfig.count 最近评论侧边栏评论数量
+ * walineConfig.pageview 是否开启阅读数统计
+ * walineConfig.reaction 是否开启表情
+ * walineConfig.requiredMeta 必填字段
  */
 export const comment = {
   enable: false,
@@ -287,9 +279,10 @@ export const comment = {
 
 /**
  * Analytics Feature Configuration
- *
+ * enable: {boolean} 这个必须启用才能使用其他的配置项
  * This file centralizes the analytics configuration for the application.
  * It defines and exports the default settings for Umami and Google Analytics.
+ * busuanzi {boolean}
  */
 export const analytics: AnalyticsConfig = {
   enable: false,
@@ -304,82 +297,6 @@ export const analytics: AnalyticsConfig = {
   },
   busuanzi: false,
 };
-
 ```
 
-Please modify your website configuration, comment system configuration, appreciation function image, personal information links, and of course, you can also modify other configuration content.
-
-### Write a blog 
-
-With the Yi theme, all you need to do is create a new md document in `src/content/blog` and you're ready to start writing your blog.
-
-According to Astro's Markdown document standard, each document should have its own frontmatter information and add `---` as the beginning and the end of the document's header in md to mark the frontmatter, which gives us a lot of convenience:.
-
-1. for example, if we want to add tags and categories to a document or top some documents, we can add some attributes to the document in Frontmatter, such as `tags`, `sticky` and so on.
-
-2. For example, to avoid using Chinese as the blog path and file name, we can set `title` as the title of the md document in Chinese, and the file name in English with `-` as the word connecting symbol.
-
-In Astro-Yi, You need to set two important properties: **title** and **date**, the following is the simplest frontmatter setup for a Md document:
-
-```yaml
----
-title: Display pictures
-date: 2024-03-05
----
-```
-
-If you feel that this is not quite enough, Yi also provides more properties for you to use, this is a complete example:
-
-```yaml
----
-title: Display pictures
-description: Display pictures
-date: 2024-03-05
-tags: [astro]
-category: astro
-sticky: 100  // Document top weight, the larger the number, the greater the weight
-slug: poem/ci //  Permanent link to document
-mathjax: false // enable formula display
-mermaid: false // enable mermaid
-draft: false
-toc: true
-donate: false
-comment: false
-ogImage: https://xxxxx/xxxxx/xxxxx // cover image
----
-```
-
-### Write a feed
-
-With the Yi theme, all you need to do is create a new md document in `src/content/feed` and you're ready to start writing.
-
-feed frontmatter needs to set an important property **date**, the rest of the attributes are optional.
-
-```yaml
----
-date: 2024-03-20
----
-```
-
-### Modify icons
-
-All the icons in the blog are using the open source icon library [remixicon](https://remixicon.cn/), you can replace your favorite icons by yourself.
-
-### Note
-
-In the `astro.config.js` file in the root directory, it is recommended to modify the `site` property to correctly generate the site map.
-
-```js
-export default defineConfig({
-  site: 'https://xxxx.com',// Modify to your own website address
-  // ...
-})
-```
-
-Add a line to the path of your sitemap file at the end of the robots.txt file in the public directory.
-
-
-```text
-Sitemap: [blog-url]/sitemap-0.xml
-// ps：Sitemap: https://astro-yi-nu.vercel.app/sitemap-0.xml
-```
+请修改您的网站配置、评论系统配置、赞赏功能图片、个人信息链接，当然，您也可以修改其他配置内容。
