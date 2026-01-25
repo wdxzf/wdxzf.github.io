@@ -1,6 +1,7 @@
 ---
 import IndexPage from "@/layouts/IndexPage.astro";
 import { site } from "@/consts";
+import getUrl from "@/utils/getUrl";
 ---
 
 <IndexPage title="在线发布">
@@ -531,6 +532,4 @@ import { site } from "@/consts";
   }
 </style>
 
-<script type="module">
-  import "../../scripts/publish.js";
-</script>
+<script is:inline type="module" src={getUrl("/scripts/publish.js")}></script>

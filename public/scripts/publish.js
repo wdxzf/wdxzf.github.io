@@ -1,5 +1,5 @@
-import { marked } from "marked";
-import createDOMPurify from "dompurify";
+import { marked } from "../vendor/marked.esm.js";
+import createDOMPurify from "../vendor/purify.es.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 
