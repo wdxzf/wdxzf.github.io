@@ -1,0 +1,535 @@
+---
+import IndexPage from "@/layouts/IndexPage.astro";
+import { site } from "@/consts";
+import publishScript from "../../scripts/publish.ts?url";
+---
+
+<IndexPage title="在线发布">
+  <section class="publish-shell">
+    <header class="publish-topbar">
+      <div class="publish-title">
+        <h1>在线发布</h1>
+        <p>在浏览器中编写、预览、上传图片，并发布到 GitHub。</p>
+      </div>
+      <div class="publish-actions">
+        <label class="btn ghost">
+          导入 MD
+          <input id="import-md" type="file" accept=".md,text/markdown" />
+        </label>
+        <button id="save-draft" class="btn ghost" type="button">保存草稿</button>
+        <button id="publish" class="btn primary" type="button">发布</button>
+        <button id="open-settings" class="btn ghost" type="button">文章设置</button>
+      </div>
+    </header>
+
+    <div class="publish-grid">
+      <section class="editor-card" data-mode="split">
+        <div class="editor-modes">
+          <button class="btn ghost is-active" type="button" data-mode="split">分屏</button>
+          <button class="btn ghost" type="button" data-mode="edit">专注写作</button>
+          <button class="btn ghost" type="button" data-mode="preview">专注预览</button>
+        </div>
+        <div class="editor-split">
+          <label class="field textarea-field">
+            Markdown 内容
+            <textarea id="markdown-input" placeholder="在这里编写 Markdown..."></textarea>
+          </label>
+          <div class="preview-pane markdown-body" id="markdown-preview"></div>
+        </div>
+
+        <div class="editor-footer">
+          <div class="status" id="status">就绪</div>
+          <button id="copy-markdown" class="btn ghost" type="button">复制 Markdown</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="publish-drawer" id="settings-drawer" data-open="false">
+      <div class="drawer-overlay" id="drawer-overlay"></div>
+      <div class="drawer-panel">
+        <header class="drawer-topbar">
+          <button id="close-settings" class="btn ghost" type="button">← 关闭</button>
+          <div class="drawer-title">文章设置</div>
+          <label class="draft-toggle">
+            <input id="quick-draft" type="checkbox" />
+            草稿
+          </label>
+        </header>
+
+        <div class="drawer-body">
+          <aside class="meta-column">
+              <section class="meta-card">
+                <h3>元信息</h3>
+                <label class="meta-sync">
+                  <input id="sync-frontmatter" type="checkbox" />
+                  与 Markdown 同步
+                </label>
+                <div class="meta-block">
+                  <div class="meta-block-title">基础</div>
+                  <label class="field">
+                    标题
+                    <input id="post-title" type="text" placeholder="文章标题" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    Slug
+                    <input id="post-slug" type="text" placeholder="自动生成" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    日期
+                    <input id="post-date" type="date" />
+                  </label>
+                  <label class="field">
+                    摘要
+                    <input id="post-description" type="text" placeholder="简短摘要" autocomplete="off" />
+                  </label>
+                </div>
+                <details class="meta-collapsible">
+                  <summary>组织</summary>
+                  <div class="meta-block">
+                    <label class="field">
+                      分类（逗号分隔）
+                      <input id="post-category" type="text" placeholder="tech, notes" autocomplete="off" />
+                    </label>
+                    <label class="field">
+                      标签（逗号分隔）
+                      <input id="post-tags" type="text" placeholder="astro, markdown" autocomplete="off" />
+                    </label>
+                    <div class="toggle-grid">
+                      <label><input id="post-draft" type="checkbox" />草稿</label>
+                      <label><input id="post-toc" type="checkbox" checked />目录</label>
+                      <label><input id="post-donate" type="checkbox" checked />打赏</label>
+                      <label><input id="post-comment" type="checkbox" checked />评论</label>
+                      <label><input id="post-mermaid" type="checkbox" />Mermaid</label>
+                      <label><input id="post-mathjax" type="checkbox" />MathJax</label>
+                    </div>
+                    <label class="field">
+                      置顶
+                      <input id="post-sticky" type="number" min="0" value="0" />
+                    </label>
+                  </div>
+                </details>
+              </section>
+
+              <section class="meta-card">
+                <h3>图片管理</h3>
+                <label class="field">
+                  选择图片
+                  <input id="image-upload" type="file" accept="image/*" />
+                </label>
+                <button id="insert-image" class="btn ghost" type="button">上传并插入</button>
+              </section>
+
+              <section class="meta-card">
+                <h3>GitHub 设置</h3>
+                <div class="field-grid">
+                  <label class="field">
+                    仓库所有者
+                    <input id="gh-owner" type="text" placeholder="wdxzf" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    仓库名
+                    <input id="gh-repo" type="text" placeholder="wdxzf.github.io" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    分支
+                    <input id="gh-branch" type="text" value="main" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    Token
+                    <input id="gh-token" type="password" placeholder="需要 repo 或 public_repo 权限" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    文章目录
+                    <input id="posts-path" type="text" value="src/content/blog" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    图片目录
+                    <input id="uploads-path" type="text" value="public/uploads" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    BaseUrl
+                    <input id="base-url" type="text" value={site.baseUrl} autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    API 地址
+                    <input id="api-base" type="text" value="https://api.github.com" autocomplete="off" />
+                  </label>
+                </div>
+                <p class="muted">Token 会保存在本机 localStorage，请勿在公共设备上使用。</p>
+                </section>
+              </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+</IndexPage>
+
+<style>
+  :global(main#app > .grid) {
+    grid-template-columns: 1fr !important;
+  }
+
+  :global(main#app > .grid > div:last-child) {
+    display: none !important;
+  }
+
+  :global(body) {
+    background: #d7d4d3;
+  }
+
+  .publish-shell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .publish-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .publish-title h1 {
+    font-size: 2.2rem;
+    margin: 0 0 6px;
+  }
+
+  .publish-title p {
+    margin: 0;
+    opacity: 0.7;
+  }
+
+  .publish-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .draft-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(83, 83, 83, 0.2);
+    background: #f3f1f0;
+    font-size: 0.9rem;
+  }
+
+  .draft-toggle input {
+    accent-color: #ff2d7a;
+  }
+
+  .publish-actions input[type="file"] {
+    display: none;
+  }
+
+  .publish-drawer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .publish-drawer[data-open="true"] {
+    pointer-events: auto;
+  }
+
+  .drawer-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .publish-drawer[data-open="true"] .drawer-overlay {
+    opacity: 1;
+  }
+
+  .drawer-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45vw;
+    max-width: 720px;
+    min-width: 360px;
+    height: 100vh;
+    background: #d7d4d3;
+    border-left: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: -12px 0 32px rgba(15, 23, 42, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .publish-drawer[data-open="true"] .drawer-panel {
+    transform: translateX(0);
+  }
+
+  .drawer-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #ebe8e7;
+    border-bottom: 1px solid rgba(83, 83, 83, 0.12);
+  }
+
+  .drawer-title {
+    font-weight: 600;
+    margin-right: auto;
+  }
+
+  .drawer-body {
+    overflow: auto;
+    padding: 16px 20px 28px;
+  }
+
+  .publish-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .editor-card,
+  .meta-card {
+    background: #ebe8e7;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 16px 32px rgba(21, 20, 20, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    min-width: 0;
+  }
+
+  .editor-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .editor-modes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .editor-modes .btn.is-active {
+    background: #111827;
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .field-row {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .field,
+  .cover-input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.92rem;
+  }
+
+  .field input,
+  .cover-input input {
+    border-radius: 12px;
+    border: 1px solid rgba(83, 83, 83, 0.2);
+    padding: 10px 12px;
+    background: #f3f1f0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .textarea-field textarea {
+    min-height: 520px;
+    border-radius: 18px;
+    border: 2px solid #ff2d7a;
+    padding: 16px;
+    background: #f3f1f0;
+    font-family: "Menlo", "Courier New", monospace;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+
+  .editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .editor-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .editor-card[data-mode="edit"] .editor-split {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-card[data-mode="edit"] .preview-pane {
+    display: none;
+  }
+
+  .editor-card[data-mode="preview"] .editor-split {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-card[data-mode="preview"] .textarea-field {
+    display: none;
+  }
+
+  .preview-pane {
+    min-height: 520px;
+    border-radius: 18px;
+    border: 1px solid rgba(83, 83, 83, 0.2);
+    background: #f3f1f0;
+    padding: 16px;
+    overflow: auto;
+  }
+
+  .preview-pane .md-collapse {
+    border: 1px dashed rgba(83, 83, 83, 0.25);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .preview-pane .md-collapse summary {
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 8px;
+    list-style: none;
+  }
+
+  .preview-pane .md-collapse summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .meta-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .meta-card h3 {
+    margin: 0 0 12px;
+    color: #ff2d7a;
+    font-size: 1rem;
+  }
+
+  .meta-block {
+    display: grid;
+    gap: 10px;
+  }
+
+  .meta-sync {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: rgba(83, 83, 83, 0.7);
+    margin-bottom: 8px;
+  }
+
+  .meta-block-title {
+    font-size: 0.9rem;
+    color: rgba(83, 83, 83, 0.7);
+    letter-spacing: 0.08em;
+  }
+
+  .meta-collapsible {
+    margin-top: 12px;
+    border-top: 1px dashed rgba(83, 83, 83, 0.2);
+    padding-top: 12px;
+  }
+
+  .meta-collapsible summary {
+    cursor: pointer;
+    color: #111827;
+    font-weight: 600;
+    margin-bottom: 10px;
+    list-style: none;
+  }
+
+  .meta-collapsible summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toggle-grid {
+    display: grid;
+    gap: 8px 12px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    margin: 8px 0 12px;
+    font-size: 0.88rem;
+  }
+
+  .field-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .btn {
+    border-radius: 999px;
+    padding: 8px 16px;
+    border: 1px solid rgba(83, 83, 83, 0.2);
+    cursor: pointer;
+    font-weight: 600;
+    background: #f3f1f0;
+  }
+
+  .btn.primary {
+    background: #111827;
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .btn.ghost {
+    background: #f3f1f0;
+  }
+
+  .status {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+
+  .muted {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 1024px) {
+    .drawer-panel {
+      width: 100vw;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .publish-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-split {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script type="module" src={publishScript}></script>
