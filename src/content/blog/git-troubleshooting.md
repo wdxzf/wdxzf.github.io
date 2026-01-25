@@ -10,7 +10,7 @@ tags: ["Git", "submodule", "remote"]
 
 ## 一、本地文件夹存在，但 GitHub 上没有上传
 :::collapse
-### 🔍 问题现象
+### 问题现象
 
 本地存在如下目录：navigation_system_ws/src/livox_ros_driver2
 
@@ -20,9 +20,9 @@ tags: ["Git", "submodule", "remote"]
 - 本地确认文件真实存在
 ---
 
-### 🧪 排查过程
+### 排查过程
 
-#### 1️⃣ 检查是否被 `.gitignore` 忽略
+#### 1. 检查是否被 `.gitignore` 忽略
 
 ```bash
 git check-ignore -v livox_ros_driver2
@@ -33,7 +33,7 @@ git check-ignore -v livox_ros_driver2
 
 👉 本次排查中未被忽略。
 
-#### 2️⃣ 查看 Git 状态
+#### 2. 查看 Git 状态
 
 在仓库根目录执行：
 
@@ -58,7 +58,7 @@ git status
 
 该目录尚未被 Git 跟踪（未执行 `git add`）。
 
-#### 3️⃣ 尝试添加后出现警告
+#### 3. 尝试添加后出现警告
 
 执行：
 
@@ -80,7 +80,7 @@ You've added another git repository inside your current repository
 
 ---
 
-### ✅ 问题根因
+### 问题根因
 
 `livox_ros_driver2` 本身是一个独立的 Git 仓库：
 
@@ -98,7 +98,7 @@ Git 不会自动将其当作普通目录提交。
 
 ---
 
-### ✅ 正确解决方案：使用 Git Submodule
+### 正确解决方案：使用 Git Submodule
 
 第三方驱动 / SDK 正确的管理方式应为 submodule。
 
@@ -129,7 +129,7 @@ git pull --recurse-submodules
 
 ---
 
-### 📌 总结
+### 小结
 
 submodule 只记录：
 
@@ -145,7 +145,7 @@ submodule 只记录：
 
 ## 二、Git 中存在多个 remote（1111 / github）
 :::collapse
-### 🔍 问题现象
+### 问题现象
 
 在 Git 提交图中看到：
 ![现象图片](public/images/git-troubleshooting/image-1.png)
@@ -161,7 +161,7 @@ github/master
 
 ---
 
-### ✅ 实际原因
+### 实际原因
 
 这是多个 remote 指向同一个仓库地址导致的。
 
@@ -187,7 +187,7 @@ github   git@github.com:wdxzf/Car_AMR.git (push)
 
 ---
 
-### ✅ 正确清理方式
+### 正确清理方式
 
 删除无意义的 remote：
 
@@ -210,7 +210,7 @@ origin  git@github.com:wdxzf/Car_AMR.git (push)
 
 ---
 
-### 📌 建议规范
+### 建议规范
 
 | 类型 | 命名 |
 |---|---|
@@ -221,7 +221,7 @@ origin  git@github.com:wdxzf/Car_AMR.git (push)
 
 ---
 :::
-## 总结
+## 三、总结
 
 本次问题主要涉及两个 Git 中高级概念：
 
@@ -239,7 +239,7 @@ origin  git@github.com:wdxzf/Car_AMR.git (push)
 
 ---
 
-### 📌 经验结论
+### 经验结论
 
 第三方代码一定不要直接拷进仓库。
 
