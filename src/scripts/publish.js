@@ -1,7 +1,7 @@
 import { marked } from "marked";
 import createDOMPurify from "dompurify";
 
-const $ = (selector: string) => document.querySelector(selector) as HTMLElement | null;
+const $ = (selector) => document.querySelector(selector);
 
 const settingsFields = [
   "gh-owner",
@@ -30,30 +30,30 @@ const metaFields = [
   "post-sticky",
 ];
 
-const statusEl = $("#status") as HTMLDivElement | null;
-const markdownInput = $("#markdown-input") as HTMLTextAreaElement | null;
-const markdownPreview = $("#markdown-preview") as HTMLDivElement | null;
-const editorCard = document.querySelector(".editor-card") as HTMLDivElement | null;
-const modeButtons = Array.from(document.querySelectorAll("[data-mode]")) as HTMLButtonElement[];
-const syncToggle = $("#sync-frontmatter") as HTMLInputElement | null;
-const quickDraftToggle = $("#quick-draft") as HTMLInputElement | null;
-const drawer = $("#settings-drawer") as HTMLDivElement | null;
-const drawerOverlay = $("#drawer-overlay") as HTMLDivElement | null;
-const openSettingsBtn = $("#open-settings") as HTMLButtonElement | null;
-const closeSettingsBtn = $("#close-settings") as HTMLButtonElement | null;
+const statusEl = $("#status");
+const markdownInput = $("#markdown-input");
+const markdownPreview = $("#markdown-preview");
+const editorCard = document.querySelector(".editor-card");
+const modeButtons = Array.from(document.querySelectorAll("[data-mode]"));
+const syncToggle = $("#sync-frontmatter");
+const quickDraftToggle = $("#quick-draft");
+const drawer = $("#settings-drawer");
+const drawerOverlay = $("#drawer-overlay");
+const openSettingsBtn = $("#open-settings");
+const closeSettingsBtn = $("#close-settings");
 const sanitizer = createDOMPurify(window);
 
 if (!markdownInput || !markdownPreview || !statusEl) {
   throw new Error("Publish editor elements not found.");
 }
 
-const setDrawerOpen = (open: boolean) => {
+const setDrawerOpen = (open) => {
   if (!drawer) return;
   drawer.dataset.open = open ? "true" : "false";
   document.body.style.overflow = open ? "hidden" : "";
 };
 
-const setEditorMode = (mode: string) => {
+const setEditorMode = (mode) => {
   if (!editorCard) return;
   editorCard.dataset.mode = mode;
   modeButtons.forEach((button) => {
@@ -62,13 +62,13 @@ const setEditorMode = (mode: string) => {
 };
 
 const today = new Date().toISOString().slice(0, 10);
-const dateInput = $("#post-date") as HTMLInputElement | null;
+const dateInput = $("#post-date");
 if (dateInput) dateInput.value = today;
 
 const storageKey = "publish-settings-v1";
 const draftKey = "publish-draft-v1";
 
-const setStatus = (message: string, tone: "neutral" | "error" = "neutral") => {
+const setStatus = (message, tone = "neutral") => {
   if (!statusEl) return;
   statusEl.textContent = message;
   statusEl.style.opacity = tone === "error" ? "1" : "0.7";
@@ -81,16 +81,16 @@ const loadSettings = () => {
   const saved = JSON.parse(raw);
   settingsFields.forEach((id) => {
     if (saved[id] !== undefined) {
-      const field = $("#" + id) as HTMLInputElement | null;
+      const field = $("#" + id);
       if (field) field.value = saved[id];
     }
   });
 };
 
 const saveSettings = () => {
-  const payload: Record<string, string> = {};
+  const payload = {};
   settingsFields.forEach((id) => {
-    const field = $("#" + id) as HTMLInputElement | null;
+    const field = $("#" + id);
     if (field) payload[id] = field.value.trim();
   });
   localStorage.setItem(storageKey, JSON.stringify(payload));
@@ -102,7 +102,7 @@ const loadDraft = () => {
   const saved = JSON.parse(raw);
   metaFields.forEach((id) => {
     if (saved[id] !== undefined) {
-      const field = $("#" + id) as HTMLInputElement | null;
+      const field = $("#" + id);
       if (!field) return;
       if (field.type === "checkbox") {
         field.checked = saved[id];
@@ -113,7 +113,7 @@ const loadDraft = () => {
   });
   markdownInput.value = saved.body || "";
   if (quickDraftToggle) {
-    const draftField = $("#post-draft") as HTMLInputElement | null;
+    const draftField = $("#post-draft");
     if (draftField) quickDraftToggle.checked = draftField.checked;
   }
   if (syncToggle?.checked) {
@@ -125,9 +125,9 @@ const loadDraft = () => {
 };
 
 const saveDraft = () => {
-  const payload: Record<string, string | boolean> = {};
+  const payload = {};
   metaFields.forEach((id) => {
-    const field = $("#" + id) as HTMLInputElement | null;
+    const field = $("#" + id);
     if (!field) return;
     if (field.type === "checkbox") {
       payload[id] = field.checked;
@@ -141,20 +141,20 @@ const saveDraft = () => {
   setStatus("草稿已保存。");
 };
 
-const slugify = (value: string) =>
+const slugify = (value) =>
   value
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const formatList = (value: string) =>
+const formatList = (value) =>
   value
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
 
-const parseInlineList = (value: string) =>
+const parseInlineList = (value) =>
   value
     .replace(/^\[/, "")
     .replace(/\]$/, "")
@@ -162,12 +162,12 @@ const parseInlineList = (value: string) =>
     .map((item) => item.trim().replace(/^["']|["']$/g, ""))
     .filter(Boolean);
 
-const parseFrontmatter = (value: string) => {
+const parseFrontmatter = (value) => {
   if (!value.startsWith("---")) return null;
   const end = value.indexOf("\n---", 3);
   if (end === -1) return null;
   const raw = value.slice(3, end).trim();
-  const data: Record<string, string | string[] | boolean | number> = {};
+  const data = {};
   raw.split("\n").forEach((line) => {
     const match = line.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
     if (!match) return;
@@ -191,7 +191,7 @@ const parseFrontmatter = (value: string) => {
   return { data, endIndex: end + 4 };
 };
 
-const frontmatterMap: Record<string, string> = {
+const frontmatterMap = {
   title: "post-title",
   description: "post-description",
   date: "post-date",
@@ -208,10 +208,10 @@ const frontmatterMap: Record<string, string> = {
 
 let syncingFromMarkdown = false;
 
-const applyFieldsFromFrontmatter = (data: Record<string, string | string[] | boolean | number>) => {
+const applyFieldsFromFrontmatter = (data) => {
   Object.entries(frontmatterMap).forEach(([key, fieldId]) => {
     if (!(key in data)) return;
-    const field = $("#" + fieldId) as HTMLInputElement | null;
+    const field = $("#" + fieldId);
     if (!field) return;
     const value = data[key];
     if (field.type === "checkbox") {
@@ -225,7 +225,7 @@ const applyFieldsFromFrontmatter = (data: Record<string, string | string[] | boo
     field.value = String(value);
   });
   if (quickDraftToggle) {
-    const draftField = $("#post-draft") as HTMLInputElement | null;
+    const draftField = $("#post-draft");
     if (draftField) quickDraftToggle.checked = draftField.checked;
   }
 };
@@ -266,18 +266,18 @@ const updateMarkdownFrontmatter = () => {
 };
 
 const buildFrontmatter = () => {
-  const title = ( $("#post-title") as HTMLInputElement | null)?.value.trim() ?? "";
-  const description = ( $("#post-description") as HTMLInputElement | null)?.value.trim() ?? "";
-  const date = ( $("#post-date") as HTMLInputElement | null)?.value.trim() ?? "";
-  const tags = formatList(( $("#post-tags") as HTMLInputElement | null)?.value ?? "");
-  const category = formatList(( $("#post-category") as HTMLInputElement | null)?.value ?? "");
-  const draft = ( $("#post-draft") as HTMLInputElement | null)?.checked ?? false;
-  const toc = ( $("#post-toc") as HTMLInputElement | null)?.checked ?? true;
-  const donate = ( $("#post-donate") as HTMLInputElement | null)?.checked ?? true;
-  const comment = ( $("#post-comment") as HTMLInputElement | null)?.checked ?? true;
-  const mermaid = ( $("#post-mermaid") as HTMLInputElement | null)?.checked ?? false;
-  const mathjax = ( $("#post-mathjax") as HTMLInputElement | null)?.checked ?? false;
-  const sticky = parseInt(( $("#post-sticky") as HTMLInputElement | null)?.value ?? "0", 10);
+  const title = ($("#post-title")?.value || "").trim();
+  const description = ($("#post-description")?.value || "").trim();
+  const date = ($("#post-date")?.value || "").trim();
+  const tags = formatList($("#post-tags")?.value || "");
+  const category = formatList($("#post-category")?.value || "");
+  const draft = $("#post-draft")?.checked || false;
+  const toc = $("#post-toc")?.checked ?? true;
+  const donate = $("#post-donate")?.checked ?? true;
+  const comment = $("#post-comment")?.checked ?? true;
+  const mermaid = $("#post-mermaid")?.checked || false;
+  const mathjax = $("#post-mathjax")?.checked || false;
+  const sticky = parseInt($("#post-sticky")?.value || "0", 10);
 
   const lines = [
     "---",
@@ -307,14 +307,14 @@ const buildMarkdown = () => {
   return frontmatter + markdownInput.value.trim() + "\n";
 };
 
-const stripFrontmatter = (value: string) => {
+const stripFrontmatter = (value) => {
   if (!value.startsWith("---")) return value;
   const end = value.indexOf("\n---", 3);
   if (end === -1) return value;
   return value.slice(end + 4).replace(/^\s+/, "");
 };
 
-const stripLeadingTitle = (value: string) => {
+const stripLeadingTitle = (value) => {
   const lines = value.split("\n");
   for (let i = 0; i < lines.length; i += 1) {
     if (lines[i].startsWith("# ")) {
@@ -327,12 +327,12 @@ const stripLeadingTitle = (value: string) => {
   return lines.join("\n");
 };
 
-const renderCollapses = (value: string) => {
+const renderCollapses = (value) => {
   const lines = value.split("\n");
-  const output: string[] = [];
+  const output = [];
   let inCollapse = false;
   let summary = "";
-  let buffer: string[] = [];
+  let buffer = [];
 
   const flush = () => {
     const summaryText = summary || "折叠内容";
@@ -369,7 +369,7 @@ const renderCollapses = (value: string) => {
   return output.join("\n");
 };
 
-const preparePreview = (value: string) => {
+const preparePreview = (value) => {
   const withoutFrontmatter = stripFrontmatter(value);
   const withoutTitle = stripLeadingTitle(withoutFrontmatter);
   return renderCollapses(withoutTitle);
@@ -386,9 +386,9 @@ const renderPreview = () => {
   }
 };
 
-const apiRequest = async (path: string, options: RequestInit = {}) => {
-  const token = ( $("#gh-token") as HTMLInputElement | null)?.value.trim() ?? "";
-  const apiBase = ( $("#api-base") as HTMLInputElement | null)?.value.trim().replace(/\/$/, "") ?? "";
+const apiRequest = async (path, options = {}) => {
+  const token = ($("#gh-token")?.value || "").trim();
+  const apiBase = ($("#api-base")?.value || "").trim().replace(/\/$/, "");
   const response = await fetch(`${apiBase}${path}`, {
     ...options,
     headers: {
@@ -404,23 +404,23 @@ const apiRequest = async (path: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-const encodePath = (value: string) => encodeURIComponent(value).replace(/%2F/g, "/");
+const encodePath = (value) => encodeURIComponent(value).replace(/%2F/g, "/");
 
 const ensureSlug = () => {
-  const slugField = $("#post-slug") as HTMLInputElement | null;
+  const slugField = $("#post-slug");
   if (!slugField) return "";
   if (!slugField.value.trim()) {
-    slugField.value = slugify(( $("#post-title") as HTMLInputElement | null)?.value || "");
+    slugField.value = slugify($("#post-title")?.value || "");
   }
   return slugField.value.trim();
 };
 
-const uploadImage = async (file: File) => {
-  const owner = ( $("#gh-owner") as HTMLInputElement | null)?.value.trim() ?? "";
-  const repo = ( $("#gh-repo") as HTMLInputElement | null)?.value.trim() ?? "";
-  const branch = ( $("#gh-branch") as HTMLInputElement | null)?.value.trim() ?? "";
-  const uploadsPath = ( $("#uploads-path") as HTMLInputElement | null)?.value.trim().replace(/\/$/, "") ?? "";
-  if (!owner || !repo || !( $("#gh-token") as HTMLInputElement | null)?.value.trim()) {
+const uploadImage = async (file) => {
+  const owner = ($("#gh-owner")?.value || "").trim();
+  const repo = ($("#gh-repo")?.value || "").trim();
+  const branch = ($("#gh-branch")?.value || "").trim();
+  const uploadsPath = ($("#uploads-path")?.value || "").trim().replace(/\/$/, "");
+  if (!owner || !repo || !($("#gh-token")?.value || "").trim()) {
     throw new Error("请先填写 GitHub 配置再上传。");
   }
   const timestamp = new Date();
@@ -429,8 +429,8 @@ const uploadImage = async (file: File) => {
   const path = `${uploadsPath}/${folder}/${safeName}`;
 
   const reader = new FileReader();
-  const base64 = await new Promise<string>((resolve, reject) => {
-    reader.onload = () => resolve((reader.result as string).split(",")[1]);
+  const base64 = await new Promise((resolve, reject) => {
+    reader.onload = () => resolve(reader.result.split(",")[1]);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -445,16 +445,16 @@ const uploadImage = async (file: File) => {
     }),
   });
 
-  const baseUrl = ( $("#base-url") as HTMLInputElement | null)?.value.trim().replace(/\/$/, "") ?? "";
+  const baseUrl = ($("#base-url")?.value || "").trim().replace(/\/$/, "");
   const publicPath = path.replace(/^public\//, "");
   return `${baseUrl}${baseUrl ? "/" : "/"}${publicPath}`;
 };
 
 const publishPost = async () => {
-  const owner = ( $("#gh-owner") as HTMLInputElement | null)?.value.trim() ?? "";
-  const repo = ( $("#gh-repo") as HTMLInputElement | null)?.value.trim() ?? "";
-  const branch = ( $("#gh-branch") as HTMLInputElement | null)?.value.trim() ?? "";
-  const postsPath = ( $("#posts-path") as HTMLInputElement | null)?.value.trim().replace(/\/$/, "") ?? "";
+  const owner = ($("#gh-owner")?.value || "").trim();
+  const repo = ($("#gh-repo")?.value || "").trim();
+  const branch = ($("#gh-branch")?.value || "").trim();
+  const postsPath = ($("#posts-path")?.value || "").trim().replace(/\/$/, "");
   const slug = ensureSlug();
   const filePath = `${postsPath}/${slug}.md`;
 
@@ -463,12 +463,12 @@ const publishPost = async () => {
     return;
   }
 
-  if (!( $("#gh-token") as HTMLInputElement | null)?.value.trim()) {
+  if (!($("#gh-token")?.value || "").trim()) {
     setStatus("请填写 GitHub Token。", "error");
     return;
   }
 
-  if (!( $("#post-title") as HTMLInputElement | null)?.value.trim()) {
+  if (!($("#post-title")?.value || "").trim()) {
     setStatus("标题不能为空。", "error");
     return;
   }
@@ -482,7 +482,7 @@ const publishPost = async () => {
 
   setStatus("发布中...");
 
-  let sha: string | null = null;
+  let sha = null;
   try {
     const existing = await apiRequest(
       `/repos/${owner}/${repo}/contents/${encodePath(filePath)}?ref=${encodeURIComponent(branch)}`
@@ -492,7 +492,7 @@ const publishPost = async () => {
     sha = null;
   }
 
-  const payload: Record<string, string> = {
+  const payload = {
     message: `Publish ${slug}`,
     content: encoded,
     branch,
@@ -509,7 +509,7 @@ const publishPost = async () => {
   setStatus("发布成功。");
 };
 
-( $("#post-title") as HTMLInputElement | null)?.addEventListener("input", ensureSlug);
+$("#post-title")?.addEventListener("input", ensureSlug);
 markdownInput.addEventListener("input", () => {
   renderPreview();
   if (syncToggle?.checked) {
@@ -521,7 +521,7 @@ markdownInput.addEventListener("input", () => {
     }
   }
 });
-(markdownInput as HTMLTextAreaElement).addEventListener("paste", async (event) => {
+markdownInput.addEventListener("paste", async (event) => {
   const items = event.clipboardData?.items;
   if (!items) return;
   const imageItem = Array.from(items).find((item) => item.type.startsWith("image/"));
@@ -543,26 +543,26 @@ markdownInput.addEventListener("input", () => {
     renderPreview();
     setStatus("图片上传成功。");
   } catch (error) {
-    setStatus((error as Error).message || "图片上传失败。", "error");
+    setStatus(error.message || "图片上传失败。", "error");
   }
 });
-( $("#save-draft") as HTMLButtonElement | null)?.addEventListener("click", saveDraft);
-( $("#publish") as HTMLButtonElement | null)?.addEventListener("click", async () => {
+$("#save-draft")?.addEventListener("click", saveDraft);
+$("#publish")?.addEventListener("click", async () => {
   try {
     await publishPost();
   } catch (error) {
-    setStatus((error as Error).message || "发布失败。", "error");
+    setStatus(error.message || "发布失败。", "error");
   }
 });
 
-( $("#copy-markdown") as HTMLButtonElement | null)?.addEventListener("click", () => {
+$("#copy-markdown")?.addEventListener("click", () => {
   const markdown = buildMarkdown();
   navigator.clipboard.writeText(markdown);
   setStatus("Markdown 已复制。");
 });
 
 Object.values(frontmatterMap).forEach((fieldId) => {
-  const field = $("#" + fieldId) as HTMLInputElement | null;
+  const field = $("#" + fieldId);
   if (!field) return;
   field.addEventListener("input", () => {
     if (!syncToggle?.checked || syncingFromMarkdown) return;
@@ -577,7 +577,7 @@ modeButtons.forEach((button) => {
   });
 });
 
-const draftField = $("#post-draft") as HTMLInputElement | null;
+const draftField = $("#post-draft");
 if (draftField && quickDraftToggle) {
   quickDraftToggle.checked = draftField.checked;
   quickDraftToggle.addEventListener("change", () => {
@@ -607,8 +607,8 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-( $("#insert-image") as HTMLButtonElement | null)?.addEventListener("click", async () => {
-  const file = ( $("#image-upload") as HTMLInputElement | null)?.files?.[0];
+$("#insert-image")?.addEventListener("click", async () => {
+  const file = $("#image-upload")?.files?.[0];
   if (!file) {
     setStatus("请先选择图片。", "error");
     return;
@@ -627,12 +627,12 @@ window.addEventListener("keydown", (event) => {
     renderPreview();
     setStatus("图片上传成功。");
   } catch (error) {
-    setStatus((error as Error).message || "图片上传失败。", "error");
+    setStatus(error.message || "图片上传失败。", "error");
   }
 });
 
-( $("#import-md") as HTMLInputElement | null)?.addEventListener("change", async (event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
+$("#import-md")?.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
   if (!file) return;
   const text = await file.text();
   markdownInput.value = text;
