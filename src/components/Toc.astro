@@ -11,13 +11,13 @@ const filtersHeadingsLength = filtersHeadings.length;
 
 <div
   id="toc"
-  class="sticky px-2 py-2 my-4 rounded-lg shadow-lg bg-skin-card top-20"
+  class="sticky px-3 py-3 my-4 rounded-lg shadow-lg bg-skin-card top-20 toc-panel"
 >
   <div class="aside-widget">
     <i class="ri-list-check menu-icon"></i>
     {t('blog.tableOfContent')}
   </div>
-  <ul class="toc-list flex flex-col max-w-full mt-4">
+  <ul class="toc-list flex flex-col max-w-full mt-4 max-h-[60vh] overflow-y-auto pr-1">
     {
       filtersHeadings.map((item, index) => (
         <li
@@ -26,7 +26,7 @@ const filtersHeadingsLength = filtersHeadings.length;
             item.depth === 3 ? 'toc-depth-3' : 'toc-depth-2',
           ]}
         >
-          <a title={item.slug} href={`#${item.slug}`} class="toc-link truncate">
+          <a title={item.text} href={`#${item.slug}`} class="toc-link truncate">
             {item.text}
           </a>
         </li>
@@ -35,21 +35,27 @@ const filtersHeadingsLength = filtersHeadings.length;
   </ul>
 
   <style>
+    .toc-panel {
+      border: 1px solid rgba(var(--color-text), 0.08);
+    }
+
     .toc-list {
-      gap: 6px;
+      gap: 8px;
     }
 
     .toc-link {
       display: block;
-      padding: 4px 8px 4px 10px;
+      padding: 6px 10px 6px 12px;
       border-radius: 6px;
       color: rgba(var(--color-text), 0.85);
-      transition: color 0.2s ease, background-color 0.2s ease;
+      line-height: 1.5;
+      transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
     }
 
     .toc-link:hover {
       color: rgb(var(--color-text-active));
       background-color: rgba(var(--color-text), 0.06);
+      transform: translateX(1px);
     }
 
     .toc-depth-2 .toc-link {
@@ -57,13 +63,14 @@ const filtersHeadingsLength = filtersHeadings.length;
     }
 
     .toc-depth-3 {
-      margin-left: 12px;
+      margin-left: 10px;
+      border-left: 1px dashed rgba(var(--color-text), 0.2);
     }
 
     .toc-depth-3 .toc-link {
       font-size: 0.95rem;
       color: rgba(var(--color-text), 0.75);
-      padding-left: 14px;
+      padding-left: 12px;
     }
 
     .active-heading {
@@ -100,6 +107,7 @@ const filtersHeadingsLength = filtersHeadings.length;
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           let index = Array.from(anchors).indexOf(entry.target);
+          if (index < 0 || index >= links.length) return;
 
           links.forEach((link) => {
             link.classList.remove('active-heading');
@@ -109,9 +117,11 @@ const filtersHeadingsLength = filtersHeadings.length;
       });
     };
 
-    const observer = new IntersectionObserver(callback, observerOptions);
-    anchors.forEach((link) => {
-      observer.observe(link);
-    });
+    if (anchors.length > 0 && links.length > 0) {
+      const observer = new IntersectionObserver(callback, observerOptions);
+      anchors.forEach((link) => {
+        observer.observe(link);
+      });
+    }
   </script>
 </div>

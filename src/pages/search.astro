@@ -99,10 +99,14 @@ import {t} from '@/i18n/utils'
     window.history.replaceState(null, '', url);
   }
 
+  function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   function generateSearchList(results, searchTerm) {
     return results.map(r => {
       const {title, description, date, slug, category, tags} = r.item
-      const reg = new RegExp(searchTerm, 'gi')
+      const reg = new RegExp(escapeRegExp(searchTerm), 'gi')
       let titleStr = title.replace(reg, (match) => {
         return `<span class="text-skin-active font-bold">${match}</span>`
       })

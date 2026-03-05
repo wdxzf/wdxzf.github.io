@@ -135,7 +135,7 @@ var foo = function (bar) {
 
 console.log(foo(5));
 ```
-### 更具表达性的代码示例
+#### 更具表达性的代码示例
 1. 添加标题
 ```js title="file.js"
 console.log("Title example");
@@ -171,6 +171,7 @@ function demo() {
 | 加粗 | **文本**    | **bold**  |
 | 代码 | `code`      | `print()` |
 | 链接 | [text](url) | Google    |
+
 
 2. 列对齐方式
   对齐规则：:--- → 左对齐 :---: → 居中 ---: → 右对齐

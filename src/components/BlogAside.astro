@@ -17,62 +17,72 @@ let sortPosts = await sortPostsByDate(blogs);
 let resultPosts = sortPosts.splice(0, site.recentBlogSize);
 ---
 
-<div>
-  {
-    Object.keys(categoryCount).length > 0 && (
-      <div class="aside-widget">
-        <i class="ri-folder-3-line menu-icon"/>{t('sidebar.categories')}
+{
+  Object.keys(categoryCount).length > 0 && (
+    <details class="aside-section aside-group" open>
+      <summary class="aside-widget aside-summary">
+        <div class="flex items-center">
+          <i class="ri-folder-3-line menu-icon"/>{t('sidebar.categories')}
+        </div>
+        <i class="ri-arrow-down-s-line aside-summary-icon"></i>
+      </summary>
+      <div class="aside-group-content">
+        {
+          Object.keys(categoryCount).map((category) => (
+            <a
+              class="aside-link truncate block"
+              title={category + " (" + categoryCount[category] + ")"}
+              href={getUrl("/category/") + category}
+            >
+              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + categoryCount[category] + ")"}
+            </a>
+          ))
+        }
       </div>
-    )
-  }
-  {
-    Object.keys(categoryCount).map((category) => (
-      <a
-        class="my-1 truncate block hover:text-skin-active"
-        title={category + " (" + categoryCount[category] + ")"}
-        href={getUrl("/category/") + category}
-      >
-        {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + categoryCount[category] + ")"}
-      </a>
-    ))
-  }
-</div>
-<div>
-  {
-    tagArr.length > 0 && (
-      <div class="aside-widget">
-        <i class="ri-hashtag menu-icon"/>
-        {t('sidebar.tags')}
-      </div>
-    )
-  }
-  <div class="flex flex-wrap">
-    {
-      tagArr &&
-      tagArr.map((tag) =>
-        <a class="inline-block truncate m-1 border p-1 text-sm rounded hover:text-skin-active" title={tag} href={getUrl("/tags/") + tag}>{tag}</a>
-      )
-    }
-    {
-      tagArr &&
-      site.asideTagsMaxSize > 0 &&
-      (
-        <a class="inline-block truncate m-1 border p-1 text-sm rounded hover:text-skin-active" title={t('more')} href={getUrl("/tags")}>{t('more')} »</a>
-      )
-    }
-  </div>
-</div>
+    </details>
+  )
+}
 
-<div>
-  <div class="aside-widget">
-    <i class="ri-file-line menu-icon"></i> {t('sidebar.recentArticle')}
-  </div>
-  <div class="flex flex-col">
+{
+  tagArr.length > 0 && (
+    <details class="aside-section aside-group">
+      <summary class="aside-widget aside-summary">
+        <div class="flex items-center">
+          <i class="ri-hashtag menu-icon"/>
+          {t('sidebar.tags')}
+        </div>
+        <i class="ri-arrow-down-s-line aside-summary-icon"></i>
+      </summary>
+      <div class="aside-group-content flex flex-wrap gap-2">
+        {
+          tagArr.map((tag) =>
+            <a class="aside-tag inline-block truncate" title={tag} href={getUrl("/tags/") + tag}>{tag}</a>
+          )
+        }
+        {
+          site.asideTagsMaxSize > 0 &&
+          (
+            <a class="aside-tag inline-block truncate" title={t('more')} href={getUrl("/tags")}>{t('more')} »</a>
+          )
+        }
+      </div>
+    </details>
+  )
+}
+
+<details class="aside-section aside-group" open>
+  <summary class="aside-widget aside-summary">
+    <div class="flex items-center">
+      <i class="ri-file-line menu-icon"></i> {t('sidebar.recentArticle')}
+    </div>
+    <i class="ri-arrow-down-s-line aside-summary-icon"></i>
+  </summary>
+  <div class="aside-group-content flex flex-col gap-1">
     {
       resultPosts.map((post) => (
         <a
           href={getUrl("/blog/") + post.slug}
-          class="truncate cursor-pointr mt-1 hover:text-skin-active"
+          class="aside-link truncate"
           title={post.data.title}
         >
           {post.data.title}
@@ -80,6 +90,6 @@ let resultPosts = sortPosts.splice(0, site.recentBlogSize);
       ))
     }
   </div>
-</div>
+</details>
 
 {comment.enable && comment.type === "waline" && <CommentAside/>}

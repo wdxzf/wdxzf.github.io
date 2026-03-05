@@ -88,7 +88,57 @@ menu {
   /*侧边栏每个栏目共有样式*/
   .aside-widget {
     @apply flex items-center w-full mb-2;
-    border-bottom:  1px solid rgba(var(--color-text), .3);
+    border-bottom: 1px solid rgba(var(--color-text), .24);
+    padding-bottom: 4px;
+  }
+
+  .aside-section {
+    @apply mb-6;
+  }
+
+  .aside-group {
+    @apply mb-4;
+  }
+
+  .aside-summary {
+    @apply cursor-pointer select-none justify-between;
+    list-style: none;
+  }
+
+  .aside-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .aside-summary-icon {
+    @apply text-lg;
+    transition: transform 0.2s ease;
+  }
+
+  .aside-group[open] .aside-summary-icon {
+    transform: rotate(180deg);
+  }
+
+  .aside-group-content {
+    @apply mt-2;
+  }
+
+  .aside-link {
+    @apply block truncate py-1 hover:text-skin-active;
+    color: rgba(var(--color-text), 0.88);
+    transition: color 0.2s ease;
+  }
+
+  .aside-tag {
+    @apply border rounded-md px-2 py-1 text-sm hover:text-skin-active;
+    border-color: rgba(var(--color-text), 0.35);
+    color: rgba(var(--color-text), 0.92);
+    background-color: rgba(var(--color-fill-secondary), 0.48);
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .aside-tag:hover {
+    border-color: rgba(var(--color-text-active), 0.55);
+    background-color: rgba(var(--color-text), 0.04);
   }
 
   /* 侧边最近评论列表样式 */
@@ -152,6 +202,43 @@ menu {
   min-width: 100%;
   margin: 8px 0;
   background-color: rgba(var(--color-text), .2);
+}
+
+.post-list-item {
+  border: 1px solid transparent;
+  transition: transform 0.18s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.post-list-item:hover {
+  background-color: rgba(var(--color-fill-secondary), 0.55);
+  border-color: rgba(var(--color-text), 0.1);
+}
+
+.post-list-title {
+  font-size: 1.82rem;
+  line-height: 1.3;
+}
+
+.post-meta-row {
+  color: rgba(var(--color-text), 0.62);
+  font-size: 0.95rem;
+}
+
+.post-meta-item {
+  color: rgba(var(--color-text), 0.62);
+}
+
+.post-meta-link {
+  color: rgba(var(--color-text), 0.68);
+  transition: color 0.2s ease;
+}
+
+.post-meta-link:hover {
+  color: rgb(var(--color-text-active));
+}
+
+.post-list-desc {
+  color: rgba(var(--color-text), 0.86);
 }
 
 /* 重写markdown样式 */

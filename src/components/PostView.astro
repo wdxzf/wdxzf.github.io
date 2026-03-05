@@ -5,17 +5,16 @@ const {blog} = Astro.props;
 const {data, slug} = blog
 ---
 
-<div class="my-5 first:mt-0">
+<div class="post-list-item my-7 first:mt-0 rounded-lg px-3 py-2 -mx-3">
   <PostViewTitle
     slug={getUrl("/blog/") + slug}
     {...data}
   >
   </PostViewTitle>
-  <p class="break-all text-skin-base line-clamp-3">
+  <p class="post-list-desc mt-2 break-all line-clamp-3 leading-7">
     {
       data.description ? data.description : ''
     }
   </p>
 </div>
 <div class="divider-horizontal-mini"></div>
-

@@ -8,32 +8,32 @@ const {title, date, slug, category, tags, sticky = false, draft = false} = Astro
 
 <div class="text-skin-base">
   <!-- title -->
-  <div class="flex items-center">
+  <div class="flex items-center gap-2">
     {sticky > 0 &&
       <div class="post-sticky select-none">{t('home.sticky')}</div>}
-    <a class="flex text-xl underline-offset-4 cursor-pointer decoration-skin-base decoration-wavy hover:underline hover:decoration-sky-500 font-bold" href={slug}>
+    <a class="post-list-title flex leading-tight underline-offset-4 cursor-pointer decoration-skin-base decoration-wavy hover:underline hover:decoration-sky-500 font-bold" href={slug}>
       {title}
     </a>
   </div>
 
-  <div class="flex flex-wrap items-center my-2 text-skin-dodge">
+  <div class="post-meta-row flex flex-wrap items-center my-3 gap-y-1">
     <!--date -->
     {
       date &&
-      <div class="mr-2"><i class="ri-calendar-2-fill mr-1"/>{formatDate(date)}</div>
+      <div class="post-meta-item mr-2"><i class="ri-calendar-2-fill mr-1"/>{formatDate(date)}</div>
     }
 
     <!-- draft -->
     {
       draft &&
-      <div class="mr-2"><i class="ri-git-pr-draft-line mr-1"/>{t('title.draft')}</div>
+      <div class="post-meta-item mr-2"><i class="ri-git-pr-draft-line mr-1"/>{t('title.draft')}</div>
     }
 
     <!-- category -->
     {
       category && dealLabel(category).filter(item => item !== 'uncategorized').map((categoryName) =>
-        <a href={getUrl("/category/") + categoryName} class="text-wrap break-all hover:text-skin-active mr-2">
-          <i class="ri-folder-3-line"/>
+        <a href={getUrl("/category/") + categoryName} class="post-meta-link text-wrap break-all mr-2">
+          <i class="ri-folder-3-line mr-1"/>
           {categoryName}
         </a>
       )
@@ -42,8 +42,8 @@ const {title, date, slug, category, tags, sticky = false, draft = false} = Astro
     <!-- tag -->
     {
       tags && dealLabel(tags).map((tagName) =>
-        <a href={getUrl("/tags/") + tagName} class="text-wrap break-all hover:text-skin-active mr-2">
-          <i class="ri-hashtag"/>{tagName}</a>
+        <a href={getUrl("/tags/") + tagName} class="post-meta-link text-wrap break-all mr-2">
+          <i class="ri-hashtag mr-1"/>{tagName}</a>
       )
     }
   </div>
