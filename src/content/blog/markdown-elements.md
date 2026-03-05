@@ -2,7 +2,7 @@
 title: "A post of Markdown elements"
 description: "This post is for testing and listing a number of different markdown elements"
 date: 2024-03-19
-category: [markdown]
+category: [markdown_en]
 tags: ["test", "markdown"]
 draft: true
 ---
