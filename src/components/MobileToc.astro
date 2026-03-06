@@ -1,0 +1,258 @@
+---
+import { t } from '@/i18n/utils';
+import type { MarkdownHeading } from 'astro';
+
+const { headings = null } = Astro.props as { headings?: MarkdownHeading[] | null };
+
+const filtersHeadings = headings
+  ? headings.filter((item: MarkdownHeading) => item.depth === 2 || item.depth === 3)
+  : [];
+---
+
+{
+  filtersHeadings.length > 0 && (
+    <>
+      <button
+        type="button"
+        id="mobile-toc-toggle"
+        class="floating-action-btn fixed right-4 bottom-5 mx-0 xl:hidden"
+        aria-controls="mobile-toc-shell"
+        aria-expanded="false"
+        aria-label={t('blog.tableOfContent')}
+        title={t('blog.tableOfContent')}
+      >
+        <i class="ri-list-check"></i>
+      </button>
+
+      <div
+        id="mobile-toc-shell"
+        class="mobile-toc-shell hidden xl:hidden"
+        aria-hidden="true"
+      >
+        <button
+          type="button"
+          id="mobile-toc-backdrop"
+          class="mobile-toc-backdrop"
+          aria-label={t('common.close')}
+        ></button>
+
+        <section
+          class="mobile-toc-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-toc-title"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div id="mobile-toc-title" class="aside-widget mb-0">
+              <i class="ri-list-check menu-icon"></i>
+              {t('blog.tableOfContent')}
+            </div>
+            <button
+              type="button"
+              id="mobile-toc-close"
+              class="mobile-toc-close"
+              aria-label={t('common.close')}
+            >
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
+
+          <ul class="mobile-toc-list mt-4">
+            {
+              filtersHeadings.map((item: MarkdownHeading) => (
+                <li
+                  class:list={[
+                    'mobile-toc-item',
+                    item.depth === 3 ? 'mobile-toc-depth-3' : 'mobile-toc-depth-2',
+                  ]}
+                >
+                  <a
+                    title={item.text}
+                    href={`#${item.slug}`}
+                    class="mobile-toc-link"
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </>
+  )
+}
+
+<style>
+  .mobile-toc-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+  }
+
+  .mobile-toc-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background-color: rgba(var(--color-modal), 0.2);
+    backdrop-filter: blur(2px);
+  }
+
+  .mobile-toc-sheet {
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    max-height: min(70vh, 34rem);
+    overflow: hidden;
+    border: 1px solid rgba(var(--color-text), 0.08);
+    border-radius: 18px;
+    background-color: rgb(var(--color-card));
+    padding: 1rem;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+  }
+
+  .mobile-toc-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--color-text), 0.12);
+    background-color: rgba(var(--color-fill-secondary), 0.75);
+    color: rgba(var(--color-text), 0.82);
+  }
+
+  .mobile-toc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: min(56vh, 28rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .mobile-toc-link {
+    display: block;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.7rem;
+    color: rgba(var(--color-text), 0.84);
+    line-height: 1.45;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .mobile-toc-depth-2 .mobile-toc-link {
+    font-weight: 600;
+  }
+
+  .mobile-toc-depth-3 {
+    margin-left: 0.35rem;
+    border-left: 1px dashed rgba(var(--color-text), 0.18);
+    padding-left: 0.45rem;
+  }
+
+  .mobile-toc-depth-3 .mobile-toc-link {
+    color: rgba(var(--color-text), 0.72);
+    font-size: 0.95rem;
+  }
+
+  .mobile-toc-link.active-heading {
+    position: relative;
+    background-color: rgba(var(--color-text-active), 0.12);
+    color: rgb(var(--color-text-active));
+  }
+
+  .mobile-toc-link.active-heading::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    border-radius: 999px;
+    background-color: rgb(var(--color-text-active));
+  }
+
+  :global(body.mobile-toc-open) {
+    overflow: hidden;
+  }
+ </style>
+
+<script>
+  const mobileTocToggle = document.getElementById('mobile-toc-toggle');
+  const mobileTocShell = document.getElementById('mobile-toc-shell');
+  const mobileTocBackdrop = document.getElementById('mobile-toc-backdrop');
+  const mobileTocClose = document.getElementById('mobile-toc-close');
+  const mobileTocLinks = document.querySelectorAll<HTMLAnchorElement>('.mobile-toc-link');
+  const mobileTocAnchors = document.querySelectorAll<HTMLElement>('.markdown-body h2, .markdown-body h3');
+
+  const setMobileTocState = (isOpen: boolean) => {
+    if (!(mobileTocToggle instanceof HTMLButtonElement) || !mobileTocShell) return;
+
+    mobileTocShell.classList.toggle('hidden', !isOpen);
+    mobileTocShell.setAttribute('aria-hidden', String(!isOpen));
+    mobileTocToggle.setAttribute('aria-expanded', String(isOpen));
+    document.body.classList.toggle('mobile-toc-open', isOpen);
+  };
+
+  if (mobileTocToggle instanceof HTMLButtonElement && mobileTocShell) {
+    mobileTocToggle.addEventListener('click', () => {
+      const isOpen = mobileTocShell.classList.contains('hidden');
+      setMobileTocState(isOpen);
+    });
+
+    mobileTocBackdrop?.addEventListener('click', () => {
+      setMobileTocState(false);
+    });
+
+    mobileTocClose?.addEventListener('click', () => {
+      setMobileTocState(false);
+    });
+
+    mobileTocLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        setMobileTocState(false);
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1280) {
+        setMobileTocState(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        setMobileTocState(false);
+      }
+    });
+  }
+
+  if (mobileTocAnchors.length > 0 && mobileTocLinks.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries: IntersectionObserverEntry[]) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const heading = entry.target as HTMLElement;
+          const hash = `#${heading.id}`;
+
+          mobileTocLinks.forEach((link) => {
+            link.classList.toggle('active-heading', link.getAttribute('href') === hash);
+          });
+        });
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -72% 0px',
+        threshold: 0,
+      }
+    );
+
+    mobileTocAnchors.forEach((anchor) => {
+      observer.observe(anchor);
+    });
+  }
+</script>

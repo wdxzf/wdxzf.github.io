@@ -2,7 +2,7 @@
 
 ---
 
-<button type="button" id="scrollToTopBtn" class="header-btn fixed bottom-4 right-2 hidden" title="scroll to top">
+<button type="button" id="scrollToTopBtn" class="floating-action-btn fixed right-4 bottom-20 mx-0 hidden" title="scroll to top">
   <i class="ri-arrow-up-line"></i>
 </button>
 
@@ -12,7 +12,7 @@
   if (scrollToTopBtn instanceof HTMLButtonElement) {
     window.addEventListener('scroll', function() {
       if (window.scrollY > 200) {
-        scrollToTopBtn.style.display = 'block';
+        scrollToTopBtn.style.display = 'inline-flex';
       } else {
         scrollToTopBtn.style.display = 'none';
       }

@@ -1,6 +1,7 @@
 export  const zhHant = {
   'home.sticky': '置頂',
   'home.goBack': '返回',
+  'common.close': '關閉',
   'home.moreArticles': '更多文章',
   'home.readMore': '閱讀全文',
   'message.welcome': '歡迎留言',
@@ -14,7 +15,9 @@ export  const zhHant = {
   'post.seriesCountSuffix': '篇',
   'post.seriesCurrent': '當前',
   'post.relatedPosts': '相關文章',
+  'sidebar.allCategories': '全部分類',
   'sidebar.categories': '分類',
+  'sidebar.allTags': '全部標簽',
   'sidebar.uncategorized': '未分類',
   'sidebar.tags': '標簽',
   'sidebar.recentArticle': '最近文章',

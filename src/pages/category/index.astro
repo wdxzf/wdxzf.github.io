@@ -1,0 +1,36 @@
+---
+import IndexPage from "@/layouts/IndexPage.astro";
+import {getCollectionByName} from "@/utils/getCollectionByName";
+import getCountByCategory from "@/utils/getCountByCategory";
+import getUrl from "@/utils/getUrl";
+import {t} from "@/i18n/utils";
+
+const blogs = await getCollectionByName('blog');
+const categoryCount = getCountByCategory(blogs);
+const sortedCategories = (Object.entries(categoryCount) as [string, number][])
+  .sort(([nameA, countA], [nameB, countB]) => {
+    if (nameA === 'uncategorized') return 1;
+    if (nameB === 'uncategorized') return -1;
+    return countB - countA || nameA.localeCompare(nameB);
+  });
+---
+
+<IndexPage
+  title={t('sidebar.categories')}
+  description="浏览全部文章分类。"
+>
+  <div class="flex flex-wrap gap-2">
+    {
+      sortedCategories.map(([category, count]) => (
+        <a
+          class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:text-skin-active"
+          title={`${category} (${count})`}
+          href={getUrl("/category/") + category}
+        >
+          <span>{category === 'uncategorized' ? t('sidebar.uncategorized') : category}</span>
+          <span class="text-skin-dodge">({count})</span>
+        </a>
+      ))
+    }
+  </div>
+</IndexPage>

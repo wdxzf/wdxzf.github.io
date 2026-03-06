@@ -59,6 +59,12 @@ type CommentConfig = {
  *    0：禁用
  *    >0：侧边栏最多显示多少个标签
  *    所有标签会在 /tags 页面中完整展示
+ * mobileMenuCategoryMaxSize {number}
+ *    0：移动端个人侧栏显示全部分类
+ *    >0：最多显示多少个分类，并保留“全部分类”入口
+ * mobileMenuTagMaxSize {number}
+ *    0：移动端个人侧栏显示全部标签
+ *    >0：最多显示多少个标签，并保留“全部标签”入口
  */
 export const site = {
   title: 'W Blog', // 名字
@@ -75,6 +81,8 @@ export const site = {
   feedPageSize: 20,
   beian: '',
   asideTagsMaxSize: 0,
+  mobileMenuCategoryMaxSize: 6,
+  mobileMenuTagMaxSize: 10,
 }
 
 /**
@@ -95,6 +103,22 @@ export const config = {
   memosUsername: '', // 登录名
   memosPageSize: 10, // 数量
 }
+
+const env = import.meta.env;
+const giscusRepo = env.PUBLIC_GISCUS_REPO || '';
+const giscusRepoId = env.PUBLIC_GISCUS_REPO_ID || '';
+const giscusCategory = env.PUBLIC_GISCUS_CATEGORY || 'Announcements';
+const giscusCategoryId = env.PUBLIC_GISCUS_CATEGORY_ID || '';
+const giscusLangMap: Record<string, string> = {
+  en: 'en',
+  'zh-cn': 'zh-CN',
+  'zh-Hant': 'zh-TW',
+  cs: 'cs',
+};
+const giscusLang = env.PUBLIC_GISCUS_LANG || giscusLangMap[config.lang] || 'en';
+const giscusEnabled = Boolean(
+  giscusRepo && giscusRepoId && giscusCategory && giscusCategoryId
+);
 
 /**
  * 导航菜单
@@ -233,7 +257,7 @@ export const friendshipLinks: FriendshipLink[] =
  * walineConfig.whiteList {string[]} 不显示表情的页面
  */
 export const comment: CommentConfig = {
-  enable: false,
+  enable: giscusEnabled,
   type: 'giscus', // waline | giscus
   walineConfig: {
     serverUrl: "",
@@ -249,18 +273,19 @@ export const comment: CommentConfig = {
 
   // giscus 配置
   giscusConfig: {
-    'data-repo': "",
-    'data-repo-id': "",
-    'data-category': "",
-    'data-category-id': "",
-    'data-mapping': "",
-    'data-strict': "",
-    'data-reactions-enabled': "",
-    'data-emit-metadata': "",
-    'data-input-position': "",
-    'data-theme': "",
-    'data-lang': "",
-    'crossorigin': "",
+    'data-repo': giscusRepo,
+    'data-repo-id': giscusRepoId,
+    'data-category': giscusCategory,
+    'data-category-id': giscusCategoryId,
+    'data-mapping': env.PUBLIC_GISCUS_MAPPING || 'pathname',
+    'data-strict': env.PUBLIC_GISCUS_STRICT || '0',
+    'data-reactions-enabled': env.PUBLIC_GISCUS_REACTIONS_ENABLED || '1',
+    'data-emit-metadata': env.PUBLIC_GISCUS_EMIT_METADATA || '0',
+    'data-input-position': env.PUBLIC_GISCUS_INPUT_POSITION || 'bottom',
+    'data-theme': env.PUBLIC_GISCUS_THEME || 'preferred_color_scheme',
+    'data-lang': giscusLang,
+    'data-loading': env.PUBLIC_GISCUS_LOADING || 'lazy',
+    'crossorigin': 'anonymous',
   }
 }
 

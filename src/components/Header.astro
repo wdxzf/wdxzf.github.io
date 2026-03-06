@@ -1,6 +1,5 @@
 ---
 import {getCollectionByName} from "@/utils/getCollectionByName";
-import getUniqueTags from "@/utils/getUniqueTags";
 import getCountByCategory from "@/utils/getCountByCategory";
 import HeaderLink from './HeaderLink.astro';
 import ThemeIcon from './ThemeIcon.astro'
@@ -11,10 +10,39 @@ import {t} from "@/i18n/utils";
 import getCountByTagName from "@/utils/getCountByTagName";
 import getUrl from "@/utils/getUrl";
 const blogs = await getCollectionByName('blog')
-let tagArr = getUniqueTags(blogs);
 let categoryCount = getCountByCategory(blogs);
 let tagCount = getCountByTagName(blogs);
 const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
+
+const sortTaxonomyEntries = (entries: [string, number][]) =>
+  entries.sort(([nameA, countA], [nameB, countB]) => {
+    if (nameA === 'uncategorized') return 1;
+    if (nameB === 'uncategorized') return -1;
+    return countB - countA || nameA.localeCompare(nameB);
+  });
+
+const sortedMobileCategories = sortTaxonomyEntries(
+  Object.entries(categoryCount) as [string, number][]
+);
+const sortedMobileTags = sortTaxonomyEntries(
+  Object.entries(tagCount) as [string, number][]
+);
+
+const visibleMobileCategories =
+  site.mobileMenuCategoryMaxSize > 0
+    ? sortedMobileCategories.slice(0, site.mobileMenuCategoryMaxSize)
+    : sortedMobileCategories;
+const visibleMobileTags =
+  site.mobileMenuTagMaxSize > 0
+    ? sortedMobileTags.slice(0, site.mobileMenuTagMaxSize)
+    : sortedMobileTags;
+
+const hasMoreMobileCategories =
+  site.mobileMenuCategoryMaxSize > 0 &&
+  sortedMobileCategories.length > site.mobileMenuCategoryMaxSize;
+const hasMoreMobileTags =
+  site.mobileMenuTagMaxSize > 0 &&
+  sortedMobileTags.length > site.mobileMenuTagMaxSize;
 ---
 
 <header class="fixed top-0 z-10 w-full bg-skin-fill text-skin-base">
@@ -67,7 +95,7 @@ const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
       ))
     }
   </div>
-  <div id="personal-info" class="hidden pb-8 overflow-y-auto break-all" style="height: calc(100vh - 64px)">
+  <div id="personal-info" class="hidden overflow-y-auto break-all px-2 pb-24" style="height: calc(100vh - 64px)">
     <img class="mx-auto my-4 avatar" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
     <div class="mb-2 text-center">{site.motto}</div>
       <div class="flex flex-wrap items-center justify-center">
@@ -89,17 +117,30 @@ const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
         )
       }
       {
-        Object.keys(categoryCount).map((category) => (
+        visibleMobileCategories.map(([category, count]) => (
           <div class="my-2 break-all truncate">
-            <a class="hover:text-skin-active" title={category + " (" + categoryCount[category] + ")"} href={getUrl("/category/") + category}>
-              {category + " (" + categoryCount[category] + ")"}
+            <a
+              class="hover:text-skin-active"
+              title={(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
+              href={getUrl("/category/") + category}
+            >
+              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
             </a>
           </div>
 
         ))
       }
       {
-        tagArr.length > 0 && (
+        hasMoreMobileCategories && (
+          <div class="my-2">
+            <a class="hover:text-skin-active text-sm" href={getUrl("/category")}>
+              {t('sidebar.allCategories')} »
+            </a>
+          </div>
+        )
+      }
+      {
+        sortedMobileTags.length > 0 && (
           <div class="divider-horizontal-mini"></div>
           <div class="text-center">
             <i class="ri-price-tag-3-line menu-icon"/>
@@ -108,12 +149,22 @@ const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
         )
       }
       {
-        tagArr &&
-        tagArr.map((tag) => (
+        visibleMobileTags.map(([tag, count]) => (
           <div class="my-2 break-all truncate">
-            <a class="my-2 hover:text-skin-active" title={tag} href={getUrl("/tags/") + tag}>{tag + " (" + tagCount[tag] + ")"}</a>
+            <a class="my-2 hover:text-skin-active" title={tag + " (" + count + ")"} href={getUrl("/tags/") + tag}>
+              {tag + " (" + count + ")"}
+            </a>
           </div>
         ))
+      }
+      {
+        hasMoreMobileTags && (
+          <div class="my-2">
+            <a class="hover:text-skin-active text-sm" href={getUrl("/tags")}>
+              {t('sidebar.allTags')} »
+            </a>
+          </div>
+        )
       }
     </div>
 

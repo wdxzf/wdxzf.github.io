@@ -5,6 +5,7 @@ import Footer from '@/components/Footer.astro';
 import Profile from '@/components/Profile.astro';
 import Comment from '@/components/Comment.astro';
 import Toc from '@/components/Toc.astro';
+import MobileToc from '@/components/MobileToc.astro';
 import { comment, config } from '@/consts';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import { t } from '@/i18n/utils';
@@ -56,6 +57,7 @@ const {
           <Profile />
           {frontmatter.toc && <Toc headings={headings} />}
         </div>
+        {frontmatter.toc && <MobileToc headings={headings} />}
         <ScrollToTop />
       </div>
       <Footer />

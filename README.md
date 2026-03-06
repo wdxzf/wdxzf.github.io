@@ -275,6 +275,22 @@ export const comment = {
     'data-lang': "xxxxxxxxxxx",
     'crossorigin': "anonymous",
   }
+  <script src="https://giscus.app/client.js"
+        data-repo="wdxzf/blog-comments"
+        data-repo-id="R_kgDORf47fw"
+        data-category="Announcements"
+        data-category-id="DIC_kwDORf47f84C3zZC"
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
 }
 
 /**
