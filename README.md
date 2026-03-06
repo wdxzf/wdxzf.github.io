@@ -246,7 +246,7 @@ export const friendshipLinks =
  * walineConfig.requiredMeta 必填字段
  */
 export const comment = {
-  enable: false,
+  enable: true,
   type: 'giscus', // waline | giscus,
   walineConfig:{
     serverUrl: "https://xxxxx.xxxxx.app",
@@ -262,36 +262,24 @@ export const comment = {
 
   // giscus config
   giscusConfig: {
-    'data-repo': "xxxxxxx",
-    'data-repo-id': "xxxxxx",
+    'data-repo': "wdxzf/blog-comments",
+    'data-repo-id': "R_kgDORf47fw",
     'data-category': "Announcements",
-    'data-category-id': "xxxxxxxxx",
+    'data-category-id': "DIC_kwDORf47f84C3zZC",
     'data-mapping': "pathname",
-    'data-strict': "0",
+    'data-strict': "1",
     'data-reactions-enabled': "1",
     'data-emit-metadata': "0",
-    'data-input-position': "bottom",
-    'data-theme': "light",
-    'data-lang': "xxxxxxxxxxx",
+    'data-input-position': "top",
+    'data-theme': "preferred_color_scheme",
+    'data-lang': "zh-CN",
+    'data-loading': "lazy",
     'crossorigin': "anonymous",
   }
-  <script src="https://giscus.app/client.js"
-        data-repo="wdxzf/blog-comments"
-        data-repo-id="R_kgDORf47fw"
-        data-category="Announcements"
-        data-category-id="DIC_kwDORf47f84C3zZC"
-        data-mapping="pathname"
-        data-strict="1"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="preferred_color_scheme"
-        data-lang="zh-CN"
-        data-loading="lazy"
-        crossorigin="anonymous"
-        async>
-</script>
 }
+```
+
+评论配置直接写在 [src/consts.ts](/home/w/wdxzf.github.io/src/consts.ts) 里即可，不需要 `.env`、GitHub Actions Variables 或其他额外配置文件。
 
 /**
  * Analytics Feature Configuration

@@ -104,21 +104,13 @@ export const config = {
   memosPageSize: 10, // 数量
 }
 
-const env = import.meta.env;
-const giscusRepo = env.PUBLIC_GISCUS_REPO || '';
-const giscusRepoId = env.PUBLIC_GISCUS_REPO_ID || '';
-const giscusCategory = env.PUBLIC_GISCUS_CATEGORY || 'Announcements';
-const giscusCategoryId = env.PUBLIC_GISCUS_CATEGORY_ID || '';
 const giscusLangMap: Record<string, string> = {
   en: 'en',
   'zh-cn': 'zh-CN',
   'zh-Hant': 'zh-TW',
   cs: 'cs',
 };
-const giscusLang = env.PUBLIC_GISCUS_LANG || giscusLangMap[config.lang] || 'en';
-const giscusEnabled = Boolean(
-  giscusRepo && giscusRepoId && giscusCategory && giscusCategoryId
-);
+const giscusLang = giscusLangMap[config.lang] || 'en';
 
 /**
  * 导航菜单
@@ -257,7 +249,7 @@ export const friendshipLinks: FriendshipLink[] =
  * walineConfig.whiteList {string[]} 不显示表情的页面
  */
 export const comment: CommentConfig = {
-  enable: giscusEnabled,
+  enable: true,
   type: 'giscus', // waline | giscus
   walineConfig: {
     serverUrl: "",
@@ -273,18 +265,18 @@ export const comment: CommentConfig = {
 
   // giscus 配置
   giscusConfig: {
-    'data-repo': giscusRepo,
-    'data-repo-id': giscusRepoId,
-    'data-category': giscusCategory,
-    'data-category-id': giscusCategoryId,
-    'data-mapping': env.PUBLIC_GISCUS_MAPPING || 'pathname',
-    'data-strict': env.PUBLIC_GISCUS_STRICT || '0',
-    'data-reactions-enabled': env.PUBLIC_GISCUS_REACTIONS_ENABLED || '1',
-    'data-emit-metadata': env.PUBLIC_GISCUS_EMIT_METADATA || '0',
-    'data-input-position': env.PUBLIC_GISCUS_INPUT_POSITION || 'bottom',
-    'data-theme': env.PUBLIC_GISCUS_THEME || 'preferred_color_scheme',
+    'data-repo': 'wdxzf/blog-comments',
+    'data-repo-id': 'R_kgDORf47fw',
+    'data-category': 'Announcements',
+    'data-category-id': 'DIC_kwDORf47f84C3zZC',
+    'data-mapping': 'pathname',
+    'data-strict': '1',
+    'data-reactions-enabled': '1',
+    'data-emit-metadata': '0',
+    'data-input-position': 'top',
+    'data-theme': 'preferred_color_scheme',
     'data-lang': giscusLang,
-    'data-loading': env.PUBLIC_GISCUS_LOADING || 'lazy',
+    'data-loading': 'lazy',
     'crossorigin': 'anonymous',
   }
 }
