@@ -33,12 +33,19 @@ export  let cs = {
   'post.lastUpdated': 'Poslední aktualizace',
   'post.lastUpdatedTip1':'Tento článek byl naposledy aktualizován',
   'post.lastUpdatedTip2':'a vzhledem k uplynulému času již některé informace nemusí být aktuální.',
+  'post.series': 'Série',
+  'post.seriesCountPrefix': '',
+  'post.seriesCountSuffix': 'články',
+  'post.seriesCurrent': 'Aktuální',
+  'post.relatedPosts': 'Související články',
   'search.labelOne':'Zobrazení článků pod',
   'search.labelTwo':'',
-  'search.placeholder': 'Zadejte klíčová slova názvu nebo abstraktu',
+  'search.placeholder': 'Hledejte v názvu, shrnutí nebo celém textu',
   'search.searchLabelOne':'Nalezeno ',
   'search.searchLabelTwo': ' článek(ů) celkem',
   'search.search': 'Hledat',
+  'search.hint': 'Podporováno je fulltextové hledání. Stiskněte / pro fokus.',
+  'search.empty': 'Nebyl nalezen žádný odpovídající článek. Zkuste kratší dotaz nebo štítek.',
   'sidebar.categories': 'Kategorie',
   'sidebar.recentArticle': 'Nedávné články',
   'sidebar.recentComments': 'Nedávné komentáře',
@@ -49,5 +56,3 @@ export  let cs = {
   'title.words':' Slov',
   'more': 'Více'
 }
-
-

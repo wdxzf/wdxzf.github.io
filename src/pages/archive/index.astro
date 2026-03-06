@@ -11,14 +11,14 @@ import dayjs from "dayjs";
 import {ceil, divide} from "lodash-es";
 
 let posts = await getCollectionByName("blog");
-let totalPage = ceil(divide(posts.length, site.archivePageSize));
+const totalPage = ceil(divide(posts.length, site.archivePageSize));
 
 let sortedPosts = sortPostsByDate(posts);
 sortedPosts = sortedPosts.splice(0, site.archivePageSize);
-let resultPosts = getPostsByYear(sortedPosts);
+const resultPosts = getPostsByYear(sortedPosts);
 ---
 
-<IndexPage>
+<IndexPage title="归档" description="按时间归档浏览全部博客文章。">
   {
     Object.keys(resultPosts)
       .sort((a, b) => Number(b) - Number(a))

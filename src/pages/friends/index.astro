@@ -4,8 +4,12 @@ import Friends from "@/components/Friends.astro";
 import  {friendshipLinks} from "@/consts";
 ---
 
-<IndexPage frontmatter={{ comment: true }}>
+<IndexPage
+  title="友链"
+  description="浏览博客的友情链接列表。"
+  frontmatter={{ comment: true }}
+>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-    {friendshipLinks ? friendshipLinks.map((friend) => <Friends {...friend} />) : ""}
+    {friendshipLinks.map((friend) => <Friends {...friend} />)}
   </div>
 </IndexPage>

@@ -7,10 +7,10 @@ const ui = {
   en, 'zh-cn': zhCn, 'zh-Hant': zhHant, cs
 }
 export function useTranslations(lang: keyof typeof ui) {
+  const dictionary = ui[lang] as Record<string, string>;
   return function t(key: string) {
-    return ui[lang][key];
+    return dictionary[key];
   }
 }
 
-export const t = useTranslations(config.lang)
-
+export const t = useTranslations(config.lang as keyof typeof ui)

@@ -9,24 +9,28 @@
 
 
 <script>
-  let menuIcon = document.getElementById("menu-icon");
-  let menuCloseIcon = document.getElementById("menu-icon-close");
-  let menu = document.getElementById("mobile-menu");
-  let showAsideBtn = document.getElementById("aside-btn");
-  let closeAsideBtn = document.getElementById("aside-close-btn");
-  let personalInfo = document.getElementById("personal-info");
-  menuIcon.addEventListener("click", () => {
-    if (showAsideBtn && showAsideBtn.classList.contains('hidden')) {
-      toggleHidden([showAsideBtn, closeAsideBtn, personalInfo])
-    }
-    toggleHidden([menuIcon, menuCloseIcon, menu])
-  });
-  menuCloseIcon.addEventListener("click", () => {
-    toggleHidden([menuIcon, menuCloseIcon, menu])
-  });
+  const menuIcon = document.getElementById("menu-icon");
+  const menuCloseIcon = document.getElementById("menu-icon-close");
+  const menu = document.getElementById("mobile-menu");
+  const showAsideBtn = document.getElementById("aside-btn");
+  const closeAsideBtn = document.getElementById("aside-close-btn");
+  const personalInfo = document.getElementById("personal-info");
 
-  function toggleHidden(arr) {
-    arr.forEach(item => {
+  if (menuIcon && menuCloseIcon && menu) {
+    menuIcon.addEventListener("click", () => {
+      if (showAsideBtn && showAsideBtn.classList.contains('hidden')) {
+        toggleHidden([showAsideBtn, closeAsideBtn, personalInfo])
+      }
+      toggleHidden([menuIcon, menuCloseIcon, menu])
+    });
+    menuCloseIcon.addEventListener("click", () => {
+      toggleHidden([menuIcon, menuCloseIcon, menu])
+    });
+  }
+
+  function toggleHidden(arr: Array<HTMLElement | null>) {
+    arr.forEach((item) => {
+      if (!item) return;
       item.classList.toggle("hidden");
     });
   }

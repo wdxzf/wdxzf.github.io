@@ -9,10 +9,21 @@ import Donate from '@/components/Donate.astro'
 import {donate, comment, config} from "@/consts";
 
 const {frontmatter = {comment: false, donate: false}} = Astro.props
+const pageTitle = Astro.props.title ?? frontmatter.title;
+const pageDescription = Astro.props.description ?? frontmatter.description;
+const ogImage = Astro.props.ogImage ?? frontmatter.ogImage;
+const mathjax = Astro.props.mathjax ?? frontmatter.mathjax ?? false;
+const mermaid = Astro.props.mermaid ?? frontmatter.mermaid ?? false;
 ---
 
 <html lang={config.lang}>
-<BaseHead title={Astro.props.title} />
+<BaseHead
+  title={pageTitle}
+  description={pageDescription}
+  ogImage={ogImage}
+  mathjax={mathjax}
+  mermaid={mermaid}
+/>
 
 <body class="bg-skin-secondary relative">
 <Header/>
@@ -39,9 +50,4 @@ const {frontmatter = {comment: false, donate: false}} = Astro.props
   <Footer/>
 </main>
 </body>
-<script>
-  document.body.querySelectorAll("a").forEach(item => {
-    item.setAttribute("rel", "nofollow noreferrer");
-  });
-</script>
 </html>

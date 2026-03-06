@@ -1,14 +1,12 @@
 import rss from '@astrojs/rss';
 import {site} from "../consts";
 import getUrl from "../utils/getUrl.js";
-import {getCollection} from "astro:content";
 import {getCollectionByName} from "@/utils/getCollectionByName";
 import {sortPostsByDate} from "@/utils/sortPostsByDate";
 
-export async function GET(context) {
-  // const blogs = await getCollection('blog')
+export async function GET() {
   const blogs = await getCollectionByName('blog')
-  let sortPosts = await sortPostsByDate(blogs);
+  let sortPosts = sortPostsByDate(blogs);
   let blog = sortPosts.splice(0, 20);
 
   return rss({

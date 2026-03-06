@@ -219,9 +219,52 @@ menu {
   line-height: 1.3;
 }
 
+.search-result-card,
+.related-post-card {
+  border: 1px solid rgba(var(--color-text), 0.12);
+  background-color: rgba(var(--color-fill-secondary), 0.56);
+  transition: transform 0.18s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.search-result-card:hover,
+.related-post-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--color-text-active), 0.28);
+  background-color: rgba(var(--color-fill-secondary), 0.78);
+}
+
+.search-highlight {
+  color: rgba(var(--color-text-active), 1);
+  background-color: rgba(var(--color-text-active), 0.12);
+  border-radius: 0.25rem;
+  padding: 0 0.18rem;
+  font-weight: 700;
+}
+
+.search-empty-state {
+  border: 1px dashed rgba(var(--color-text), 0.2);
+  background-color: rgba(var(--color-fill-secondary), 0.4);
+}
+
 .post-meta-row {
   color: rgba(var(--color-text), 0.62);
   font-size: 0.95rem;
+}
+
+.post-meta-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.post-meta-divider,
+.post-meta-inline-divider {
+  color: rgba(var(--color-text), 0.42);
+}
+
+.post-meta-divider {
+  margin: 0 0.45rem;
 }
 
 .post-meta-item {

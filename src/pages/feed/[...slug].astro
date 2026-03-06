@@ -6,30 +6,33 @@ import {comment} from "@/consts";
 import {formatDate} from '@/utils/formatDate'
 import {t} from '@/i18n/utils'
 import getUrl from "@/utils/getUrl";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import type { FeedEntry } from "@/types/content";
 
-export async function getStaticPaths() {
+export const getStaticPaths = (async () => {
   const posts = await getCollectionByName("feed");
   return posts.map((post) => ({
     params: {slug: post.slug},
     props: post,
   }));
-}
+}) satisfies GetStaticPaths;
 
-const post = Astro.props;
+const post = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const {Content} = await post.render();
 const posts = await getCollectionByName("feed");
 const sortPosts = sortPostsByDate(posts);
 
-let postDate = post.data.date ? formatDate(post.data.date) : '';
+const postDate = post.data.date ? formatDate(post.data.date) : '';
 const currentPostIndex = sortPosts.findIndex(
   (postItem) => postItem.data.date === post.data.date
 );
-let prevPost: any, nextPost: any;
+let prevPostEntry: FeedEntry | undefined;
+let nextPostEntry: FeedEntry | undefined;
 if (sortPosts[currentPostIndex - 1]) {
-  prevPost = sortPosts[currentPostIndex - 1];
+  prevPostEntry = sortPosts[currentPostIndex - 1];
 }
 if (sortPosts[currentPostIndex + 1]) {
-  nextPost = sortPosts[currentPostIndex + 1];
+  nextPostEntry = sortPosts[currentPostIndex + 1];
 }
 ---
 
@@ -42,7 +45,7 @@ if (sortPosts[currentPostIndex + 1]) {
             <i class="ri-calendar-2-fill mr-1"/>
             <div class="tag">{postDate}</div>
           </div>}
-        {comment.enable && comment.type === "waline" && comment.pageview && (
+        {comment.enable && comment.type === "waline" && comment.walineConfig.pageview && (
           <div class="divider-vertical"/>
           <a href="#" title="当前页面阅读量" class="flex items-center">
             <i class="ri-fire-fill mr-1"/>
@@ -65,11 +68,11 @@ if (sortPosts[currentPostIndex + 1]) {
   {
     (
       <div>
-        {prevPost ? (
+        {prevPostEntry ? (
           <a
             class="truncate  w-auto max-w-[40%] float-left"
-            href={getUrl('/') + prevPost.collection + '/' + prevPost.slug}
-            title={prevPost.data.title}
+            href={getUrl('/') + prevPostEntry.collection + '/' + prevPostEntry.slug}
+            title={prevPostEntry.data.date ? formatDate(prevPostEntry.data.date) : t('feed.previous')}
           >
             <i class="ri-arrow-left-s-fill"/>
             {t('feed.previous')}
@@ -77,12 +80,12 @@ if (sortPosts[currentPostIndex + 1]) {
         ) : (
           <div/>
         )}
-        {nextPost ? (
+        {nextPostEntry ? (
           <div class="flex item-center float-right w-auto max-w-[40%] text-right">
             <a
               class="truncate "
-              href={getUrl('/') + nextPost.collection + '/' + nextPost.slug}
-              title={nextPost.data.title}
+              href={getUrl('/') + nextPostEntry.collection + '/' + nextPostEntry.slug}
+              title={nextPostEntry.data.date ? formatDate(nextPostEntry.data.date) : t('feed.next')}
             >
               {t('feed.next')}
             </a>

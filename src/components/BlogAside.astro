@@ -13,7 +13,7 @@ let tagArr = getUniqueTags(blogs);
 if(site.asideTagsMaxSize > 0)
   tagArr = tagArr.slice(0, site.asideTagsMaxSize)
 let categoryCount = getCountByCategory(blogs);
-let sortPosts = await sortPostsByDate(blogs);
+let sortPosts = sortPostsByDate(blogs);
 let resultPosts = sortPosts.splice(0, site.recentBlogSize);
 ---
 

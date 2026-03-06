@@ -4,7 +4,11 @@ import {comment} from "@/consts";
 import {t} from '@/i18n/utils'
 ---
 
-<IndexPage frontmatter={{comment: comment.enable, donate: false,}}>
+<IndexPage
+  title="留言"
+  description="给博客作者留言或反馈。"
+  frontmatter={{comment: comment.enable, donate: false,}}
+>
   <div class="flex text-xl underline-offset-4 font-bold">
     {t('message.welcome')}
   </div>

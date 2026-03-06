@@ -6,9 +6,12 @@ tags: ["ROS", "导航", "多点航点", "move_base", "actionlib"]
 category: ["ROS"]
 draft: true
 mermaid: true
+series: "ROS"
+seriesOrder: 2
+ogImage: "/images/ros-waypoints/cover.svg"
 ---
 
-# 【ROS】航点导航功能
+## 航点导航功能
 
 ![ROS 航点导航示意图](/images/ros-waypoints/cover.svg)
 
