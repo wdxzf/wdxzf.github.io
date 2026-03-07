@@ -6,5 +6,5 @@ const shouldLoadUmami = allEnable && umamiEnable && id && url;
 ---
 
 {shouldLoadUmami && (
-  <script defer src={url} data-website-id={id}></script>
+  <script is:inline defer src={url} data-website-id={id}></script>
 )}

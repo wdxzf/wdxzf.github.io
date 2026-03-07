@@ -3,6 +3,44 @@
 
 import type { AnalyticsConfig } from "./types/analyticsTypes"
 
+type NavItem = {
+  name: string;
+  iconClass: string;
+  href: string;
+  target?: '_self' | '_blank';
+  children?: NavItem[];
+};
+
+type SocialLink = {
+  icon: string;
+  name: string;
+  outlink: string;
+};
+
+type FriendshipLink = {
+  name: string;
+  url: string;
+  avatar?: string;
+  description: string;
+};
+
+type CommentConfig = {
+  enable: boolean;
+  type: 'waline' | 'giscus';
+  walineConfig: {
+    serverUrl: string;
+    lang: string;
+    pageSize: number;
+    wordLimit: string;
+    count: number;
+    pageview: boolean;
+    reaction: boolean;
+    requiredMeta: string[];
+    whiteList: string[];
+  };
+  giscusConfig: Record<string, string>;
+};
+
 /**
  * title {string} 网站标题
  * favicon {string} 网站图标地址
@@ -21,6 +59,12 @@ import type { AnalyticsConfig } from "./types/analyticsTypes"
  *    0：禁用
  *    >0：侧边栏最多显示多少个标签
  *    所有标签会在 /tags 页面中完整展示
+ * mobileMenuCategoryMaxSize {number}
+ *    0：移动端个人侧栏显示全部分类
+ *    >0：最多显示多少个分类，并保留“全部分类”入口
+ * mobileMenuTagMaxSize {number}
+ *    0：移动端个人侧栏显示全部标签
+ *    >0：最多显示多少个标签，并保留“全部标签”入口
  */
 export const site = {
   title: 'W Blog', // 名字
@@ -37,6 +81,8 @@ export const site = {
   feedPageSize: 20,
   beian: '',
   asideTagsMaxSize: 0,
+  mobileMenuCategoryMaxSize: 6,
+  mobileMenuTagMaxSize: 10,
 }
 
 /**
@@ -58,6 +104,14 @@ export const config = {
   memosPageSize: 10, // 数量
 }
 
+const giscusLangMap: Record<string, string> = {
+  en: 'en',
+  'zh-cn': 'zh-CN',
+  'zh-Hant': 'zh-TW',
+  cs: 'cs',
+};
+const giscusLang = giscusLangMap[config.lang] || 'en';
+
 /**
  * 导航菜单
  * name {string} 显示名称
@@ -65,7 +119,7 @@ export const config = {
  * href {string} 链接地址
  * target {string} 可选 "_self|_blank" 在当前窗口或新窗口打开
  */
-export const categories = [
+export const categories: NavItem[] = [
   {
     name: "博客",
     iconClass: "ri-draft-line",
@@ -119,7 +173,7 @@ export const categories = [
 /**
  * 个人社交链接
  */
-export const infoLinks = [
+export const infoLinks: SocialLink[] = [
   {
     icon: 'ri-telegram-fill',
     name: 'telegram',
@@ -170,7 +224,7 @@ export const donate = {
  * avatar {string} 头像
  * description {string} 描述
  */
-export const friendshipLinks =
+export const friendshipLinks: FriendshipLink[] =
   [
     // {
     //   name: "Cirry's Blog",
@@ -194,8 +248,8 @@ export const friendshipLinks =
  * walineConfig.requiredMeta {string[]} 必填字段
  * walineConfig.whiteList {string[]} 不显示表情的页面
  */
-export const comment = {
-  enable: false,
+export const comment: CommentConfig = {
+  enable: true,
   type: 'giscus', // waline | giscus
   walineConfig: {
     serverUrl: "",
@@ -211,18 +265,19 @@ export const comment = {
 
   // giscus 配置
   giscusConfig: {
-    'data-repo': "",
-    'data-repo-id': "",
-    'data-category': "",
-    'data-category-id': "",
-    'data-mapping': "",
-    'data-strict': "",
-    'data-reactions-enabled': "",
-    'data-emit-metadata': "",
-    'data-input-position': "",
-    'data-theme': "",
-    'data-lang': "",
-    'crossorigin': "",
+    'data-repo': 'wdxzf/blog-comments',
+    'data-repo-id': 'R_kgDORf47fw',
+    'data-category': 'Announcements',
+    'data-category-id': 'DIC_kwDORf47f84C3zZC',
+    'data-mapping': 'pathname',
+    'data-strict': '1',
+    'data-reactions-enabled': '1',
+    'data-emit-metadata': '0',
+    'data-input-position': 'top',
+    'data-theme': 'preferred_color_scheme',
+    'data-lang': giscusLang,
+    'data-loading': 'lazy',
+    'crossorigin': 'anonymous',
   }
 }
 

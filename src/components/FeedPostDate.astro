@@ -18,13 +18,14 @@ const { date, index } = Astro.props;
   class FeedPostDate extends HTMLElement {
     constructor() {
       super();
-      // 从 data（数据）属性中读取消息。
       const date = this.dataset.date;
-      const index = this.dataset.index;
+      const index = Number(this.dataset.index);
 
-      let timeSpan = document.getElementsByClassName("postTimeEle");
-      let postDateFromNow = date ? dayjs(date).fromNow() : dayjs().format("YYYY-MM-DD");
-      timeSpan[index].innerHTML = `${t('feed.publishedIn')}：${postDateFromNow}`;
+      const timeSpan = document.querySelectorAll<HTMLElement>(".postTimeEle");
+      const postDateFromNow = date ? dayjs(date).fromNow() : dayjs().format("YYYY-MM-DD");
+      if (Number.isInteger(index) && timeSpan[index]) {
+        timeSpan[index].innerHTML = `${t('feed.publishedIn')}：${postDateFromNow}`;
+      }
     }
   }
   customElements.define("feed-post-date", FeedPostDate);

@@ -19,20 +19,30 @@ import {t} from '@/i18n/utils'
   import { comment } from "../consts";
   import { formatDate } from "../utils/formatDate";
 
-  let commentDiv = document.getElementById("waline-comment");
+  type RecentComment = {
+    time: string;
+    url: string;
+    comment: string;
+    nick: string;
+  };
+
+  type RecentCommentsResponse = {
+    data: RecentComment[];
+  };
+
+  const commentDiv = document.getElementById("waline-comment");
   if (comment.enable && comment.type === "waline" && commentDiv) {
-    let recentCommentUrl = comment.walineConfig.serverUrl + "/api/comment?type=recent&count=" + comment.walineConfig.count;
-    fetch(recentCommentUrl).then((comment) => {
-      return comment.json()
-    }).then((recentComments) => {
+    const recentCommentUrl = comment.walineConfig.serverUrl + "/api/comment?type=recent&count=" + comment.walineConfig.count;
+    fetch(recentCommentUrl).then((commentResponse) => {
+      return commentResponse.json()
+    }).then((recentComments: RecentCommentsResponse) => {
         let comments = "<ul>";
-        recentComments.data.forEach((comment, index) => {
-        comments += `<li>${index + 1}、${formatDate(comment.time)}`
-        comments += `<div class="waline-comment-content"><a class="block" href="${window.location.origin + comment.url}">${comment.comment}</a></div>`
-        comments += `<div class="waline-comment-author ">--${comment.nick}</div></li>`
+        recentComments.data.forEach((recentComment, index: number) => {
+        comments += `<li>${index + 1}、${formatDate(recentComment.time)}`
+        comments += `<div class="waline-comment-content"><a class="block" href="${window.location.origin + recentComment.url}">${recentComment.comment}</a></div>`
+        comments += `<div class="waline-comment-author ">--${recentComment.nick}</div></li>`
         });
         comments += "</ul>";
-        let commentDiv = document.getElementById("waline-comment");
         commentDiv.innerHTML = comments;
     })
   }

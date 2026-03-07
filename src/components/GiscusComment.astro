@@ -1,6 +1,67 @@
 ---
 import { comment } from "@/consts";
+
+const giscusConfig = comment.giscusConfig;
 ---
 
-<div class="giscus"></div>
-<script src="https://giscus.app/client.js" {...comment.giscusConfig}></script>
+<div id="giscus"></div>
+
+<script define:vars={{ giscusConfig }}>
+  const container = document.getElementById('giscus');
+  const configuredTheme = giscusConfig['data-theme'] || 'preferred_color_scheme';
+
+  const resolveGiscusTheme = () => {
+    if (configuredTheme !== 'preferred_color_scheme') {
+      return configuredTheme;
+    }
+
+    return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+  };
+
+  const injectGiscus = () => {
+    if (!(container instanceof HTMLDivElement) || container.hasChildNodes()) {
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+
+    Object.entries(giscusConfig).forEach(([key, value]) => {
+      if (!value) return;
+      script.setAttribute(key, key === 'data-theme' ? resolveGiscusTheme() : value);
+    });
+
+    container.appendChild(script);
+  };
+
+  const syncGiscusTheme = () => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    if (!iframe) return;
+
+    iframe.contentWindow?.postMessage(
+      {
+        giscus: {
+          setConfig: {
+            theme: resolveGiscusTheme(),
+          },
+        },
+      },
+      'https://giscus.app'
+    );
+  };
+
+  injectGiscus();
+
+  if (configuredTheme === 'preferred_color_scheme') {
+    const themeObserver = new MutationObserver(() => {
+      syncGiscusTheme();
+    });
+
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+  }
+</script>

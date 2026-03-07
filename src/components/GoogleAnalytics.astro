@@ -7,8 +7,8 @@ const shouldLoadGA = allEnable && gaEnable && id;
 
 {shouldLoadGA && (
   <>
-    <script async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
-    <script define:vars={{ ga: id }}>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
+    <script is:inline define:vars={{ ga: id }}>
       window.dataLayer = window.dataLayer || [];
 
       function gtag() {

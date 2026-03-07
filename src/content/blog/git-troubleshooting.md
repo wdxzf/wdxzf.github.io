@@ -6,7 +6,7 @@ category: ["Git"]
 tags: ["Git", "submodule", "remote"]
 ---
 
-# Git 使用过程中遇到的问题整理
+## Git 使用过程中遇到的问题整理
 
 ## 一、本地文件夹存在，但 GitHub 上没有上传
 :::collapse

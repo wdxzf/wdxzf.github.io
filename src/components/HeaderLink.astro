@@ -1,5 +1,17 @@
 ---
-const {href, icon: iconClass, children, target, ...props} = Astro.props;
+type HeaderLinkItem = {
+  name: string;
+  iconClass: string;
+  href: string;
+  target?: '_self' | '_blank';
+};
+
+const {href, icon: iconClass, items = [], target, ...props} = Astro.props as {
+  href: string;
+  icon: string;
+  items?: HeaderLinkItem[];
+  target?: '_self' | '_blank';
+};
 import getUrl from "@/utils/getUrl";
 
 const {pathname} = Astro.url;
@@ -12,14 +24,14 @@ const isActive = hrefMath[1] === pathnameMatch[1]
     <i class={iconClass}/>
     <slot/>
     {
-      children.length > 0 && <i class="ri-arrow-down-s-line"></i>
+      items.length > 0 && <i class="ri-arrow-down-s-line"></i>
     }
   </a>
-  {children && children.length > 0 && (
+  {items.length > 0 && (
     <div class="p-4 border rounded cursor-pointer dropdown bg-skin-fill">
       <ul class="space-y-4 w-28">
         {
-          children.map(child =>
+          items.map((child) =>
             <li class="text-center select-none hover:text-skin-active">
               <i class={child.iconClass}></i>
               <a target={child.target ? child.target : "_self"} href={getUrl(child.href)}>{child.name}</a>
@@ -45,4 +57,3 @@ const isActive = hrefMath[1] === pathnameMatch[1]
   }
 
 </style>
-

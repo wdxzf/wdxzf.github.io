@@ -1,0 +1,54 @@
+---
+import { t } from '@/i18n/utils';
+import { formatDate } from '@/utils/formatDate';
+import { dealLabel } from '@/utils/dealLabel';
+import getUrl from '@/utils/getUrl';
+import type { BlogEntry } from '@/types/content';
+
+const { posts = [] } = Astro.props as { posts?: BlogEntry[] };
+---
+
+{
+  posts.length > 0 && (
+    <section class="mt-8">
+      <div class="aside-widget">
+        <div class="flex items-center">
+          <i class="ri-links-line menu-icon" />
+          {t('post.relatedPosts')}
+        </div>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {posts.map((post: BlogEntry) => (
+          <a
+            href={getUrl('/blog/') + post.slug}
+            class="related-post-card rounded-lg p-4"
+          >
+            <div class="mb-2 text-lg font-bold leading-snug text-skin-base">
+              {post.data.title}
+            </div>
+            <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-skin-dodge">
+              <div>
+                <i class="ri-calendar-2-fill mr-1" />
+                {formatDate(post.data.date)}
+              </div>
+              {dealLabel(post.data.category)
+                .filter((item) => item !== 'uncategorized')
+                .slice(0, 1)
+                .map((categoryName) => (
+                  <div>
+                    <i class="ri-folder-3-line mr-1" />
+                    {categoryName}
+                  </div>
+                ))}
+            </div>
+            {post.data.description && (
+              <p class="line-clamp-3 text-sm leading-6 text-skin-dodge">
+                {post.data.description}
+              </p>
+            )}
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

@@ -2,11 +2,15 @@
 title: "Astro 博客主题功能与 Markdown 示例"
 description: "展示 Astro 主题支持的 UI 组件与 Markdown 语法"
 date: 2026-03-03
+lastModified: 2026-03-05
+series: "Astro 写作"
+seriesOrder: 1
 mermaid: true
 mathjax: true
 category: [astro, markdown]
 tags: [astro, markdown]
 ogImage: https://astro-yi.obs.cn-east-3.myhuaweicloud.com/avatar.png
+sticky: 10
 ---
 
 ## 常用 Markdown
@@ -368,12 +372,17 @@ ctrl + B 快捷加粗
 title: "文章标题"
 description: "一句话描述这篇文章讲什么"
 date: 2026-03-05
+lastModified: 2026-03-05
 category: [分类1, 分类2]
 tags: [标签1, 标签2]
 toc: true
 mermaid: false
 mathjax: false
 draft: false
+sticky: 0
+series: "系列名"
+seriesOrder: 1
+
 ---
 
 ## 一、前言

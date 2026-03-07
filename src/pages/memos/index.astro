@@ -3,7 +3,11 @@ import IndexPage from "@/layouts/IndexPage.astro";
 import {t} from '@/i18n/utils'
 ---
 
-<IndexPage frontmatter={{comment: false, donate: false,}}>
+<IndexPage
+  title="Memos"
+  description="浏览公开的 Memos 动态。"
+  frontmatter={{comment: false, donate: false,}}
+>
   <div class="memos-wrapper" id="memos"></div>
   <button class="rounded bg-skin-card p-1 border text-sm hover:text-skin-active hidden" id="more-btn">{t('memos.loadMore')}</button>
 </IndexPage>
@@ -14,71 +18,94 @@ import {t} from '@/i18n/utils'
   import relativeTime from "dayjs/plugin/relativeTime";
   import "dayjs/locale/zh-cn";
 
+  type MemosUser = {
+    avatarUrl?: string;
+  };
+
+  type MemosResource = {
+    type: string;
+    name: string;
+    filename: string;
+  };
+
+  type Memo = {
+    resources: MemosResource[];
+    snippet: string;
+    updateTime: string;
+  };
+
+  type MemosResponse = {
+    memos: Memo[];
+    nextPageToken: string;
+  };
+
   dayjs.extend(relativeTime);
   dayjs.locale(config.lang || 'en');
 
-  let moreBtn = document.getElementById('more-btn')
-  moreBtn.addEventListener('click', function () {
-    getMemos()
-  })
+  const moreBtn = document.getElementById('more-btn');
+  const memosContainer = document.getElementById('memos');
 
-  let avatar_url = ''
-  let name = ''
-  let nextPageToken = ''
-  await getAvatar()
-  await getMemos()
+  if (moreBtn && memosContainer) {
+    const moreButton = moreBtn;
+    const memosRoot = memosContainer;
+    let avatar_url = '';
+    let nextPageToken = '';
 
-  // 获取头像
-  async function getAvatar() {
-    let res = await fetch(`${config.memosUrl}/api/v1/users:username?username=${config.memosUsername}`)
-    let userInfo = await res.json()
-    avatar_url = userInfo.avatarUrl ? userInfo.avatarUrl : 'https://memos.cirry.cn/full-logo.webp'
-    name = userInfo.name
-  }
-
-  async function getMemos() {
-    // 创建URL对象，包含API的路径
-    const url = new URL(`${config.memosUrl}/api/v1/memos`);
-    const params = new URLSearchParams({
-      filter: 'visibility == "PUBLIC"',
-      pageSize: "10",
-      pageToken: nextPageToken,
-    });
-    // 将查询参数对象与URL对象结合
-    url.search = params.toString();
-    let res = await fetch(url.toString())
-    let json = await res.json()
-
-    let divs = ''
-
-    json.memos.forEach(memo => {
-      let imagesStr = ''
-      if (memo.resources.length > 0) {
-        let images = memo.resources.filter(source => ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(source.type))
-        images.forEach(image => {
-          imagesStr += `<img src="${config.memosUrl + '/file/' + image.name + '/' + image.filename}" alt="${image.filename}" />`
-        })
-      }
-      divs += `
-          <div class="flex flex-col  shadow flex flex-col bg-skin-card p-4 mb-4 rounded-lg">
-            <div class="flex w-full memos-center">
-              <img src="${avatar_url}" class="github-avatar mr-4" alt="avatar" />
-              <div>@${config.memosUsername}</div>
-            </div>
-            <p class="memo-content-wrapper my-4"> ${memo.snippet}</p>
-            <div>${imagesStr}</div>
-
-            <p>${dayjs(memo.updateTime).fromNow()} • ${dayjs(memo.updateTime).format("YYYY-MM-DD HH:mm")}</p>
-          </div>
-          `
+    moreButton.addEventListener('click', function () {
+      getMemos()
     })
-    document.getElementById('memos').innerHTML += divs.toString();
-    nextPageToken = json['nextPageToken']
 
-    if (nextPageToken === '') {
-      moreBtn.classList.add('hidden');
-    } else {
-      moreBtn.classList.remove('hidden');
+    await getAvatar()
+    await getMemos()
+
+    async function getAvatar() {
+      const res = await fetch(`${config.memosUrl}/api/v1/users:username?username=${config.memosUsername}`)
+      const userInfo = await res.json() as MemosUser
+      avatar_url = userInfo.avatarUrl ? userInfo.avatarUrl : 'https://memos.cirry.cn/full-logo.webp'
+    }
+
+    async function getMemos() {
+      const url = new URL(`${config.memosUrl}/api/v1/memos`);
+      const params = new URLSearchParams({
+        filter: 'visibility == "PUBLIC"',
+        pageSize: "10",
+        pageToken: nextPageToken,
+      });
+      url.search = params.toString();
+      const res = await fetch(url.toString())
+      const json = await res.json() as MemosResponse
+
+      let divs = ''
+
+      json.memos.forEach((memo) => {
+        let imagesStr = ''
+        if (memo.resources.length > 0) {
+          const images = memo.resources.filter((source) => ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(source.type))
+          images.forEach((image) => {
+            imagesStr += `<img src="${config.memosUrl + '/file/' + image.name + '/' + image.filename}" alt="${image.filename}" />`
+          })
+        }
+        divs += `
+            <div class="flex flex-col shadow bg-skin-card p-4 mb-4 rounded-lg">
+              <div class="flex w-full memos-center">
+                <img src="${avatar_url}" class="github-avatar mr-4" alt="avatar" />
+                <div>@${config.memosUsername}</div>
+              </div>
+              <p class="memo-content-wrapper my-4"> ${memo.snippet}</p>
+              <div>${imagesStr}</div>
+
+              <p>${dayjs(memo.updateTime).fromNow()} • ${dayjs(memo.updateTime).format("YYYY-MM-DD HH:mm")}</p>
+            </div>
+            `
+      })
+      memosRoot.innerHTML += divs.toString();
+      nextPageToken = json.nextPageToken
+
+      if (nextPageToken === '') {
+        moreButton.classList.add('hidden');
+      } else {
+        moreButton.classList.remove('hidden');
+      }
     }
   }
 </script>

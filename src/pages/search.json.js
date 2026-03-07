@@ -1,15 +1,21 @@
 import {getCollectionByName} from "../utils/getCollectionByName.js";
+import {getPostPlainText, truncateText} from "../utils/getPostPlainText.js";
 
-async function getBlogs(context) {
+async function getBlogs() {
   const blog = await getCollectionByName('blog')
   return blog.map(blog => {
+    const content = getPostPlainText(blog.body);
+    const description = blog.data.description ?? '';
+
     return {
       slug: blog.slug,
       title: blog.data.title,
-      description: blog.data.description,
+      description,
       date: blog.data.date,
       category: blog.data.category,
       tags: blog.data.tags,
+      content,
+      excerpt: truncateText(description || content, 220),
     }
   })
 }

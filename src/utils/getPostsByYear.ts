@@ -1,17 +1,14 @@
-// 根据年份归档博文
-import {keys,} from 'lodash-es'
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
+import type { BlogEntry, YearGroupedPosts } from '@/types/content';
 
-const getPostsByYear = (posts) => {
-  let obj = {}
-  posts.forEach(post => {
-    let postCreateYear = dayjs(post.data.date).format("YYYY")
-    if (keys(obj).includes(postCreateYear)) {
-      obj[postCreateYear] = [...obj[postCreateYear], post]
-    } else {
-      obj[postCreateYear] = [post]
-    }
-  })
-  return obj
-}
+const getPostsByYear = (posts: BlogEntry[]): YearGroupedPosts => {
+  const groupedPosts: YearGroupedPosts = {};
+
+  posts.forEach((post) => {
+    const postCreateYear = dayjs(post.data.date).format("YYYY");
+    groupedPosts[postCreateYear] = [...(groupedPosts[postCreateYear] ?? []), post];
+  });
+
+  return groupedPosts;
+};
 export default getPostsByYear;

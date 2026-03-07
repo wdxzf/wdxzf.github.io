@@ -2,11 +2,20 @@
 import IndexPage from "@/layouts/IndexPage.astro";
 import {t} from '@/i18n/utils'
 ---
-<IndexPage>
+<IndexPage
+  title={t('search.search')}
+  description="搜索博客文章标题、摘要和正文内容。"
+>
   <aside>
-    <label for="search" class="text-2xl mb-4 text-skin-base ">
-      {t('search.search')}
-    </label>
+    <div class="flex items-center justify-between gap-4">
+      <label for="search" class="text-2xl text-skin-base ">
+        {t('search.search')}
+      </label>
+      <div class="rounded border border-skin-dodge border-opacity-40 px-2 py-1 text-xs text-skin-dodge">
+        /
+      </div>
+    </div>
+    <p class="mt-2 text-sm text-skin-dodge">{t('search.hint')}</p>
 
     <div class="relative">
       <span class="absolute inset-y-0 flex items-center pl-2 opacity-75">
@@ -31,137 +40,300 @@ import {t} from '@/i18n/utils'
 </IndexPage>
 <script>
   import {t} from '../i18n/utils'
-  import DOMPurify from "dompurify";
-  import Fuse from "fuse.js";
-  import {isNumber} from 'lodash-es'
+  import Fuse, { type IFuseOptions, type FuseResult } from "fuse.js";
   import {formatDate} from '../utils/formatDate'
   import {dealLabel} from "../utils/dealLabel";
   import getUrl from "../utils/getUrl";
 
-  let SEARCH_DATA = '';
-  let FUSE_INSTANCE = '';
-  let FUSE_OPTIONS = {
+  type SearchDocument = {
+    slug: string;
+    title: string;
+    description: string;
+    date: string;
+    category: string[] | string | null;
+    tags: string[] | string | null;
+    content: string;
+    excerpt: string;
+  };
+
+  let SEARCH_DATA: SearchDocument[] | null = null;
+  let FUSE_INSTANCE: Fuse<SearchDocument> | null = null;
+  let searchTimeoutId: number | undefined;
+  const FUSE_OPTIONS: IFuseOptions<SearchDocument> = {
     includeScore: true,
+    includeMatches: true,
     shouldSort: true,
     threshold: 0.5,
     keys: [
       {
         name: 'title',
-        weight: 1
+        weight: 1.2
       },
       {
         name: 'description',
-        weight: 0.75
+        weight: 0.9
+      },
+      {
+        name: 'content',
+        weight: 0.7
+      },
+      {
+        name: 'tags',
+        weight: 0.6
+      },
+      {
+        name: 'category',
+        weight: 0.5
       }
     ]
   }
-  let SPINNER = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256" id="spinner"><path d="M232,128a104,104,0,0,1-208,0c0-41,23.81-78.36,60.66-95.27a8,8,0,0,1,6.68,14.54C60.15,61.59,40,93.27,40,128a88,88,0,0,0,176,0c0-34.73-20.15-66.41-51.34-80.73a8,8,0,0,1,6.68-14.54C208.19,49.64,232,87,232,128Z"></path>
-<style>
-#spinner {
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-</style>
-</svg>`
 
-  const search = document.querySelector('#search');
-  const searchReadout = document.querySelector('#searchReadout');
-  const resultsList = document.querySelector('#resultsList');
+  const search = document.querySelector<HTMLInputElement>('#search');
+  const searchReadout = document.querySelector<HTMLElement>('#searchReadout');
+  const resultsList = document.querySelector<HTMLDivElement>('#resultsList');
+  const loadingMarkup = `
+    <div class="search-empty-state rounded-lg px-4 py-5 text-sm text-skin-dodge">
+      <div class="inline-flex items-center gap-2">
+        <i class="ri-loader-4-line animate-spin text-skin-active"></i>
+        <span>${t('search.search')}</span>
+      </div>
+    </div>
+  `;
+
+  if (!search || !searchReadout || !resultsList) {
+    throw new Error('Search page elements not found.');
+  }
+
+  const searchInput = search;
+  const searchReadoutEl = searchReadout;
+  const resultsListEl = resultsList;
 
   window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = DOMPurify.sanitize(new URLSearchParams(window.location.search).get('q'));
+    const urlParams = (new URLSearchParams(window.location.search).get('q') || '').trim();
     fetchSearchResults(urlParams);
-    search.value = urlParams
-    search.focus()
-  })
+    searchInput.value = urlParams;
+  });
 
-  search.addEventListener("input", (e) => {
-    const searchTerm = DOMPurify.sanitize(search.value);
-    fetchSearchResults(searchTerm);
-    updateSearchPageUrl(searchTerm)
-  })
+  window.addEventListener('keydown', (event) => {
+    if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
 
-  function updateReadout(length) {
-    if (isNumber(length)) {
-      searchReadout.innerHTML = `<div class="my-2">${t('search.searchLabelOne')}<span class="px-2 font-bold text-skin-active">${length}</span>${t('search.searchLabelTwo')}</div>`
+    const activeTagName = document.activeElement?.tagName?.toLowerCase();
+    if (activeTagName === 'input' || activeTagName === 'textarea') {
+      return;
+    }
+
+    event.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  });
+
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      searchInput.value = '';
+      fetchSearchResults('');
+      updateSearchPageUrl('');
+    }
+  });
+
+  searchInput.addEventListener("input", () => {
+    const searchTerm = searchInput.value.trim();
+
+    window.clearTimeout(searchTimeoutId);
+    searchTimeoutId = window.setTimeout(() => {
+      fetchSearchResults(searchTerm);
+      updateSearchPageUrl(searchTerm);
+    }, 120);
+  });
+
+  function updateReadout(length: number | null) {
+    if (typeof length === 'number') {
+      searchReadoutEl.innerHTML = `<div class="my-3">${t('search.searchLabelOne')}<span class="px-2 font-bold text-skin-active">${length}</span>${t('search.searchLabelTwo')}</div>`
     } else {
-      searchReadout.innerHTML = ""
+      searchReadoutEl.innerHTML = "";
     }
   }
 
-  function updateSearchPageUrl(search) {
+  function updateSearchPageUrl(search: string) {
     const url = new URL(window.location.href);
-    url.searchParams.set("q", search);
+    if (search) {
+      url.searchParams.set("q", search);
+    } else {
+      url.searchParams.delete("q");
+    }
     window.history.replaceState(null, '', url);
   }
 
-  function escapeRegExp(value) {
+  function escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  function generateSearchList(results, searchTerm) {
-    return results.map(r => {
-      const {title, description, date, slug, category, tags} = r.item
-      const reg = new RegExp(escapeRegExp(searchTerm), 'gi')
-      let titleStr = title.replace(reg, (match) => {
-        return `<span class="text-skin-active font-bold">${match}</span>`
-      })
-      let descriptionStr = description ? description.replace(reg, (match) => {
-        return `<span class="text-skin-active font-bold">${match}</span>`
-      }) : ''
+  function createHighlightedFragment(text: string, searchTerm: string) {
+    const fragment = document.createDocumentFragment();
 
-      let categoryStr = dealLabel(category).filter(item => item !== 'uncategorized').map(categoryName => (
-        `<a class="mr-2 hover:text-skin-active" href=${getUrl("/category/") + categoryName}><i class="ri-folder-3-line mr-1"></i>${categoryName}</a>`
-      )).join("")
-      let tagsStr = dealLabel(tags).map((tagName) => (
-        `<a class="mr-2 hover:text-skin-active" href=${getUrl("/tags/") + tagName}><i class="ri-hashtag mr-1"></i>${tagName}</a>`
-      )).join("")
-      return `
-        <div class="my-5">
-            <a
-              class="text-xl underline-offset-4 decoration-skin-base decoration-wavy hover:underline hover:decoration-sky-500 font-bold"
-              href=${getUrl("/blog/") + slug}>${titleStr}
-            </a>
-            <div class="flex items-center my-2">
-              <div class="flex items-center mr-2"><i class="ri-calendar-2-fill mr-1"></i>${formatDate(date)}</div>
-              ${categoryStr} ${tagsStr}
-            </div>
-            <p class="break-all mb-4">${descriptionStr}</p>
-        </div>
-        <div class="divider-horizontal-mini"></div>`
-    }).join("")
+    if (!searchTerm) {
+      fragment.append(document.createTextNode(text));
+      return fragment;
+    }
+
+    const reg = new RegExp(escapeRegExp(searchTerm), 'gi');
+    let lastIndex = 0;
+
+    for (const match of text.matchAll(reg)) {
+      const [matchedText] = match;
+      const index = match.index ?? 0;
+
+      if (index > lastIndex) {
+        fragment.append(document.createTextNode(text.slice(lastIndex, index)));
+      }
+
+      const highlight = document.createElement('mark');
+      highlight.className = 'search-highlight';
+      highlight.textContent = matchedText;
+      fragment.append(highlight);
+      lastIndex = index + matchedText.length;
+    }
+
+    if (lastIndex < text.length) {
+      fragment.append(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    return fragment;
   }
 
-  async function fetchSearchResults(search) {
-    if (!search) {
-      updateReadout(null)
-      resultsList.innerHTML = ''
-      return
-    }
-    if (search.length === 0) return;
-    resultsList.innerHTML = SPINNER;
-    if (!SEARCH_DATA) {
-      try {
-        const res = await fetch(getUrl("/search.json"))
-        if (!res.ok) {
-          throw new Error("Something went wrong...Please try again.");
-        }
-        SEARCH_DATA = await res.json()
-      } catch (e) {
-        console.log(e)
+  function getSnippet(item: SearchDocument, searchTerm: string) {
+    const normalizedSearch = searchTerm.toLowerCase();
+    const snippetSources = [item.description, item.content, item.excerpt].filter(Boolean);
+
+    for (const source of snippetSources) {
+      const sourceText = source.trim();
+      const foundIndex = sourceText.toLowerCase().indexOf(normalizedSearch);
+
+      if (foundIndex >= 0) {
+        const start = Math.max(foundIndex - 48, 0);
+        const end = Math.min(foundIndex + normalizedSearch.length + 96, sourceText.length);
+        const prefix = start > 0 ? '...' : '';
+        const suffix = end < sourceText.length ? '...' : '';
+
+        return `${prefix}${sourceText.slice(start, end).trim()}${suffix}`;
       }
     }
+
+    return item.excerpt || '';
+  }
+
+  function createMetaLink(iconClass: string, href: string, text: string) {
+    const link = document.createElement('a');
+    link.className = 'mr-3 flex items-center hover:text-skin-active';
+    link.href = href;
+
+    const icon = document.createElement('i');
+    icon.className = `${iconClass} mr-1`;
+    link.append(icon);
+    link.append(document.createTextNode(text));
+
+    return link;
+  }
+
+  function renderResults(results: FuseResult<SearchDocument>[], searchTerm: string) {
+    resultsListEl.replaceChildren();
+
+    if (results.length === 0) {
+      const emptyState = document.createElement('div');
+      emptyState.className = 'search-empty-state rounded-lg px-5 py-6 text-sm text-skin-dodge';
+      emptyState.textContent = t('search.empty');
+      resultsListEl.append(emptyState);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    results.forEach((result) => {
+      const {title, date, slug, category, tags} = result.item;
+      const article = document.createElement('article');
+      article.className = 'search-result-card my-4 rounded-lg p-5';
+
+      const titleLink = document.createElement('a');
+      titleLink.className = 'text-xl font-bold underline-offset-4 decoration-skin-base decoration-wavy hover:underline hover:decoration-sky-500';
+      titleLink.href = getUrl('/blog/') + slug;
+      titleLink.append(createHighlightedFragment(title, searchTerm));
+      article.append(titleLink);
+
+      const meta = document.createElement('div');
+      meta.className = 'my-3 flex flex-wrap items-center gap-y-2 text-sm text-skin-dodge';
+
+      const dateNode = document.createElement('div');
+      dateNode.className = 'mr-3 flex items-center';
+      dateNode.innerHTML = `<i class="ri-calendar-2-fill mr-1"></i>${formatDate(date)}`;
+      meta.append(dateNode);
+
+      dealLabel(category)
+        .filter((item) => item !== 'uncategorized')
+        .forEach((categoryName) => {
+          meta.append(
+            createMetaLink(
+              'ri-folder-3-line',
+              getUrl('/category/') + categoryName,
+              categoryName
+            )
+          );
+        });
+
+      dealLabel(tags).forEach((tagName) => {
+        meta.append(
+          createMetaLink('ri-hashtag', getUrl('/tags/') + tagName, tagName)
+        );
+      });
+
+      article.append(meta);
+
+      const description = document.createElement('p');
+      description.className = 'break-all leading-7 text-skin-dodge';
+      description.append(createHighlightedFragment(getSnippet(result.item, searchTerm), searchTerm));
+      article.append(description);
+
+      fragment.append(article);
+    });
+
+    resultsListEl.append(fragment);
+  }
+
+  async function ensureSearchIndex() {
+    if (SEARCH_DATA) {
+      return;
+    }
+
+    const res = await fetch(getUrl("/search.json"));
+    if (!res.ok) {
+      throw new Error("Something went wrong...Please try again.");
+    }
+
+    SEARCH_DATA = await res.json();
     if (SEARCH_DATA && !FUSE_INSTANCE) {
-      FUSE_INSTANCE = new Fuse(SEARCH_DATA, FUSE_OPTIONS)
+      FUSE_INSTANCE = new Fuse(SEARCH_DATA, FUSE_OPTIONS);
+    }
+  }
+
+  async function fetchSearchResults(search: string) {
+    if (!search) {
+      updateReadout(null);
+      resultsListEl.replaceChildren();
+      return;
+    }
+
+    resultsListEl.innerHTML = loadingMarkup;
+
+    try {
+      await ensureSearchIndex();
+    } catch (e) {
+      console.log(e);
+      return;
     }
 
     if (!FUSE_INSTANCE) return;
-    const searchResults = FUSE_INSTANCE.search(search)
-    updateReadout(searchResults.length)
-    resultsList.innerHTML = searchResults.length > 0 ? generateSearchList(searchResults, search) : ""
+    const searchResults = FUSE_INSTANCE.search(search);
+    updateReadout(searchResults.length);
+    renderResults(searchResults, search);
   }
 </script>

@@ -1,12 +1,14 @@
-import {orderBy} from 'lodash-es'
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
+import type { BlogEntry } from '@/types/content';
 
-export const orderBySticky = (posts) => {
-  let handlePosts = posts.map(post => {
-    post.sticky = post.data.sticky ? post.data.sticky : 0
-    post.dateTimestamp = dayjs(post.data.date).valueOf()
+export const orderBySticky = (posts: BlogEntry[]) =>
+  [...posts].sort((leftPost, rightPost) => {
+    const leftSticky = leftPost.data.sticky ?? 0;
+    const rightSticky = rightPost.data.sticky ?? 0;
 
-    return post
-  })
-  return orderBy(handlePosts, ['sticky', 'dateTimestamp'], ['desc', 'desc'])
-}
+    if (rightSticky !== leftSticky) {
+      return rightSticky - leftSticky;
+    }
+
+    return dayjs(rightPost.data.date).valueOf() - dayjs(leftPost.data.date).valueOf();
+  });

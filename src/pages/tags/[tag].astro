@@ -7,15 +7,17 @@ import {formatDate} from "@/utils/formatDate";
 import {sortPostsByDate} from "@/utils/sortPostsByDate";
 import {getCollectionByName} from "@/utils/getCollectionByName";
 import getUrl from "@/utils/getUrl";
-export async function getStaticPaths() {
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+
+export const getStaticPaths = (async () => {
   const posts = await getCollectionByName("blog");
-  //   过滤没有分类的文章，todo 后期可能会强制需要文章分类
   const tags = getUniqueTags(posts).filter((tag) => tag);
   return tags.map((tag) => {
     return {params: {tag,}, props: {tag,},};
   });
-}
-const {tag} = Astro.props;
+}) satisfies GetStaticPaths;
+
+const {tag} = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 let posts = await getCollectionByName("blog");
 const tagPosts = getPostsByTag(posts, tag);
 const resultPosts = sortPostsByDate(tagPosts);

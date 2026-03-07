@@ -7,15 +7,20 @@ import {sortPostsByDate} from "@/utils/sortPostsByDate";
 import Donate from '@/components/Donate.astro'
 import {donate} from "@/consts";
 import getUrl from "@/utils/getUrl";
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import {getRelatedPosts} from "@/utils/getRelatedPosts";
+import SeriesPosts from '@/components/SeriesPosts.astro';
+import {getSeriesPosts} from "@/utils/getSeriesPosts";
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 
-export async function getStaticPaths() {
+export const getStaticPaths = (async () => {
   const blogEntries = await getCollectionByName("blog");
   return blogEntries.map(entry => ({
     params: {slug: entry.slug}, props: {entry,},
   }));
-}
+}) satisfies GetStaticPaths;
 
-const {entry} = Astro.props;
+const {entry} = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const {Content, headings, remarkPluginFrontmatter} = await entry.render();
 
 
@@ -24,11 +29,13 @@ const readingTime = remarkPluginFrontmatter.readingTime
 
 const posts = await getCollectionByName("blog");
 const sortPosts = sortPostsByDate(posts);
+const seriesPosts = getSeriesPosts(posts, entry.slug);
+const relatedPosts = getRelatedPosts(posts, entry.slug);
 
 const currentPostIndex = sortPosts.findIndex(
-  (postItem) => postItem.data.title === entry.data.title
+  (postItem) => postItem.slug === entry.slug
 );
-let prevPost, nextPost
+let prevPost, nextPost;
 if (sortPosts[currentPostIndex - 1]) {
   prevPost = sortPosts[currentPostIndex - 1];
 }
@@ -36,11 +43,10 @@ if (sortPosts[currentPostIndex + 1]) {
   nextPost = sortPosts[currentPostIndex + 1];
 }
 ---
-<BlogPost frontmatter={entry.data} headings={headings}>
+<BlogPost frontmatter={{...entry.data, lastModified}} headings={headings}>
   <div>
     <PostTitle {...entry.data} lastModified={lastModified} readingTime={readingTime}></PostTitle>
-    <div class="divider-horizontal"></div>
-    <article class="markdown-body">
+    <article class="markdown-body article-body">
       <Content/>
     </article>
     <div class="divider-horizontal"></div>
@@ -73,6 +79,8 @@ if (sortPosts[currentPostIndex + 1]) {
       }
     </div>
     <BlogFooter title={entry.data.title} url={getUrl('/') + entry.collection + '/' + entry.slug} date={entry.data.date}></BlogFooter>
+    <SeriesPosts posts={seriesPosts} currentSlug={entry.slug} />
+    <RelatedPosts posts={relatedPosts} />
     {
       donate.enable && entry.data.donate &&
       <Donate></Donate>

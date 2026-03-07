@@ -7,7 +7,9 @@ import {formatDate} from "@/utils/formatDate";
 import {sortPostsByDate} from "@/utils/sortPostsByDate";
 import {getCollectionByName} from "@/utils/getCollectionByName";
 import getUrl from "@/utils/getUrl";
-export async function getStaticPaths() {
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+
+export const getStaticPaths = (async () => {
   const posts = await getCollectionByName("blog");
   const category = getUniqueCategory(posts);
   return category.map((category) => {
@@ -20,8 +22,9 @@ export async function getStaticPaths() {
       },
     };
   });
-}
-const {category} = Astro.props;
+}) satisfies GetStaticPaths;
+
+const {category} = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 let posts = await getCollectionByName("blog");
 const categoryPosts = getPostsByCategory(posts, category);
 const resultPosts = sortPostsByDate(categoryPosts);
