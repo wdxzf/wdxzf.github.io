@@ -101,8 +101,15 @@ const hasMoreMobileTags =
       <div class="flex flex-wrap items-center justify-center">
       {
         activeInfoLinks.map((infoItem) => (
-          <a title={infoItem.name} href={infoItem.outlink} target="_blank" rel="noopener noreferrer">
-            <i class={infoItem.icon + " text-2xl mr-2 cursor-pointer"}/>
+          <a
+            class="social-link"
+            aria-label={infoItem.name}
+            href={infoItem.outlink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
+            <span class="social-link-tooltip">{infoItem.name}</span>
           </a>
         ))
       }

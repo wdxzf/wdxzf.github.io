@@ -180,9 +180,14 @@ export const infoLinks: SocialLink[] = [
     outlink: '',
   },
   {
+    icon: 'ri-wechat-fill',
+    name: 'wechat',
+    outlink: `${site.baseUrl || ''}/微信.png`,
+  },
+  {
     icon: 'ri-qq-fill',
     name: 'QQ',
-    outlink: 'https://qm.qq.com/q/T5jNrN5lmk',
+    outlink: `${site.baseUrl || ''}/qq.jpg`,
   },
   {
     icon: 'ri-bilibili-fill',
@@ -197,7 +202,7 @@ export const infoLinks: SocialLink[] = [
   {
     icon: 'ri-rss-fill',
     name: 'rss',
-    outlink: '',
+    outlink: `${site.url}${site.baseUrl}/rss.xml`,
   }
 ]
 

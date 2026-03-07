@@ -170,6 +170,44 @@ menu {
     background-color: rgba(var(--color-text), 0.04);
   }
 
+  .social-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0.35rem;
+    color: rgba(var(--color-text), 0.92);
+    transition: color 0.2s ease;
+  }
+
+  .social-link:hover {
+    color: rgb(var(--color-text-active));
+  }
+
+  .social-link-tooltip {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 0.55rem);
+    transform: translate(-50%, -6px);
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    background-color: rgba(var(--color-modal), 0.92);
+    color: rgb(var(--color-fill-secondary));
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .social-link:hover .social-link-tooltip,
+  .social-link:focus-visible .social-link-tooltip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
   /* 侧边最近评论列表样式 */
   .waline-comment-content {
     @apply p-1 overflow-auto break-words max-h-72 hover:text-skin-active;
