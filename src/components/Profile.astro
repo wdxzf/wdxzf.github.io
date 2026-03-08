@@ -4,10 +4,10 @@ import getUrl from "@/utils/getUrl";
 const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
 ---
 
-<div class="shadow-lg rounded-lg w-auto flex flex-col items-center justify-center bg-skin-card px-4 py-6">
+<div class="shadow-lg rounded-lg h-64 w-auto flex flex-col items-center justify-center bg-skin-card p-2">
   <img class="avatar mb-4" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
     <div class="mb-2 text-center">{site.motto}</div>
-  <div class="social-links-row">
+  <div class="flex items-center justify-center flex-nowrap whitespace-nowrap">
     {
       activeInfoLinks.map((infoItem) => (
         <a
@@ -17,7 +17,7 @@ const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
           target="_blank"
           rel="noopener noreferrer"
         >
-          <i class={infoItem.icon + " social-link-icon"}/>
+          <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
           <span class="social-link-tooltip">{infoItem.name}</span>
         </a>
       ))

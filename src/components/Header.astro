@@ -77,7 +77,7 @@ const isChildGroupActive = (items: { href: string }[]) =>
       <section class="mobile-drawer-card">
         <img class="mx-auto avatar mb-4" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
         <div class="mb-3 text-center text-sm text-skin-dodge">{site.motto}</div>
-        <div class="social-links-row">
+        <div class="flex flex-nowrap items-center justify-center gap-1 whitespace-nowrap">
           {
             activeInfoLinks.map((infoItem) => (
               <a
@@ -87,7 +87,7 @@ const isChildGroupActive = (items: { href: string }[]) =>
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <i class={infoItem.icon + " social-link-icon"}/>
+                <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
                 <span class="social-link-tooltip">{infoItem.name}</span>
               </a>
             ))

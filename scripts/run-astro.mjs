@@ -7,8 +7,14 @@ if (args.length === 0) {
   process.exit(1);
 }
 
-const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-const child = spawn(command, ['exec', 'astro', ...args], {
+const command =
+  process.platform === 'win32' ? process.env.ComSpec ?? 'cmd.exe' : 'pnpm';
+const commandArgs =
+  process.platform === 'win32'
+    ? ['/d', '/s', '/c', 'pnpm', 'exec', 'astro', ...args]
+    : ['exec', 'astro', ...args];
+
+const child = spawn(command, commandArgs, {
   stdio: 'inherit',
   env: {
     ...process.env,
