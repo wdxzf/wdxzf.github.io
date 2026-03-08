@@ -9,6 +9,8 @@ import MobileToc from '@/components/MobileToc.astro';
 import { comment, config } from '@/consts';
 import ScrollToTop from '@/components/ScrollToTop.astro';
 import { t } from '@/i18n/utils';
+import getUrl from '@/utils/getUrl';
+import '@fancyapps/ui/dist/fancybox/fancybox.css';
 
 const {
   frontmatter = {
@@ -42,14 +44,16 @@ const {
     >
       <div class="grid grid-cols-4 gap-8">
         <div class="col-span-4 space-y-4 xl:col-span-3 first:space-y-2">
-          <button
+          <a
+            id="back-button"
             class="flex items-center outline-none cursor-pointer text-md hover:text-skin-active"
             style="background-color: inherit;"
-            onclick="history.back()"
+            href={getUrl('/blog/1')}
+            onclick={`if (window.history.length > 1) { window.history.back(); return false; }`}
           >
             <i class="mr-2 ri-arrow-left-line"></i>
             <span>{t('home.goBack')}</span>
-          </button>
+          </a>
           <slot />
           {frontmatter.comment && comment.enable && <Comment />}
         </div>
@@ -66,11 +70,6 @@ const {
 </html>
 
 <script>
-  import { Fancybox } from '@fancyapps/ui';
-  import '@fancyapps/ui/dist/fancybox/fancybox.css';
-
-  Fancybox.bind('[data-fancybox]');
-
   const shouldDecorateExternalLink = (link: HTMLAnchorElement) => {
     const href = link.getAttribute('href');
 
@@ -85,6 +84,15 @@ const {
 
     const resolvedUrl = new URL(href, window.location.href);
     return resolvedUrl.origin !== window.location.origin;
+  };
+
+  const initializeLightbox = async () => {
+    try {
+      const { Fancybox } = await import('@fancyapps/ui/dist/fancybox/fancybox.esm.js');
+      Fancybox.bind('[data-fancybox]');
+    } catch (error) {
+      console.error('Failed to initialize Fancybox.', error);
+    }
   };
 
   const markdownBody = document.querySelector('.markdown-body');
@@ -110,8 +118,13 @@ const {
 
     const observer = new IntersectionObserver(callback);
     images.forEach((image) => {
+      image.setAttribute('data-fancybox', 'gallery');
       observer.observe(image);
     });
+
+    if (images.length > 0) {
+      initializeLightbox();
+    }
 
     const links = markdownBody.querySelectorAll<HTMLAnchorElement>('a');
     for (var i = 0; i < links.length; i++) {

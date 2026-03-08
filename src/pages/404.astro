@@ -1,8 +1,46 @@
 ---
 import IndexPage from "@/layouts/IndexPage.astro";
+import getUrl from "@/utils/getUrl";
+
+const blogEntries = import.meta.glob('/src/content/blog/*.{md,mdx}', { eager: true });
+const slugRedirects = Object.fromEntries(
+  Object.entries(blogEntries)
+    .map(([filePath, entry]) => {
+      const markdownEntry = entry as { frontmatter?: { slug?: string } };
+      const currentSlug =
+        typeof markdownEntry.frontmatter?.slug === 'string'
+          ? markdownEntry.frontmatter.slug.trim()
+          : '';
+      const legacySlug =
+        filePath.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
+
+      return { currentSlug, legacySlug };
+    })
+    .filter(({ currentSlug, legacySlug }) => currentSlug && currentSlug !== legacySlug)
+    .flatMap((entry) => {
+      const currentPath = `${getUrl('/blog/')}${entry.currentSlug}`;
+      const legacyPath = `${getUrl('/blog/')}${entry.legacySlug}`;
+
+      return [
+        [legacyPath, currentPath],
+        [`${legacyPath}/`, currentPath],
+      ];
+    })
+);
 ---
 
 <IndexPage title="404" description="你访问的页面不存在。">
   <div>404</div>
   <div>抱歉，你访问的页面不存在。</div>
 </IndexPage>
+<script define:vars={{ slugRedirects }}>
+  const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  const redirectTarget =
+    slugRedirects[window.location.pathname] ||
+    slugRedirects[normalizedPath] ||
+    slugRedirects[`${normalizedPath}/`];
+
+  if (redirectTarget && redirectTarget !== window.location.pathname) {
+    window.location.replace(redirectTarget);
+  }
+</script>

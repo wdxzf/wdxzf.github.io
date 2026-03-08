@@ -1,3 +1,4 @@
+import { config } from "../consts";
 import {getCollectionByName} from "../utils/getCollectionByName.js";
 import {getPostPlainText, truncateText} from "../utils/getPostPlainText.js";
 
@@ -6,6 +7,7 @@ async function getBlogs() {
   return blog.map(blog => {
     const content = getPostPlainText(blog.body);
     const description = blog.data.description ?? '';
+    const includeContent = config.search.includeContent;
 
     return {
       slug: blog.slug,
@@ -14,8 +16,8 @@ async function getBlogs() {
       date: blog.data.date,
       category: blog.data.category,
       tags: blog.data.tags,
-      content,
       excerpt: truncateText(description || content, 220),
+      ...(includeContent ? { content } : {}),
     }
   })
 }

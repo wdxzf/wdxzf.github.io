@@ -1,37 +1,57 @@
 ---
 ---
-<button type="button" id="menu-icon" class="header-btn" title="Menu">
-  <i class="ri-menu-fill"/>
-</button>
-<button type="button" id="menu-icon-close" class="header-btn hidden" title="Menu">
-  <i class="ri-close-fill"></i>
+<button
+  type="button"
+  id="menu-toggle"
+  class="header-btn"
+  title="打开导航菜单"
+  aria-label="打开导航菜单"
+  aria-controls="mobile-menu"
+  aria-expanded="false"
+>
+  <i id="menu-open-icon" class="ri-menu-fill"></i>
+  <i id="menu-close-icon" class="ri-close-fill hidden"></i>
 </button>
 
 
 <script>
-  const menuIcon = document.getElementById("menu-icon");
-  const menuCloseIcon = document.getElementById("menu-icon-close");
+  const menuToggle = document.getElementById("menu-toggle");
+  const menuOpenIcon = document.getElementById("menu-open-icon");
+  const menuCloseIcon = document.getElementById("menu-close-icon");
   const menu = document.getElementById("mobile-menu");
-  const showAsideBtn = document.getElementById("aside-btn");
-  const closeAsideBtn = document.getElementById("aside-close-btn");
-  const personalInfo = document.getElementById("personal-info");
 
-  if (menuIcon && menuCloseIcon && menu) {
-    menuIcon.addEventListener("click", () => {
-      if (showAsideBtn && showAsideBtn.classList.contains('hidden')) {
-        toggleHidden([showAsideBtn, closeAsideBtn, personalInfo])
+  if (menuToggle && menu) {
+    const setExpanded = (expanded) => {
+      menu.classList.toggle("hidden", !expanded);
+      menuToggle.setAttribute("aria-expanded", String(expanded));
+      menuToggle.setAttribute("aria-label", expanded ? "关闭导航菜单" : "打开导航菜单");
+      menuToggle.setAttribute("title", expanded ? "关闭导航菜单" : "打开导航菜单");
+      menuOpenIcon?.classList.toggle("hidden", expanded);
+      menuCloseIcon?.classList.toggle("hidden", !expanded);
+      document.body.classList.toggle("overflow-hidden", expanded);
+    };
+
+    menuToggle.addEventListener("click", () => {
+      const isExpanded = menuToggle.getAttribute("aria-expanded") === "true";
+      setExpanded(!isExpanded);
+    });
+
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        setExpanded(false);
+      });
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setExpanded(false);
       }
-      toggleHidden([menuIcon, menuCloseIcon, menu])
     });
-    menuCloseIcon.addEventListener("click", () => {
-      toggleHidden([menuIcon, menuCloseIcon, menu])
-    });
-  }
 
-  function toggleHidden(arr: Array<HTMLElement | null>) {
-    arr.forEach((item) => {
-      if (!item) return;
-      item.classList.toggle("hidden");
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 1280) {
+        setExpanded(false);
+      }
     });
   }
 </script>

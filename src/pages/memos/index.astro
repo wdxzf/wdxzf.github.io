@@ -1,5 +1,6 @@
 ---
 import IndexPage from "@/layouts/IndexPage.astro";
+import {config} from '../../consts'
 import {t} from '@/i18n/utils'
 ---
 
@@ -8,16 +9,23 @@ import {t} from '@/i18n/utils'
   description="浏览公开的 Memos 动态。"
   frontmatter={{comment: false, donate: false,}}
 >
-  <div class="memos-wrapper" id="memos"></div>
+  <div class="memos-wrapper feed-page-shell" id="memos"></div>
+  <div class="search-empty-state rounded-2xl px-5 py-6 text-sm text-skin-dodge" id="memos-status">
+    {t('memos.loading')}
+  </div>
   <button class="rounded bg-skin-card p-1 border text-sm hover:text-skin-active hidden" id="more-btn">{t('memos.loadMore')}</button>
 </IndexPage>
 
-<script>
-  import dayjs from "dayjs";
-  import {config} from '../../consts'
-  import relativeTime from "dayjs/plugin/relativeTime";
-  import "dayjs/locale/zh-cn";
-
+<script define:vars={{
+  memosUrl: config.memosUrl,
+  memosUsername: config.memosUsername,
+  memosPageSize: String(config.memosPageSize || 10),
+  locale: config.lang || 'en',
+  memosLoadingText: t('memos.loading'),
+  memosEmptyText: t('memos.empty'),
+  memosErrorText: t('memos.error'),
+  memosConfigMissingText: t('memos.configMissing'),
+}}>
   type MemosUser = {
     avatarUrl?: string;
   };
@@ -39,73 +47,300 @@ import {t} from '@/i18n/utils'
     nextPageToken: string;
   };
 
-  dayjs.extend(relativeTime);
-  dayjs.locale(config.lang || 'en');
-
   const moreBtn = document.getElementById('more-btn');
   const memosContainer = document.getElementById('memos');
+  const memosStatus = document.getElementById('memos-status');
 
-  if (moreBtn && memosContainer) {
+  if (moreBtn && memosContainer && memosStatus) {
     const moreButton = moreBtn;
     const memosRoot = memosContainer;
+    const statusNode = memosStatus;
     let avatar_url = '';
     let nextPageToken = '';
+    let isLoading = false;
 
-    moreButton.addEventListener('click', function () {
-      getMemos()
+    moreButton.addEventListener('click', () => {
+      getMemos().catch((error) => {
+        console.error(error);
+        moreButton.removeAttribute('disabled');
+        isLoading = false;
+        statusNode.classList.remove('hidden');
+        statusNode.textContent = memosErrorText;
+      });
     })
 
-    await getAvatar()
-    await getMemos()
+    init().catch((error) => {
+      console.error(error);
+      statusNode.textContent = memosErrorText;
+    });
+
+    async function init() {
+      if (!memosUrl || !memosUsername) {
+        statusNode.textContent = memosConfigMissingText;
+        return;
+      }
+
+      await getAvatar()
+      await getMemos()
+    }
 
     async function getAvatar() {
-      const res = await fetch(`${config.memosUrl}/api/v1/users:username?username=${config.memosUsername}`)
+      const res = await fetch(`${memosUrl}/api/v1/users:username?username=${memosUsername}`)
+      if (!res.ok) {
+        throw new Error('Failed to fetch Memos user profile.');
+      }
       const userInfo = await res.json() as MemosUser
       avatar_url = userInfo.avatarUrl ? userInfo.avatarUrl : 'https://memos.cirry.cn/full-logo.webp'
     }
 
     async function getMemos() {
-      const url = new URL(`${config.memosUrl}/api/v1/memos`);
-      const params = new URLSearchParams({
-        filter: 'visibility == "PUBLIC"',
-        pageSize: "10",
-        pageToken: nextPageToken,
-      });
-      url.search = params.toString();
-      const res = await fetch(url.toString())
-      const json = await res.json() as MemosResponse
+      if (isLoading) {
+        return;
+      }
 
-      let divs = ''
-
-      json.memos.forEach((memo) => {
-        let imagesStr = ''
-        if (memo.resources.length > 0) {
-          const images = memo.resources.filter((source) => ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(source.type))
-          images.forEach((image) => {
-            imagesStr += `<img src="${config.memosUrl + '/file/' + image.name + '/' + image.filename}" alt="${image.filename}" />`
-          })
+      isLoading = true;
+      moreButton.setAttribute('disabled', 'true');
+      statusNode.textContent = memosLoadingText;
+      try {
+        const url = new URL(`${memosUrl}/api/v1/memos`);
+        const params = new URLSearchParams({
+          filter: 'visibility == "PUBLIC"',
+          pageSize: memosPageSize,
+          pageToken: nextPageToken,
+        });
+        url.search = params.toString();
+        const res = await fetch(url.toString())
+        if (!res.ok) {
+          throw new Error('Failed to fetch Memos list.');
         }
-        divs += `
-            <div class="flex flex-col shadow bg-skin-card p-4 mb-4 rounded-lg">
-              <div class="flex w-full memos-center">
-                <img src="${avatar_url}" class="github-avatar mr-4" alt="avatar" />
-                <div>@${config.memosUsername}</div>
-              </div>
-              <p class="memo-content-wrapper my-4"> ${memo.snippet}</p>
-              <div>${imagesStr}</div>
+        const json = await res.json() as MemosResponse
+        const fragment = document.createDocumentFragment();
 
-              <p>${dayjs(memo.updateTime).fromNow()} • ${dayjs(memo.updateTime).format("YYYY-MM-DD HH:mm")}</p>
-            </div>
-            `
-      })
-      memosRoot.innerHTML += divs.toString();
-      nextPageToken = json.nextPageToken
+        json.memos.forEach((memo) => {
+          fragment.appendChild(createMemoCard(memo));
+        })
 
-      if (nextPageToken === '') {
-        moreButton.classList.add('hidden');
-      } else {
-        moreButton.classList.remove('hidden');
+        memosRoot.appendChild(fragment);
+        nextPageToken = json.nextPageToken
+
+        if (nextPageToken === '') {
+          moreButton.classList.add('hidden');
+        } else {
+          moreButton.classList.remove('hidden');
+        }
+
+        if (memosRoot.childElementCount > 0) {
+          statusNode.classList.add('hidden');
+        } else {
+          statusNode.classList.remove('hidden');
+          statusNode.textContent = memosEmptyText;
+        }
+      } finally {
+        moreButton.removeAttribute('disabled');
+        isLoading = false;
       }
     }
+
+  function createMemoCard(memo: Memo) {
+      const {title, summary} = splitMemoContent(memo.snippet);
+      const card = document.createElement('article');
+      card.className = 'memo-story';
+
+      const chip = document.createElement('div');
+      chip.className = 'memo-story-chip';
+      chip.append(
+        createChipItem('ri-calendar-line', formatDateLabel(memo.updateTime, locale)),
+        createChipItem('ri-time-line', formatTimeLabel(memo.updateTime, locale)),
+      );
+
+      const contentCard = document.createElement('div');
+      contentCard.className = 'memo-story-card';
+      contentCard.append(chip);
+
+      const meta = document.createElement('div');
+      meta.className = 'memo-story-meta';
+
+      const avatar = document.createElement('img');
+      avatar.src = avatar_url;
+      avatar.className = 'github-avatar';
+      avatar.alt = `${memosUsername} avatar`;
+
+      const username = document.createElement('span');
+      username.className = 'memo-story-username';
+      username.textContent = `@${memosUsername}`;
+
+      meta.append(avatar, username);
+
+      const headline = document.createElement('h2');
+      headline.className = 'memo-story-title';
+      headline.textContent = title;
+
+      const body = document.createElement('p');
+      body.className = 'memo-story-summary';
+      body.textContent = summary || memo.snippet;
+
+      const imagesWrapper = document.createElement('div');
+      imagesWrapper.className = 'memo-story-media';
+
+      if (memo.resources.length > 0) {
+        const images = memo.resources.filter((source) =>
+          ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(source.type)
+        );
+
+        images.forEach((image) => {
+          const memoImage = document.createElement('img');
+          memoImage.src = `${memosUrl}/file/${image.name}/${image.filename}`;
+          memoImage.alt = image.filename;
+          memoImage.loading = 'lazy';
+          memoImage.decoding = 'async';
+          imagesWrapper.appendChild(memoImage);
+        })
+      }
+
+      const footer = document.createElement('div');
+      footer.className = 'memo-story-footer';
+
+      const sourceBadge = document.createElement('span');
+      sourceBadge.className = 'memo-story-badge';
+      sourceBadge.textContent = `来自 @${memosUsername}`;
+
+      const relativeTime = document.createElement('span');
+      relativeTime.className = 'memo-story-badge';
+      relativeTime.textContent = formatRelativeTime(memo.updateTime, locale);
+
+      footer.append(sourceBadge, relativeTime);
+      contentCard.append(meta, headline, body);
+
+      if (imagesWrapper.childElementCount > 0) {
+        contentCard.append(imagesWrapper);
+      }
+
+      contentCard.append(footer);
+      card.append(contentCard);
+      return card;
+    }
+  }
+
+  function createChipItem(iconName: string, text: string) {
+    const item = document.createElement('span');
+    item.className = 'memo-story-chip-item';
+
+    const icon = document.createElement('i');
+    icon.className = iconName;
+
+    const label = document.createElement('span');
+    label.textContent = text;
+
+    item.append(icon, label);
+    return item;
+  }
+
+  function splitMemoContent(snippet: string) {
+    const normalized = snippet.replace(/\s+/g, ' ').trim();
+    if (!normalized) {
+      return {
+        title: '@' + memosUsername,
+        summary: '',
+      };
+    }
+
+    const lines = snippet
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const chunks = (lines.length > 1 ? lines : normalized.split(/(?<=[。！？.!?])\s+/))
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const title = truncateText(chunks[0] || normalized, 36);
+    const summary = truncateText((chunks.slice(1).join(' ') || normalized), 180);
+    return {
+      title,
+      summary: summary === title ? '' : summary,
+    };
+  }
+
+  function truncateText(value: string, maxLength: number) {
+    if (value.length <= maxLength) {
+      return value;
+    }
+
+    return value.slice(0, maxLength).trimEnd() + '…';
+  }
+
+  function formatRelativeTime(dateString: string, currentLocale: string) {
+    const targetDate = new Date(dateString);
+    if (Number.isNaN(targetDate.getTime())) {
+      return dateString;
+    }
+
+    const diffMs = targetDate.getTime() - Date.now();
+    const diffMinutes = Math.round(diffMs / (1000 * 60));
+    const diffHours = Math.round(diffMinutes / 60);
+    const diffDays = Math.round(diffHours / 24);
+    const diffMonths = Math.round(diffDays / 30);
+    const diffYears = Math.round(diffDays / 365);
+    const formatter = new Intl.RelativeTimeFormat(currentLocale, { numeric: 'auto' });
+
+    if (Math.abs(diffMinutes) < 60) {
+      return formatter.format(diffMinutes, 'minute');
+    }
+
+    if (Math.abs(diffHours) < 24) {
+      return formatter.format(diffHours, 'hour');
+    }
+
+    if (Math.abs(diffDays) < 30) {
+      return formatter.format(diffDays, 'day');
+    }
+
+    if (Math.abs(diffMonths) < 12) {
+      return formatter.format(diffMonths, 'month');
+    }
+
+    return formatter.format(diffYears, 'year');
+  }
+
+  function formatDateTime(dateString: string, currentLocale: string) {
+    const targetDate = new Date(dateString);
+    if (Number.isNaN(targetDate.getTime())) {
+      return dateString;
+    }
+
+    return new Intl.DateTimeFormat(currentLocale, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(targetDate);
+  }
+
+  function formatDateLabel(dateString: string, currentLocale: string) {
+    const targetDate = new Date(dateString);
+    if (Number.isNaN(targetDate.getTime())) {
+      return dateString;
+    }
+
+    return new Intl.DateTimeFormat(currentLocale, {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+    }).format(targetDate);
+  }
+
+  function formatTimeLabel(dateString: string, currentLocale: string) {
+    const targetDate = new Date(dateString);
+    if (Number.isNaN(targetDate.getTime())) {
+      return '';
+    }
+
+    return new Intl.DateTimeFormat(currentLocale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(targetDate);
   }
 </script>

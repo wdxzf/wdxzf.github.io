@@ -1,5 +1,32 @@
 import {defineCollection, z} from 'astro:content';
 
+const placeholderDescriptionValues = new Set([
+  '一句话描述这篇文章讲什么',
+]);
+
+const placeholderTaxonomyValues = new Set([
+  '分类1',
+  '分类2',
+  '标签1',
+  '标签2',
+]);
+
+function normalizeTaxonomyValue(value: string) {
+  return value.trim();
+}
+
+function toValueList(value: string[] | string | null | undefined) {
+  if (Array.isArray(value)) {
+    return value.map(normalizeTaxonomyValue);
+  }
+
+  if (typeof value === 'string') {
+    return [normalizeTaxonomyValue(value)];
+  }
+
+  return [];
+}
+
 const blog = defineCollection({
   type: 'content',
   schema: z.object({
@@ -19,6 +46,37 @@ const blog = defineCollection({
     donate: z.boolean().default(true).nullable(),
     comment: z.boolean().default(true).nullable(),
     ogImage: z.string().optional()
+  }).superRefine((data, ctx) => {
+    if (data.draft) {
+      return;
+    }
+
+    const description = data.description?.trim() ?? '';
+    if (!description || placeholderDescriptionValues.has(description)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Published posts must provide a real description.',
+        path: ['description'],
+      });
+    }
+
+    const categories = toValueList(data.category);
+    if (categories.some((value) => placeholderTaxonomyValues.has(value))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Published posts cannot use placeholder categories.',
+        path: ['category'],
+      });
+    }
+
+    const tags = toValueList(data.tags);
+    if (tags.some((value) => placeholderTaxonomyValues.has(value))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Published posts cannot use placeholder tags.',
+        path: ['tags'],
+      });
+    }
   }),
 });
 

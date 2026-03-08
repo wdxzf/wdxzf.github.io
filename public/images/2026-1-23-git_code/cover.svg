@@ -1,0 +1,19 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="32" fill="#0F172A"/>
+  <rect x="64" y="64" width="1072" height="502" rx="24" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <circle cx="120" cy="120" r="10" fill="#F87171"/>
+  <circle cx="156" cy="120" r="10" fill="#FBBF24"/>
+  <circle cx="192" cy="120" r="10" fill="#34D399"/>
+  <text x="96" y="210" fill="#E2E8F0" font-size="68" font-family="Arial, sans-serif" font-weight="700">Git 简单笔记</text>
+  <text x="96" y="280" fill="#94A3B8" font-size="32" font-family="Arial, sans-serif">常用 Git 命令、工作流和协作场景</text>
+  <rect x="96" y="350" width="180" height="56" rx="12" fill="#1D4ED8"/>
+  <text x="132" y="388" fill="#FFFFFF" font-size="28" font-family="Arial, sans-serif" font-weight="700">工作区</text>
+  <path d="M296 378H416" stroke="#64748B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M396 360L432 378L396 396" stroke="#64748B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="452" y="350" width="180" height="56" rx="12" fill="#2563EB"/>
+  <text x="488" y="388" fill="#FFFFFF" font-size="28" font-family="Arial, sans-serif" font-weight="700">暂存区</text>
+  <path d="M652 378H772" stroke="#64748B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M752 360L788 378L752 396" stroke="#64748B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="808" y="350" width="220" height="56" rx="12" fill="#0EA5E9"/>
+  <text x="856" y="388" fill="#FFFFFF" font-size="28" font-family="Arial, sans-serif" font-weight="700">本地仓库</text>
+</svg>

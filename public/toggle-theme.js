@@ -25,8 +25,11 @@ function setPreference() {
 
 function reflectPreference() {
   document.firstElementChild.setAttribute("data-theme", themeValue);
-
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeValue);
+  const nextTheme = themeValue === "light" ? "dark" : "light";
+  const button = document.querySelector("#theme-btn");
+  button?.setAttribute("aria-label", `切换到${nextTheme === "dark" ? "深色" : "浅色"}模式`);
+  button?.setAttribute("title", `切换到${nextTheme === "dark" ? "深色" : "浅色"}模式`);
+  button?.setAttribute("aria-pressed", String(themeValue === "dark"));
 }
 
 // set early so no page flashes / CSS is made aware

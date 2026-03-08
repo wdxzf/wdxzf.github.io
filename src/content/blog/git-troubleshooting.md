@@ -148,7 +148,7 @@ submodule 只记录：
 ### 问题现象
 
 在 Git 提交图中看到：
-![现象图片](public/images/git-troubleshooting/image-1.png)
+![现象图片](/images/git-troubleshooting/image-1.png)
 
 ```
 1111/master

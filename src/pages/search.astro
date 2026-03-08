@@ -1,44 +1,55 @@
 ---
 import IndexPage from "@/layouts/IndexPage.astro";
+import { config } from "@/consts";
 import {t} from '@/i18n/utils'
+
+const includeContent = config.search.includeContent;
 ---
 <IndexPage
   title={t('search.search')}
   description="搜索博客文章标题、摘要和正文内容。"
 >
-  <aside>
-    <div class="flex items-center justify-between gap-4">
-      <label for="search" class="text-2xl text-skin-base ">
-        {t('search.search')}
-      </label>
-      <div class="rounded border border-skin-dodge border-opacity-40 px-2 py-1 text-xs text-skin-dodge">
-        /
+  <section class="search-shell">
+    <aside class="search-hero rounded-2xl p-5 md:p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <label for="search" class="text-2xl font-semibold text-skin-base">
+            {t('search.search')}
+          </label>
+          <p id="search-help" class="mt-2 text-sm leading-6 text-skin-dodge">
+            {t('search.hint')}
+          </p>
+        </div>
+        <div class="search-shortcut rounded-full border border-skin-dodge border-opacity-40 px-3 py-1 text-xs text-skin-dodge">
+          /
+        </div>
       </div>
-    </div>
-    <p class="mt-2 text-sm text-skin-dodge">{t('search.hint')}</p>
 
-    <div class="relative">
-      <span class="absolute inset-y-0 flex items-center pl-2 opacity-75">
-        <i class="ri-search-line text-skin-active ml-1"></i>
-      </span>
-      <input
-        required
-        maxlength="24"
-        id="search"
-        class="block w-full rounded border border-opacity-40 mt-4 bg-skin-fill text-skin-base py-3 pl-10 pr-3 placeholder:italic placeholder:text-opacity-75 focus:border-skin-accent focus:outline-none"
-        placeholder={t('search.placeholder')}
-        type="search"
-        name="search"
-        autofocus
-      />
-    </div>
-  </aside>
-  <p id="searchReadout"></p>
-  <section aria-label="Search Results">
-    <div id="resultsList"></div>
+      <div class="relative mt-5">
+        <span class="absolute inset-y-0 flex items-center pl-2 opacity-75">
+          <i class="ri-search-line text-skin-active ml-1"></i>
+        </span>
+        <input
+          required
+          maxlength="24"
+          id="search"
+          class="block w-full rounded-2xl border border-opacity-40 bg-skin-fill text-skin-base py-3 pl-10 pr-3 placeholder:italic placeholder:text-opacity-75 focus:border-skin-accent focus:outline-none"
+          placeholder={t('search.placeholder')}
+          type="search"
+          name="search"
+          aria-describedby="search-help"
+          autofocus
+        />
+      </div>
+    </aside>
+
+    <p id="searchReadout" class="mt-4 text-sm text-skin-dodge"></p>
+    <section aria-label="Search Results" class="mt-2">
+      <div id="resultsList"></div>
+    </section>
   </section>
 </IndexPage>
-<script>
+<script define:vars={{ includeContent }}>
   import {t} from '../i18n/utils'
   import Fuse, { type IFuseOptions, type FuseResult } from "fuse.js";
   import {formatDate} from '../utils/formatDate'
@@ -52,40 +63,49 @@ import {t} from '@/i18n/utils'
     date: string;
     category: string[] | string | null;
     tags: string[] | string | null;
-    content: string;
+    content?: string;
     excerpt: string;
   };
 
   let SEARCH_DATA: SearchDocument[] | null = null;
   let FUSE_INSTANCE: Fuse<SearchDocument> | null = null;
   let searchTimeoutId: number | undefined;
+  const keys: IFuseOptions<SearchDocument>['keys'] = [
+    {
+      name: 'title',
+      weight: 1.3
+    },
+    {
+      name: 'description',
+      weight: 1
+    },
+    {
+      name: 'excerpt',
+      weight: 0.9
+    },
+    {
+      name: 'tags',
+      weight: 0.6
+    },
+    {
+      name: 'category',
+      weight: 0.5
+    }
+  ];
+
+  if (includeContent) {
+    keys.push({
+      name: 'content',
+      weight: 0.7
+    });
+  }
+
   const FUSE_OPTIONS: IFuseOptions<SearchDocument> = {
     includeScore: true,
     includeMatches: true,
     shouldSort: true,
     threshold: 0.5,
-    keys: [
-      {
-        name: 'title',
-        weight: 1.2
-      },
-      {
-        name: 'description',
-        weight: 0.9
-      },
-      {
-        name: 'content',
-        weight: 0.7
-      },
-      {
-        name: 'tags',
-        weight: 0.6
-      },
-      {
-        name: 'category',
-        weight: 0.5
-      }
-    ]
+    keys
   }
 
   const search = document.querySelector<HTMLInputElement>('#search');
@@ -252,10 +272,10 @@ import {t} from '@/i18n/utils'
     results.forEach((result) => {
       const {title, date, slug, category, tags} = result.item;
       const article = document.createElement('article');
-      article.className = 'search-result-card my-4 rounded-lg p-5';
+      article.className = 'search-result-card my-4 rounded-2xl p-5 md:p-6';
 
       const titleLink = document.createElement('a');
-      titleLink.className = 'text-xl font-bold underline-offset-4 decoration-skin-base decoration-wavy hover:underline hover:decoration-sky-500';
+      titleLink.className = 'text-xl font-semibold leading-8 transition-colors hover:text-skin-active';
       titleLink.href = getUrl('/blog/') + slug;
       titleLink.append(createHighlightedFragment(title, searchTerm));
       article.append(titleLink);
@@ -318,7 +338,7 @@ import {t} from '@/i18n/utils'
   async function fetchSearchResults(search: string) {
     if (!search) {
       updateReadout(null);
-      resultsListEl.replaceChildren();
+      renderIdleState();
       return;
     }
 
@@ -335,5 +355,21 @@ import {t} from '@/i18n/utils'
     const searchResults = FUSE_INSTANCE.search(search);
     updateReadout(searchResults.length);
     renderResults(searchResults, search);
+  }
+
+  function renderIdleState() {
+    resultsListEl.innerHTML = `
+      <div class="search-empty-state rounded-2xl px-5 py-6">
+        <div class="flex items-start gap-3">
+          <i class="ri-compass-3-line mt-1 text-lg text-skin-active"></i>
+          <div>
+            <p class="text-base font-medium text-skin-base">${t('search.search')}</p>
+            <p class="mt-2 text-sm leading-6 text-skin-dodge">
+              输入文章标题、摘要、标签或分类开始搜索。按 <span class="search-inline-key">/</span> 可快速聚焦搜索框。
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
   }
 </script>

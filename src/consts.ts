@@ -71,7 +71,7 @@ export const site = {
   favicon: '/images/favicon.svg', // 站点符号
   description: '欢迎来到我的博客!',
   author: "W", // 必填
-  avatar: '/images/avatar.jpg', // 头像
+  avatar: '/images/avatar.webp', // 头像
   url: 'https://wdxzf.github.io', // 站点链接
   baseUrl: '', // 使用 GitHub Pages 时填写，例如 '/astro-blog'
   motto: '恰同学少年，风华正茂',
@@ -89,6 +89,7 @@ export const site = {
  * busuanzi {boolean} 访问统计 https://busuanzi.ibruce.info/
  * lang {string} 默认网站语言
  * codeFoldingStartLines {number} 超过多少行代码默认折叠
+ * search.includeContent {boolean} 搜索索引是否包含全文
  * ga {string|false} Google Analytics ID
  * memosUrl {string} memos 服务地址
  * memosUsername {string} memos 登录用户名
@@ -97,6 +98,9 @@ export const site = {
 export const config = {
   lang: 'zh-cn', // en | zh-cn | zh-Hant | cs
   codeFoldingStartLines: 16, // 需要重新运行项目才能生效
+  search: {
+    includeContent: false,
+  },
 
   // memos 配置
   memosUrl: '', // https://xxxx.xxx.xx
@@ -182,12 +186,12 @@ export const infoLinks: SocialLink[] = [
   {
     icon: 'ri-wechat-fill',
     name: 'wechat',
-    outlink: `${site.baseUrl || ''}/微信.png`,
+    outlink: `${site.baseUrl || ''}/微信.webp`,
   },
   {
     icon: 'ri-qq-fill',
     name: 'QQ',
-    outlink: `${site.baseUrl || ''}/qq.jpg`,
+    outlink: `${site.baseUrl || ''}/qq.webp`,
   },
   {
     icon: 'ri-bilibili-fill',

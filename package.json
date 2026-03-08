@@ -3,11 +3,11 @@
   "type": "module",
   "version": "0.0.18",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "typecheck": "astro check",
+    "dev": "node scripts/run-astro.mjs dev",
+    "start": "node scripts/run-astro.mjs dev",
+    "build": "node scripts/run-astro.mjs build",
+    "preview": "node scripts/run-astro.mjs preview",
+    "typecheck": "node scripts/run-astro.mjs check",
     "lint": "pnpm run typecheck",
     "astro": "astro"
   },
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "@types/lodash-es": "^4.17.12",
-    "baseline-browser-mapping": "^2.9.14",
+    "baseline-browser-mapping": "^2.10.0",
     "sass": "^1.72.0"
   }
 }

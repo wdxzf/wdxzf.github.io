@@ -1,21 +1,80 @@
 ---
 import FeedPostDate from "./FeedPostDate.astro";
-const {data, body, slug} = Astro.props.post;
-const {index} = Astro.props;
 import {t} from '@/i18n/utils'
 import getUrl from "@/utils/getUrl";
+import {getPostPlainText, truncateText} from "@/utils/getPostPlainText";
+import {config} from "@/consts";
+
+const {data, body, slug} = Astro.props.post;
+const {index} = Astro.props;
+
+const plainText = getPostPlainText(body);
+const sentenceSegments = plainText
+  .split(/(?<=[。！？.!?])\s+/)
+  .map((item) => item.trim())
+  .filter(Boolean);
+const clauseSegments = plainText
+  .split(/(?<=[，,；;：:])/)
+  .map((item) => item.trim())
+  .filter(Boolean);
+
+const headlineSource = sentenceSegments[0] || plainText;
+const headline = truncateText(headlineSource, 30);
+const summarySource = sentenceSegments.length > 1
+  ? sentenceSegments.slice(1).join(' ')
+  : clauseSegments.length > 1
+    ? clauseSegments.slice(1).join(' ')
+    : '';
+const summary = summarySource ? truncateText(summarySource, 110) : '';
+const isCompact = !summary || plainText.length <= 72;
+
+const publishedDate = data.date
+  ? new Intl.DateTimeFormat(config.lang, {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+    }).format(new Date(data.date))
+  : '';
+const publishedTime = data.date
+  ? new Intl.DateTimeFormat(config.lang, {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(new Date(data.date))
+  : '';
 ---
 
-<div class="mt-2 mb-4">
-  <p
-    class="break-all first-letter tracking-wide first-letter:font-semibold first-letter:text-2xl line-clamp-2"
-  >
-    {
-      body.replace(/^#+/gm, "").replace(/!?\[.*?\]\(.*?\)/g, "")
-    }
-  </p>
-  <p class="flex items-center justify-between text-sm">
-    <FeedPostDate date={data.date} index={index}/>
-    <a class="hover:text-skin-active text-sm border rounded py-1 px-2" href={getUrl("/feed/") + slug}>{t('home.readMore')}</a>
-  </p>
-</div>
+<article class:list={['feed-entry', isCompact && 'feed-entry--compact']}>
+  <div class="feed-entry-card">
+    <div class="feed-entry-meta">
+      <span class="feed-entry-meta-item">
+        <i class="ri-calendar-line"></i>
+        <time datetime={String(data.date)}>{publishedDate}</time>
+      </span>
+      {
+        publishedTime && (
+          <span class="feed-entry-meta-item">
+            <i class="ri-time-line"></i>
+            <span>{publishedTime}</span>
+          </span>
+        )
+      }
+      <span class="feed-entry-meta-item feed-entry-meta-item--relative">
+        <FeedPostDate date={data.date} index={index}/>
+      </span>
+    </div>
+
+    <a class="feed-entry-body" href={getUrl("/feed/") + slug}>
+      <h2 class="feed-entry-title">{headline}</h2>
+      {summary && <p class="feed-entry-summary">{summary}</p>}
+    </a>
+
+    <div class="feed-entry-footer">
+      <a class="feed-entry-action" href={getUrl("/feed/") + slug}>
+        <span>{t('home.readMore')}</span>
+        <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+  </div>
+</article>

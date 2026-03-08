@@ -1,9 +1,10 @@
 ---
-title: "pcb绘制"
-description: "一句话描述这篇文章讲什么"
+title: "PCB 绘制笔记"
+slug: "pcb-design-notes"
+description: "记录 PCB 布线、电流线宽和铜皮规则等基础绘制笔记。"
 date: 2026-03-05
-category: [分类1, 分类2]
-tags: [标签1, 标签2]
+category: [PCB]
+tags: [PCB, 布线, 嘉立创EDA]
 toc: true
 mermaid: false
 mathjax: false

@@ -5,7 +5,6 @@ import HeaderLink from './HeaderLink.astro';
 import ThemeIcon from './ThemeIcon.astro'
 import MenuIcon from './MenuIcon.astro'
 import {site, categories, infoLinks} from '@/consts';
-import AsideIcon from "./SidebarIcon.astro";
 import {t} from "@/i18n/utils";
 import getCountByTagName from "@/utils/getCountByTagName";
 import getUrl from "@/utils/getUrl";
@@ -62,118 +61,138 @@ const hasMoreMobileTags =
         </div>
       </div>
       <ThemeIcon></ThemeIcon>
-      <div class="block xl:hidden">
-        <AsideIcon></AsideIcon>
-      </div>
     </div>
   </div>
-  <div id="mobile-menu" class="hidden pb-8 overflow-y-auto text-center" style="height: calc(100vh - 64px)">
-    {
-      categories.map((category) => (
-        <div class="py-2">
-          <a class=" hover:text-skin-active" href={getUrl(category.href)}>
-            <i class={category.iconClass}/>
-            <span>{category.name}</span>
-          </a>
+  <div
+    id="mobile-menu"
+    class="mobile-drawer hidden xl:hidden"
+    style="height: calc(100vh - 64px)"
+  >
+    <div class="container mobile-drawer-content space-y-5 px-4 py-5">
+      <section class="mobile-drawer-card">
+        <img class="mx-auto avatar mb-4" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
+        <div class="mb-3 text-center text-sm text-skin-dodge">{site.motto}</div>
+        <div class="flex flex-wrap items-center justify-center gap-1">
           {
-            category.children && category.children.length > 0 &&
-            <div class="divider-horizontal"></div>
+            activeInfoLinks.map((infoItem) => (
+              <a
+                class="social-link"
+                aria-label={infoItem.name}
+                href={infoItem.outlink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
+                <span class="social-link-tooltip">{infoItem.name}</span>
+              </a>
+            ))
           }
-          <div class="space-y-4 text-sm">
+        </div>
+      </section>
+
+      <section class="mobile-drawer-card">
+        <div class="mobile-drawer-section-title">
+          <i class="ri-compass-3-line menu-icon"></i>
+          <span>导航</span>
+        </div>
+        <div class="space-y-2">
+          {
+            categories.map((category) => (
+              <div class="mobile-drawer-section">
+                <a class="mobile-drawer-link" href={getUrl(category.href)}>
+                  <span class="inline-flex items-center gap-2">
+                    <i class={category.iconClass}/>
+                    <span>{category.name}</span>
+                  </span>
+                  {
+                    category.children && category.children.length > 0 && (
+                      <i class="ri-arrow-right-s-line text-skin-dodge"></i>
+                    )
+                  }
+                </a>
+                {
+                  category.children && category.children.length > 0 && (
+                    <div class="mt-2 grid gap-2 pl-4 text-sm text-skin-dodge">
+                      {
+                        category.children.map((sub) => (
+                          <a class="mobile-drawer-sublink" href={getUrl(sub.href)}>
+                            <span class="inline-flex items-center gap-2">
+                              <i class={sub.iconClass}/>
+                              <span>{sub.name}</span>
+                            </span>
+                          </a>
+                        ))
+                      }
+                    </div>
+                  )
+                }
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="mobile-drawer-card">
+        <details class="mobile-drawer-details" open>
+          <summary class="mobile-drawer-summary">
+            <span class="inline-flex items-center gap-2">
+              <i class="ri-folder-3-line menu-icon"></i>
+              <span>{t('sidebar.categories')}</span>
+            </span>
+            <i class="ri-arrow-down-s-line mobile-drawer-summary-icon"></i>
+          </summary>
+          <div class="mt-3 flex flex-wrap gap-2">
             {
-              category.children && category.children.map(sub =>
-                (
-                  <a class="block hover:text-skin-active" href={getUrl(sub.href)}>
-                    <i class={sub.iconClass}/>
-                    <span>{sub.name}</span>
-                  </a>
-                )
-              )
+              visibleMobileCategories.map(([category, count]) => (
+                <a
+                  class="aside-tag"
+                  title={(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
+                  href={getUrl("/category/") + category}
+                >
+                  {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
+                </a>
+              ))
             }
           </div>
-        </div>
-      ))
-    }
-  </div>
-  <div id="personal-info" class="hidden overflow-y-auto break-all px-2 pb-24" style="height: calc(100vh - 64px)">
-    <img class="mx-auto my-4 avatar" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
-    <div class="mb-2 text-center">{site.motto}</div>
-      <div class="flex flex-wrap items-center justify-center">
-      {
-        activeInfoLinks.map((infoItem) => (
-          <a
-            class="social-link"
-            aria-label={infoItem.name}
-            href={infoItem.outlink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
-            <span class="social-link-tooltip">{infoItem.name}</span>
-          </a>
-        ))
-      }
+          {
+            hasMoreMobileCategories && (
+              <div class="mt-3">
+                <a class="text-sm hover:text-skin-active" href={getUrl("/category")}>
+                  {t('sidebar.allCategories')} »
+                </a>
+              </div>
+            )
+          }
+        </details>
+        <div class="divider-horizontal-mini"></div>
+        <details class="mobile-drawer-details" open>
+          <summary class="mobile-drawer-summary">
+            <span class="inline-flex items-center gap-2">
+              <i class="ri-price-tag-3-line menu-icon"></i>
+              <span>{t('sidebar.tags')}</span>
+            </span>
+            <i class="ri-arrow-down-s-line mobile-drawer-summary-icon"></i>
+          </summary>
+          <div class="mt-3 flex flex-wrap gap-2">
+            {
+              visibleMobileTags.map(([tag, count]) => (
+                <a class="aside-tag" title={tag + " (" + count + ")"} href={getUrl("/tags/") + tag}>
+                  {tag + " (" + count + ")"}
+                </a>
+              ))
+            }
+          </div>
+          {
+            hasMoreMobileTags && (
+              <div class="mt-3">
+                <a class="text-sm hover:text-skin-active" href={getUrl("/tags")}>
+                  {t('sidebar.allTags')} »
+                </a>
+              </div>
+            )
+          }
+        </details>
+      </section>
     </div>
-    <div class="divider-horizontal-mini"></div>
-    <div class="text-center">
-      {
-        Object.keys(categoryCount).length > 0 && (
-          <div>
-            <i class="ri-folder-3-line menu-icon"/>{t('sidebar.categories')}
-          </div>
-        )
-      }
-      {
-        visibleMobileCategories.map(([category, count]) => (
-          <div class="my-2 break-all truncate">
-            <a
-              class="hover:text-skin-active"
-              title={(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
-              href={getUrl("/category/") + category}
-            >
-              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
-            </a>
-          </div>
-
-        ))
-      }
-      {
-        hasMoreMobileCategories && (
-          <div class="my-2">
-            <a class="hover:text-skin-active text-sm" href={getUrl("/category")}>
-              {t('sidebar.allCategories')} »
-            </a>
-          </div>
-        )
-      }
-      {
-        sortedMobileTags.length > 0 && (
-          <div class="divider-horizontal-mini"></div>
-          <div class="text-center">
-            <i class="ri-price-tag-3-line menu-icon"/>
-            {t('sidebar.tags')}
-          </div>
-        )
-      }
-      {
-        visibleMobileTags.map(([tag, count]) => (
-          <div class="my-2 break-all truncate">
-            <a class="my-2 hover:text-skin-active" title={tag + " (" + count + ")"} href={getUrl("/tags/") + tag}>
-              {tag + " (" + count + ")"}
-            </a>
-          </div>
-        ))
-      }
-      {
-        hasMoreMobileTags && (
-          <div class="my-2">
-            <a class="hover:text-skin-active text-sm" href={getUrl("/tags")}>
-              {t('sidebar.allTags')} »
-            </a>
-          </div>
-        )
-      }
-    </div>
-
   </div>
 </header>

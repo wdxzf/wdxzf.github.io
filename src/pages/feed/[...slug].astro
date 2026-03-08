@@ -24,7 +24,7 @@ const sortPosts = sortPostsByDate(posts);
 
 const postDate = post.data.date ? formatDate(post.data.date) : '';
 const currentPostIndex = sortPosts.findIndex(
-  (postItem) => postItem.data.date === post.data.date
+  (postItem) => postItem.slug === post.slug
 );
 let prevPostEntry: FeedEntry | undefined;
 let nextPostEntry: FeedEntry | undefined;

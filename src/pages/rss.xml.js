@@ -3,6 +3,7 @@ import {site} from "../consts";
 import getUrl from "../utils/getUrl.js";
 import {getCollectionByName} from "@/utils/getCollectionByName";
 import {sortPostsByDate} from "@/utils/sortPostsByDate";
+import {getPostPlainText, truncateText} from "@/utils/getPostPlainText";
 
 export async function GET() {
   const blogs = await getCollectionByName('blog')
@@ -16,7 +17,10 @@ export async function GET() {
     items: blog.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,
-      description: post.data.description? post.data.description : post.body.substring(0, 140).replace(/#/gi, "") + "...",
+      description: truncateText(
+        post.data.description || getPostPlainText(post.body),
+        180
+      ),
       // Compute RSS link from post `slug`
       // This example assumes all posts are rendered as `/blog/[slug]` routes
       link: `${getUrl("/blog/")}${post.slug}/`,
