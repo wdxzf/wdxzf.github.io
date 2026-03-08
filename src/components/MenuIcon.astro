@@ -21,7 +21,7 @@
   const menu = document.getElementById("mobile-menu");
 
   if (menuToggle && menu) {
-    const setExpanded = (expanded) => {
+    const setExpanded = (expanded: boolean) => {
       menu.classList.toggle("hidden", !expanded);
       menuToggle.setAttribute("aria-expanded", String(expanded));
       menuToggle.setAttribute("aria-label", expanded ? "关闭导航菜单" : "打开导航菜单");

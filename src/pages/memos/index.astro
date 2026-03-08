@@ -9,23 +9,25 @@ import {t} from '@/i18n/utils'
   description="浏览公开的 Memos 动态。"
   frontmatter={{comment: false, donate: false,}}
 >
-  <div class="memos-wrapper feed-page-shell" id="memos"></div>
+  <div
+    class="memos-wrapper feed-page-shell"
+    id="memos"
+    data-memos-url={config.memosUrl}
+    data-memos-username={config.memosUsername}
+    data-memos-page-size={String(config.memosPageSize || 10)}
+    data-locale={config.lang || 'en'}
+    data-loading-text={t('memos.loading')}
+    data-empty-text={t('memos.empty')}
+    data-error-text={t('memos.error')}
+    data-config-missing-text={t('memos.configMissing')}
+  ></div>
   <div class="search-empty-state rounded-2xl px-5 py-6 text-sm text-skin-dodge" id="memos-status">
     {t('memos.loading')}
   </div>
   <button class="rounded bg-skin-card p-1 border text-sm hover:text-skin-active hidden" id="more-btn">{t('memos.loadMore')}</button>
 </IndexPage>
 
-<script define:vars={{
-  memosUrl: config.memosUrl,
-  memosUsername: config.memosUsername,
-  memosPageSize: String(config.memosPageSize || 10),
-  locale: config.lang || 'en',
-  memosLoadingText: t('memos.loading'),
-  memosEmptyText: t('memos.empty'),
-  memosErrorText: t('memos.error'),
-  memosConfigMissingText: t('memos.configMissing'),
-}}>
+<script>
   type MemosUser = {
     avatarUrl?: string;
   };
@@ -51,10 +53,22 @@ import {t} from '@/i18n/utils'
   const memosContainer = document.getElementById('memos');
   const memosStatus = document.getElementById('memos-status');
 
-  if (moreBtn && memosContainer && memosStatus) {
+  if (
+    moreBtn instanceof HTMLButtonElement &&
+    memosContainer instanceof HTMLDivElement &&
+    memosStatus instanceof HTMLDivElement
+  ) {
     const moreButton = moreBtn;
     const memosRoot = memosContainer;
     const statusNode = memosStatus;
+    const memosUrl = memosRoot.dataset.memosUrl || '';
+    const memosUsername = memosRoot.dataset.memosUsername || '';
+    const memosPageSize = memosRoot.dataset.memosPageSize || '10';
+    const locale = memosRoot.dataset.locale || 'en';
+    const memosLoadingText = memosRoot.dataset.loadingText || 'Loading...';
+    const memosEmptyText = memosRoot.dataset.emptyText || '';
+    const memosErrorText = memosRoot.dataset.errorText || 'Failed to load memos.';
+    const memosConfigMissingText = memosRoot.dataset.configMissingText || 'Memos configuration is missing.';
     let avatar_url = '';
     let nextPageToken = '';
     let isLoading = false;
@@ -141,8 +155,8 @@ import {t} from '@/i18n/utils'
       }
     }
 
-  function createMemoCard(memo: Memo) {
-      const {title, summary} = splitMemoContent(memo.snippet);
+    function createMemoCard(memo: Memo) {
+      const {title, summary} = splitMemoContent(memo.snippet, memosUsername);
       const card = document.createElement('article');
       card.className = 'memo-story';
 
@@ -235,11 +249,11 @@ import {t} from '@/i18n/utils'
     return item;
   }
 
-  function splitMemoContent(snippet: string) {
+  function splitMemoContent(snippet: string, username: string) {
     const normalized = snippet.replace(/\s+/g, ' ').trim();
     if (!normalized) {
       return {
-        title: '@' + memosUsername,
+        title: '@' + username,
         summary: '',
       };
     }
@@ -299,22 +313,6 @@ import {t} from '@/i18n/utils'
     }
 
     return formatter.format(diffYears, 'year');
-  }
-
-  function formatDateTime(dateString: string, currentLocale: string) {
-    const targetDate = new Date(dateString);
-    if (Number.isNaN(targetDate.getTime())) {
-      return dateString;
-    }
-
-    return new Intl.DateTimeFormat(currentLocale, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).format(targetDate);
   }
 
   function formatDateLabel(dateString: string, currentLocale: string) {

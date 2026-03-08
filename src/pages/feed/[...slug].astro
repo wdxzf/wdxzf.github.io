@@ -38,6 +38,15 @@ if (sortPosts[currentPostIndex + 1]) {
 
 <BlogPost frontmatter={post.data}>
   {
+    post.data.title && (
+      <header class="mb-4">
+        <h1 class="break-all text-3xl font-bold leading-tight text-skin-base">
+          {post.data.title}
+        </h1>
+      </header>
+    )
+  }
+  {
     (
       <div class="flex items-center mb-2">
         {postDate &&

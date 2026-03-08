@@ -1,6 +1,5 @@
 ---
 import FeedPostDate from "./FeedPostDate.astro";
-import {t} from '@/i18n/utils'
 import getUrl from "@/utils/getUrl";
 import {getPostPlainText, truncateText} from "@/utils/getPostPlainText";
 import {config} from "@/consts";
@@ -9,24 +8,17 @@ const {data, body, slug} = Astro.props.post;
 const {index} = Astro.props;
 
 const plainText = getPostPlainText(body);
+const explicitTitle = data.title?.trim() ?? '';
+const hasTitle = Boolean(explicitTitle);
 const sentenceSegments = plainText
   .split(/(?<=[。！？.!?])\s+/)
   .map((item) => item.trim())
   .filter(Boolean);
-const clauseSegments = plainText
-  .split(/(?<=[，,；;：:])/)
-  .map((item) => item.trim())
-  .filter(Boolean);
-
-const headlineSource = sentenceSegments[0] || plainText;
-const headline = truncateText(headlineSource, 30);
-const summarySource = sentenceSegments.length > 1
-  ? sentenceSegments.slice(1).join(' ')
-  : clauseSegments.length > 1
-    ? clauseSegments.slice(1).join(' ')
-    : '';
-const summary = summarySource ? truncateText(summarySource, 110) : '';
-const isCompact = !summary || plainText.length <= 72;
+const previewSource = explicitTitle
+  ? plainText
+  : sentenceSegments.join(' ') || plainText;
+const preview = previewSource ? truncateText(previewSource, explicitTitle ? 140 : 96) : '';
+const isCompact = !preview || preview.length <= 72;
 
 const publishedDate = data.date
   ? new Intl.DateTimeFormat(config.lang, {
@@ -45,8 +37,14 @@ const publishedTime = data.date
   : '';
 ---
 
-<article class:list={['feed-entry', isCompact && 'feed-entry--compact']}>
-  <div class="feed-entry-card">
+<article
+  class:list={[
+    'feed-entry',
+    isCompact && 'feed-entry--compact',
+    hasTitle ? 'feed-entry--titled' : 'feed-entry--note',
+  ]}
+>
+  <a class="feed-entry-card" href={getUrl("/feed/") + slug}>
     <div class="feed-entry-meta">
       <span class="feed-entry-meta-item">
         <i class="ri-calendar-line"></i>
@@ -65,16 +63,9 @@ const publishedTime = data.date
       </span>
     </div>
 
-    <a class="feed-entry-body" href={getUrl("/feed/") + slug}>
-      <h2 class="feed-entry-title">{headline}</h2>
-      {summary && <p class="feed-entry-summary">{summary}</p>}
-    </a>
-
-    <div class="feed-entry-footer">
-      <a class="feed-entry-action" href={getUrl("/feed/") + slug}>
-        <span>{t('home.readMore')}</span>
-        <i class="ri-arrow-right-line"></i>
-      </a>
+    <div class="feed-entry-body">
+      {explicitTitle && <h2 class="feed-entry-title">{explicitTitle}</h2>}
+      {preview && <p class="feed-entry-summary">{preview}</p>}
     </div>
-  </div>
+  </a>
 </article>

@@ -82,6 +82,7 @@ const blog = defineCollection({
 
 const feed = defineCollection({
   schema: z.object({
+    title: z.string().optional().nullable(),
     date: z.date().or(z.string()).optional().nullable(),
     donate: z.boolean().default(true),
     comment: z.boolean().default(true),

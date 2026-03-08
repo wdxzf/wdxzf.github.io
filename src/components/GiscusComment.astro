@@ -6,7 +6,7 @@ const giscusConfig = comment.giscusConfig;
 
 <div id="giscus"></div>
 
-<script define:vars={{ giscusConfig }}>
+<script is:inline define:vars={{ giscusConfig }}>
   const container = document.getElementById('giscus');
   const configuredTheme = giscusConfig['data-theme'] || 'preferred_color_scheme';
 
@@ -37,7 +37,7 @@ const giscusConfig = comment.giscusConfig;
   };
 
   const syncGiscusTheme = () => {
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    const iframe = document.querySelector('iframe.giscus-frame');
     if (!iframe) return;
 
     iframe.contentWindow?.postMessage(

@@ -322,18 +322,27 @@ menu {
 }
 
 .feed-entry-card {
+  display: block;
   border: 1px solid rgba(var(--color-text), 0.08);
   border-radius: 1.2rem;
   padding: 1.15rem 1.25rem 1rem;
   background-color: rgba(var(--color-fill-secondary), 0.72);
+  color: inherit;
+  text-decoration: none;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
   transition: transform 0.18s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.feed-entry-card:hover {
+.feed-entry-card:hover,
+.feed-entry-card:focus-visible {
   transform: translateY(-2px);
   border-color: rgba(var(--color-text-active), 0.18);
   background-color: rgba(var(--color-fill-secondary), 0.92);
+}
+
+.feed-entry-card:focus-visible {
+  outline: 2px solid rgba(var(--color-text-active), 0.35);
+  outline-offset: 3px;
 }
 
 .feed-entry-meta {
@@ -390,31 +399,6 @@ menu {
   word-break: break-word;
 }
 
-.feed-entry-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.feed-entry-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.48rem 0.82rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(var(--color-text), 0.14);
-  background-color: rgba(var(--color-fill), 0.76);
-  color: rgba(var(--color-text), 0.86);
-  font-size: 0.9rem;
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.feed-entry-action:hover {
-  color: rgb(var(--color-text-active));
-  border-color: rgba(var(--color-text-active), 0.22);
-  background-color: rgba(var(--color-fill), 0.96);
-}
-
 .feed-entry--compact .feed-entry-card {
   padding-bottom: 0.9rem;
 }
@@ -423,8 +407,19 @@ menu {
   font-size: clamp(1.2rem, 2vw, 1.45rem);
 }
 
-.feed-entry--compact .feed-entry-footer {
-  margin-top: 0.8rem;
+.feed-entry--note .feed-entry-body {
+  margin-top: 0.55rem;
+}
+
+.feed-entry--note .feed-entry-summary {
+  margin-top: 0;
+  color: rgba(var(--color-text), 0.88);
+  font-size: 1.06rem;
+  line-height: 1.82;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .memo-story {
@@ -554,13 +549,10 @@ menu {
     line-height: 1.68;
   }
 
-  .feed-entry-footer {
-    justify-content: flex-start;
-  }
-
-  .feed-entry-action {
-    padding: 0.45rem 0.75rem;
-    font-size: 0.88rem;
+  .feed-entry--note .feed-entry-summary {
+    -webkit-line-clamp: 4;
+    font-size: 1rem;
+    line-height: 1.72;
   }
 
   .memo-story {

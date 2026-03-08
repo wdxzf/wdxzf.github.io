@@ -6,14 +6,22 @@ const { date, index } = Astro.props;
 const fallbackDate = formatDate(date);
 ---
 
-<feed-post-date class={date ? "mr-2" : ""} data-date={date} data-index={index}>
+<feed-post-date
+  class={date ? "mr-2" : ""}
+  data-date={date}
+  data-index={index}
+  data-lang={config.lang || 'en'}
+  data-published-label={t('feed.publishedIn')}
+>
   <span class="postTimeEle">{fallbackDate || date || ''}</span>
 </feed-post-date>
 
-<script define:vars={{ lang: config.lang || 'en', publishedLabel: t('feed.publishedIn') }}>
+<script>
   class FeedPostDate extends HTMLElement {
     connectedCallback() {
       const date = this.dataset.date;
+      const lang = this.dataset.lang || 'en';
+      const publishedLabel = this.dataset.publishedLabel || '';
       const timeSpan = this.querySelector<HTMLElement>(".postTimeEle");
 
       if (!timeSpan || !date) {
