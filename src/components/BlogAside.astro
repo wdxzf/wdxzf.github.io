@@ -2,23 +2,37 @@
 import CommentAside from "@/components/CommentAside.astro";
 import {comment} from "@/consts";
 import {getCollectionByName} from "@/utils/getCollectionByName";
-import getUniqueTags from "@/utils/getUniqueTags";
 import getCountByCategory from "@/utils/getCountByCategory";
+import getCountByTagName from "@/utils/getCountByTagName";
 import {sortPostsByDate} from "@/utils/sortPostsByDate";
 import {site} from '@/consts'
 import {t} from '@/i18n/utils'
 import getUrl from "@/utils/getUrl";
 const blogs = await getCollectionByName('blog')
-let tagArr = getUniqueTags(blogs);
-if(site.asideTagsMaxSize > 0)
-  tagArr = tagArr.slice(0, site.asideTagsMaxSize)
-let categoryCount = getCountByCategory(blogs);
+const sortTaxonomyEntries = (entries: [string, number][]) =>
+  entries.sort(([nameA, countA], [nameB, countB]) => {
+    if (nameA === 'uncategorized') return 1;
+    if (nameB === 'uncategorized') return -1;
+    return countB - countA || nameA.localeCompare(nameB);
+  });
+
+const categoryCount = getCountByCategory(blogs);
+const tagCount = getCountByTagName(blogs);
+const sortedCategories = sortTaxonomyEntries(
+  Object.entries(categoryCount) as [string, number][]
+);
+const sortedTags = sortTaxonomyEntries(
+  Object.entries(tagCount) as [string, number][]
+);
+const visibleTags =
+  site.asideTagsMaxSize > 0 ? sortedTags.slice(0, site.asideTagsMaxSize) : sortedTags;
+const hasMoreTags = site.asideTagsMaxSize > 0 && sortedTags.length > site.asideTagsMaxSize;
 let sortPosts = sortPostsByDate(blogs);
-let resultPosts = sortPosts.splice(0, site.recentBlogSize);
+let resultPosts = sortPosts.slice(0, site.recentBlogSize);
 ---
 
 {
-  Object.keys(categoryCount).length > 0 && (
+  sortedCategories.length > 0 && (
     <details class="aside-section aside-group" open>
       <summary class="aside-widget aside-summary">
         <div class="flex items-center">
@@ -28,13 +42,13 @@ let resultPosts = sortPosts.splice(0, site.recentBlogSize);
       </summary>
       <div class="aside-group-content">
         {
-          Object.keys(categoryCount).map((category) => (
+          sortedCategories.map(([category, count]) => (
             <a
               class="aside-link truncate block"
-              title={category + " (" + categoryCount[category] + ")"}
+              title={category + " (" + count + ")"}
               href={getUrl("/category/") + category}
             >
-              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + categoryCount[category] + ")"}
+              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
             </a>
           ))
         }
@@ -44,7 +58,7 @@ let resultPosts = sortPosts.splice(0, site.recentBlogSize);
 }
 
 {
-  tagArr.length > 0 && (
+  visibleTags.length > 0 && (
     <details class="aside-section aside-group">
       <summary class="aside-widget aside-summary">
         <div class="flex items-center">
@@ -55,12 +69,18 @@ let resultPosts = sortPosts.splice(0, site.recentBlogSize);
       </summary>
       <div class="aside-group-content flex flex-wrap gap-2">
         {
-          tagArr.map((tag) =>
-            <a class="aside-tag inline-block truncate" title={tag} href={getUrl("/tags/") + tag}>{tag}</a>
+          visibleTags.map(([tag, count]) =>
+            <a
+              class="aside-tag inline-block truncate"
+              title={tag + " (" + count + ")"}
+              href={getUrl("/tags/") + tag}
+            >
+              {tag}
+            </a>
           )
         }
         {
-          site.asideTagsMaxSize > 0 &&
+          hasMoreTags &&
           (
             <a class="aside-tag inline-block truncate" title={t('more')} href={getUrl("/tags")}>{t('more')} »</a>
           )

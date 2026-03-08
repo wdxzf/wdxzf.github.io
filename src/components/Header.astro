@@ -42,6 +42,11 @@ const hasMoreMobileCategories =
 const hasMoreMobileTags =
   site.mobileMenuTagMaxSize > 0 &&
   sortedMobileTags.length > site.mobileMenuTagMaxSize;
+
+const getPrimarySegment = (value: string) => value.split('/').filter(Boolean)[0] || '';
+const currentSegment = getPrimarySegment(Astro.url.pathname);
+const isChildGroupActive = (items: { href: string }[]) =>
+  items.some((item) => getPrimarySegment(item.href) === currentSegment);
 ---
 
 <header class="fixed top-0 z-10 w-full bg-skin-fill text-skin-base">
@@ -72,7 +77,7 @@ const hasMoreMobileTags =
       <section class="mobile-drawer-card">
         <img class="mx-auto avatar mb-4" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
         <div class="mb-3 text-center text-sm text-skin-dodge">{site.motto}</div>
-        <div class="flex flex-wrap items-center justify-center gap-1">
+        <div class="social-links-row">
           {
             activeInfoLinks.map((infoItem) => (
               <a
@@ -82,7 +87,7 @@ const hasMoreMobileTags =
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <i class={infoItem.icon + " text-2xl cursor-pointer"}/>
+                <i class={infoItem.icon + " social-link-icon"}/>
                 <span class="social-link-tooltip">{infoItem.name}</span>
               </a>
             ))
@@ -97,24 +102,35 @@ const hasMoreMobileTags =
         </div>
         <div class="space-y-2">
           {
-            categories.map((category) => (
-              <div class="mobile-drawer-section">
-                <a class="mobile-drawer-link" href={getUrl(category.href)}>
-                  <span class="inline-flex items-center gap-2">
-                    <i class={category.iconClass}/>
-                    <span>{category.name}</span>
-                  </span>
-                  {
-                    category.children && category.children.length > 0 && (
-                      <i class="ri-arrow-right-s-line text-skin-dodge"></i>
-                    )
-                  }
-                </a>
-                {
-                  category.children && category.children.length > 0 && (
-                    <div class="mt-2 grid gap-2 pl-4 text-sm text-skin-dodge">
+            categories.map((category) => {
+              const hasChildren = !!(category.children && category.children.length > 0);
+
+              if (!hasChildren) {
+                return (
+                  <div class="mobile-drawer-section">
+                    <a class="mobile-drawer-link" href={getUrl(category.href)}>
+                      <span class="inline-flex items-center gap-2">
+                        <i class={category.iconClass}/>
+                        <span>{category.name}</span>
+                      </span>
+                    </a>
+                  </div>
+                );
+              }
+
+              return (
+                <div class="mobile-drawer-section">
+                  <details class="mobile-drawer-details mobile-drawer-nav-group" open={isChildGroupActive(category.children || [])}>
+                    <summary class="mobile-drawer-link mobile-drawer-summary mobile-drawer-nav-trigger">
+                      <span class="inline-flex items-center gap-2">
+                        <i class={category.iconClass}/>
+                        <span>{category.name}</span>
+                      </span>
+                      <i class="ri-arrow-down-s-line mobile-drawer-summary-icon"></i>
+                    </summary>
+                    <div class="mobile-drawer-nav-children mt-2 grid gap-2 pl-4 text-sm text-skin-dodge">
                       {
-                        category.children.map((sub) => (
+                        category.children?.map((sub) => (
                           <a class="mobile-drawer-sublink" href={getUrl(sub.href)}>
                             <span class="inline-flex items-center gap-2">
                               <i class={sub.iconClass}/>
@@ -124,10 +140,10 @@ const hasMoreMobileTags =
                         ))
                       }
                     </div>
-                  )
-                }
-              </div>
-            ))
+                  </details>
+                </div>
+              );
+            })
           }
         </div>
       </section>
@@ -196,3 +212,43 @@ const hasMoreMobileTags =
     </div>
   </div>
 </header>
+
+<script>
+  const headerNavGroups = Array.from(
+    document.querySelectorAll<HTMLDetailsElement>('.header-nav-group')
+  );
+
+  const closeHeaderNavGroup = (group: HTMLDetailsElement) => {
+    group.open = false;
+  };
+
+  headerNavGroups.forEach((group) => {
+    group.addEventListener('toggle', () => {
+      if (!group.open) {
+        return;
+      }
+
+      headerNavGroups.forEach((otherGroup) => {
+        if (otherGroup !== group) {
+          closeHeaderNavGroup(otherGroup);
+        }
+      });
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Node | null;
+
+    headerNavGroups.forEach((group) => {
+      if (!target || !group.contains(target)) {
+        closeHeaderNavGroup(group);
+      }
+    });
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      headerNavGroups.forEach(closeHeaderNavGroup);
+    }
+  });
+</script>

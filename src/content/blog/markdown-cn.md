@@ -244,12 +244,12 @@ function demo() {
 ### 支持折叠块
 
 ```md
-:::collapse
+:::collapse[Hello World]
 文本
 :::
 ```
 
-:::collapse
+:::collapse从此词
 Hello World!
 :::
 

@@ -176,14 +176,31 @@ menu {
     background-color: rgba(var(--color-text), 0.04);
   }
 
+  .social-links-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    width: 100%;
+    white-space: nowrap;
+  }
+
   .social-link {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0 0.35rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 auto;
     color: rgba(var(--color-text), 0.92);
     transition: color 0.2s ease;
+  }
+
+  .social-link-icon {
+    font-size: 1.7rem;
+    line-height: 1;
   }
 
   .social-link:hover {
@@ -304,6 +321,109 @@ menu {
   transform: translateY(-2px);
   border-color: rgba(var(--color-text-active), 0.28);
   background-color: rgba(var(--color-fill-secondary), 0.78);
+}
+
+.markdown-body details {
+  overflow: hidden;
+  margin: 1.6rem 0;
+  padding: 0 1.6rem;
+  border: 1px solid rgba(var(--color-text), 0.1);
+  border-radius: 1.15rem;
+  background-color: rgba(var(--color-fill-secondary), 0.94);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+  line-height: 1.8;
+}
+
+.markdown-body details:not([open]) {
+  padding-bottom: 0;
+}
+
+.markdown-body details[open] {
+  padding-bottom: 1.45rem;
+}
+
+.markdown-body details > summary {
+  display: flex;
+  align-items: center;
+  min-height: 4.25rem;
+  margin: 0 -1.6rem;
+  padding: 1.2rem 1.6rem;
+  cursor: pointer;
+  list-style: none;
+  color: rgba(var(--color-text), 0.96);
+  font-size: 1.12rem;
+  font-weight: 700;
+  text-align: left;
+  background-color: rgba(var(--color-fill), 0.72);
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.markdown-body details > summary::marker {
+  content: "";
+}
+
+.markdown-body details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.markdown-body details > summary::before {
+  content: none;
+}
+
+.markdown-body details > summary::after {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: rgba(var(--color-text), 0.72);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.markdown-body details[open] > summary::after {
+  content: "×";
+  transform: scale(1.02);
+}
+
+.markdown-body details:hover > summary,
+.markdown-body details[open] > summary {
+  color: rgba(var(--color-text), 0.98);
+  background-color: rgba(var(--color-fill), 0.84);
+}
+
+.markdown-body details > summary:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(var(--color-text), 0.12);
+}
+
+.markdown-body details[open] > summary {
+  margin-bottom: 1.35rem;
+  border-bottom: 1px solid rgba(var(--color-text), 0.06);
+}
+
+.markdown-body details > :not(summary) {
+  margin-top: 0;
+  padding: 0;
+}
+
+.markdown-body details > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .remark-collapse__content > :first-child,
+.markdown-body details > :not(summary):first-child {
+  margin-top: 0;
+}
+
+.markdown-body .remark-collapse__content > :last-child,
+.markdown-body details > :not(summary):last-child {
+  margin-bottom: 0;
 }
 
 .feed-page-shell {
@@ -686,6 +806,15 @@ menu {
   .mobile-drawer-sublink:hover {
     color: rgb(var(--color-text-active));
     background-color: rgba(var(--color-text), 0.05);
+  }
+
+  .mobile-drawer-nav-group[open] > .mobile-drawer-link {
+    color: rgb(var(--color-text-active));
+    background-color: rgba(var(--color-text), 0.05);
+  }
+
+  .mobile-drawer-nav-children {
+    padding-bottom: 0.2rem;
   }
 
   .mobile-drawer-details {

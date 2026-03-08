@@ -14,46 +14,134 @@ const {href, icon: iconClass, items = [], target, ...props} = Astro.props as {
 };
 import getUrl from "@/utils/getUrl";
 
-const {pathname} = Astro.url;
-let hrefMath = href.split('/')
-let pathnameMatch = pathname.split('/')
-const isActive = hrefMath[1] === pathnameMatch[1]
+const getPrimarySegment = (value: string) => value.split('/').filter(Boolean)[0] || '';
+const currentSegment = getPrimarySegment(Astro.url.pathname);
+const hasChildren = items.length > 0;
+const isChildActive = items.some((item) => getPrimarySegment(item.href) === currentSegment);
+const isActive = hasChildren
+  ? isChildActive || getPrimarySegment(href) === currentSegment
+  : getPrimarySegment(href) === currentSegment;
 ---
-<div class="relative flex items-center w-auto h-10 box">
-  <a href={getUrl(href)} target={target} class:list={[isActive ? 'header-link-active' : '', 'hover:header-link-hover']} {...props}>
-    <i class={iconClass}/>
-    <slot/>
-    {
-      items.length > 0 && <i class="ri-arrow-down-s-line"></i>
-    }
-  </a>
-  {items.length > 0 && (
-    <div class="p-4 border rounded cursor-pointer dropdown bg-skin-fill">
-      <ul class="space-y-4 w-28">
-        {
-          items.map((child) =>
-            <li class="text-center select-none hover:text-skin-active">
-              <i class={child.iconClass}></i>
-              <a target={child.target ? child.target : "_self"} href={getUrl(child.href)}>{child.name}</a>
-            </li>
-          )
-        }
-      </ul>
-    </div>
-  )}
+{
+  hasChildren ? (
+    <details class:list={['header-nav-group', isActive && 'header-nav-group-active']}>
+      <summary class="header-nav-trigger" {...props}>
+        <span class:list={['header-nav-trigger-label', isActive && 'header-link-active']}>
+          <i class={iconClass}></i>
+          <span><slot/></span>
+        </span>
+        <i class="ri-arrow-down-s-line header-nav-trigger-icon"></i>
+      </summary>
+      <div class="header-nav-dropdown">
+        <ul class="header-nav-list">
+          {
+            items.map((child) => {
+              const isCurrentChild = getPrimarySegment(child.href) === currentSegment;
 
-</div>
+              return (
+                <li>
+                  <a
+                    class:list={['header-nav-item', isCurrentChild && 'header-nav-item-active']}
+                    target={child.target ? child.target : "_self"}
+                    href={getUrl(child.href)}
+                    aria-current={isCurrentChild ? 'page' : undefined}
+                  >
+                    <i class={child.iconClass}></i>
+                    <span>{child.name}</span>
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    </details>
+  ) : (
+    <a
+      href={getUrl(href)}
+      target={target}
+      class:list={['header-nav-link', isActive ? 'header-link-active' : '', 'hover:header-link-hover']}
+      aria-current={isActive ? 'page' : undefined}
+      {...props}
+    >
+      <i class={iconClass}></i>
+      <slot/>
+    </a>
+  )
+}
 
 <style>
-  .dropdown {
+  .header-nav-link,
+  .header-nav-trigger-label,
+  .header-nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .header-nav-group {
+    position: relative;
+    height: 2.5rem;
+  }
+
+  .header-nav-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    height: 100%;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .header-nav-trigger::-webkit-details-marker {
     display: none;
+  }
+
+  .header-nav-trigger-icon {
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .header-nav-group[open] .header-nav-trigger-icon {
+    transform: rotate(180deg);
+    color: rgb(var(--color-text-active));
+  }
+
+  .header-nav-group:hover .header-nav-trigger-label,
+  .header-nav-group[open] .header-nav-trigger-label {
+    color: rgb(var(--color-text-active));
+  }
+
+  .header-nav-dropdown {
     position: absolute;
-    top: 100%;
-    left: -40%;
+    top: calc(100% + 0.75rem);
+    left: 50%;
+    min-width: 10.5rem;
+    padding: 0.65rem;
+    border: 1px solid rgba(var(--color-text), 0.1);
+    border-radius: 0.95rem;
+    background-color: rgba(var(--color-fill-secondary), 0.96);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(10px);
+    transform: translateX(-50%);
   }
 
-  .box:hover .dropdown {
-    display: block;
+  .header-nav-list {
+    display: grid;
+    gap: 0.2rem;
   }
 
+  .header-nav-item {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.75rem;
+    color: rgba(var(--color-text), 0.9);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .header-nav-item:hover,
+  .header-nav-item-active {
+    color: rgb(var(--color-text-active));
+    background-color: rgba(var(--color-text), 0.05);
+  }
 </style>
