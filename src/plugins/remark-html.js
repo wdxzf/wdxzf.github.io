@@ -1,14 +1,4 @@
-import {h as _h, s as _s} from "hastscript";
 import {visit} from "unist-util-visit";
-
-function h(el, attrs = {}, children = []) {
-  const {tagName, properties} = _h(el, attrs);
-  return {
-    type: "paragraph",
-    data: {hName: tagName, hProperties: properties},
-    children,
-  };
-}
 
 export function remarkHtml() {
   const transformer = (tree) => {
@@ -19,27 +9,36 @@ export function remarkHtml() {
       if (node.type !== 'textDirective') {
         return;
       }
-      if (node.name !== 'i') {
-        return
+      if (node.name === 'i') {
+        node.data = {
+          hName: node.name,
+          hProperties: {
+            ...node.attributes,
+          },
+        };
+        return;
       }
-      /*
-      *{
-      *  type: 'textDirective',
-      *  name: 'i',
-      *  attributes: { class: '.ri-share-box-line' },
-      *  children: [],
-      *  position: {
-      *    start: { line: 16, column: 1, offset: 273 },
-      *    end: { line: 16, column: 31, offset: 303 }
-      *  }
-      *}
-      */
 
-      parent.children[index] = h(node.name,
-        {
-          ...node.attributes,
+      if (node.name !== 'spoiler') {
+        return;
+      }
+
+      const attributes = node.attributes || {};
+      const className = ['spoiler-text', attributes.class].filter(Boolean).join(' ');
+
+      node.data = {
+        hName: 'span',
+        hProperties: {
+          ...attributes,
+          className,
+          role: 'button',
+          tabindex: 0,
+          'data-spoiler': '',
+          'data-revealed': 'false',
+          'aria-pressed': 'false',
+          'aria-label': attributes['aria-label'] || 'Hover or click to reveal hidden text',
         },
-      )
+      };
     });
   };
   return () => transformer;

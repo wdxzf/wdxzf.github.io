@@ -138,5 +138,31 @@ const {
         links[i].setAttribute('rel', 'nofollow noopener noreferrer');
       }
     }
+
+    const spoilers = markdownBody.querySelectorAll<HTMLElement>('[data-spoiler]');
+    const setSpoilerState = (element: HTMLElement, revealed: boolean) => {
+      element.setAttribute('data-revealed', String(revealed));
+      element.setAttribute('aria-pressed', String(revealed));
+    };
+
+    spoilers.forEach((spoiler) => {
+      setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') === 'true');
+
+      spoiler.addEventListener('click', () => {
+        setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') !== 'true');
+      });
+
+      spoiler.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') !== 'true');
+        }
+
+        if (event.key === 'Escape') {
+          setSpoilerState(spoiler, false);
+          spoiler.blur();
+        }
+      });
+    });
   }
 </script>

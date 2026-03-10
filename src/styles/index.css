@@ -1002,6 +1002,48 @@ menu {
   /* margin: 0 auto; */
 }
 
+.markdown-body .spoiler-text {
+  display: inline-block;
+  padding: 0 0.28em;
+  border: 0;
+  border-radius: 0.35em;
+  background-color: rgba(var(--color-text), 0.14);
+  color: rgba(var(--color-text), 0.92);
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  text-shadow: 0 0 0.72em rgba(var(--color-text), 0.95);
+  filter: blur(0.42em);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-text-fill-color: rgba(var(--color-text), 0.92);
+  transition:
+    color 0.16s ease,
+    -webkit-text-fill-color 0.16s ease,
+    text-shadow 0.16s ease,
+    filter 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.markdown-body .spoiler-text:hover,
+.markdown-body .spoiler-text:focus-visible,
+.markdown-body .spoiler-text[data-revealed='true'] {
+  background-color: rgba(var(--color-text-active), 0.08);
+  color: rgb(var(--color-text));
+  -webkit-text-fill-color: rgb(var(--color-text));
+  text-shadow: none;
+  filter: none;
+}
+
+.markdown-body .spoiler-text:focus-visible {
+  outline: 2px solid rgba(var(--color-text-active), 0.35);
+  outline-offset: 2px;
+}
+
 /* 修改滚动条样式 */
 
 ::-webkit-scrollbar {

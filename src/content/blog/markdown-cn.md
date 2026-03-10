@@ -12,6 +12,15 @@ tags: [astro, markdown]
 ogImage: https://astro-yi.obs.cn-east-3.myhuaweicloud.com/avatar.png
 sticky: 10
 ---
+:::tip[这篇文章能做什么]
+这是一篇 Markdown 与 Astro 扩展语法速查文档。前半部分是常用 Markdown，后半部分是当前博客支持的扩展能力。
+:::
+
+## 快速入口
+
+- 基础语法参考：[常用 Markdown 教程](https://www.runoob.com/markdown/)
+- 扩展能力参考：[Expressive Code](https://expressive-code.com/)
+- Markdown 渲染参考：[markdown-it](https://markdown-it.github.io/)
 
 ## 常用 Markdown
 ### 标题
@@ -233,6 +242,18 @@ function demo() {
 :i{class="ri-share-box-line"} Open in new tab
 :::
 
+### 支持遮掩文本
+
+默认模糊，鼠标移上去会显示；点击或按回车也可以切换显示状态。
+
+```text
+:spoiler[这是一段默认模糊的内容]
+```
+
+效果：
+
+:spoiler[这是一段默认模糊的内容]
+
 ### 支持 GitHub 仓库卡片
 
 ```text
@@ -249,7 +270,7 @@ function demo() {
 :::
 ```
 
-:::collapse从此词
+:::collapse[Hello word]
 Hello World!
 :::
 
@@ -374,6 +395,11 @@ hello! $ \sum_{i=0}^N\int_{a}^{b}g(t,i)\text{d}t $ hello!
 勾选/取消勾选任务列表项 :Alt + c
 预览 Ctrl + K V
 
+## 标题锚点：
+
+大多数 Markdown 处理器会自动为标题创建锚点（anchor），便于页面内跳转：
+
+[支持提示块](#支持提示块)
 ## 可复制模板
 
 下面是一份可直接新建文章使用的模板：
@@ -386,7 +412,6 @@ date: 2026-03-05
 lastModified: 2026-03-05
 category: [分类1, 分类2]
 tags: [标签1, 标签2]
-toc: true
 mermaid: false
 mathjax: false
 draft: false
@@ -397,4 +422,6 @@ slug: english-study
 ---
 
 ## 一、前言
+
+```
 
