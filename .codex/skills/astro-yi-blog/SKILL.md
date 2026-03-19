@@ -1,5 +1,5 @@
 ﻿---
-name: Astro Yi 博客维护
+name: astro-yi-blog
 description: 维护这个 Astro Yi 博客仓库。用于编辑博文、feed 条目、页面、组件、站点配置、图片、导航、评论、分析，或者使用仓库中的 Astro 脚本验证站点。
 ---
 
