@@ -13,7 +13,7 @@ let totalPage = ceil(divide(blogs.length, site.postPageSize))
 
 let sortedPosts = orderBySticky(blogs);
 if (sortedPosts.length > site.postPageSize) {
-  sortedPosts = sortedPosts.splice(0, site.postPageSize);
+  sortedPosts = sortedPosts.slice(0, site.postPageSize);
 }
 ---
 
@@ -30,4 +30,3 @@ if (sortedPosts.length > site.postPageSize) {
       /> : ''
   }
 </IndexPage>
-

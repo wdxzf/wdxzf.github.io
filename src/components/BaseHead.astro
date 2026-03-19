@@ -43,11 +43,20 @@ const articleModifiedTime = toIsoString(modifiedTime);
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL}>
   <link rel="alternate" type="application/rss+xml" title={site.title} href={getUrl('/rss.xml')}>
+  <link
+    rel="preload"
+    href={getUrl('/fonts/JetBrainsMono-Regular.woff2')}
+    as="font"
+    type="font/woff2"
+    crossorigin
+  >
 
   <!-- Primary Meta Tags -->
   <meta name="title" content={pageTitle}>
   <meta name="description" content={description}>
   <meta name="author" content={author}>
+  <meta name="robots" content="index,follow">
+  <meta name="color-scheme" content="light dark">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content={type}>
@@ -83,7 +92,6 @@ const articleModifiedTime = toIsoString(modifiedTime);
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="msapplication-TileColor" content="#da532c">
-  <meta name="msapplication-config" content="/browserconfig.xml">
   <meta name="theme-color" content="#ffffff">
 
   <link rel="sitemap" href={getUrl("/sitemap-index.xml")}>

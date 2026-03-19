@@ -7,12 +7,16 @@ if (args.length === 0) {
   process.exit(1);
 }
 
+// Force fresh content metadata on static builds to avoid stale cache warnings.
+const resolvedArgs =
+  args[0] === 'build' && !args.includes('--force') ? [...args, '--force'] : args;
+
 const command =
   process.platform === 'win32' ? process.env.ComSpec ?? 'cmd.exe' : 'pnpm';
 const commandArgs =
   process.platform === 'win32'
-    ? ['/d', '/s', '/c', 'pnpm', 'exec', 'astro', ...args]
-    : ['exec', 'astro', ...args];
+    ? ['/d', '/s', '/c', 'pnpm', 'exec', 'astro', ...resolvedArgs]
+    : ['exec', 'astro', ...resolvedArgs];
 
 const child = spawn(command, commandArgs, {
   stdio: 'inherit',

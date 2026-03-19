@@ -1,8 +1,11 @@
 ---
 import PostViewTitle from '@/components/PostViewTitle.astro'
 import getUrl from "@/utils/getUrl";
+import { getPostPlainText, truncateText } from '@/utils/getPostPlainText';
 const {blog} = Astro.props;
-const {data, slug} = blog
+const {data, slug, body} = blog;
+const previewText =
+  data.description?.trim() || truncateText(getPostPlainText(body), 160);
 ---
 
 <div class="post-list-item my-7 first:mt-0 rounded-lg px-3 py-2 -mx-3">
@@ -12,9 +15,7 @@ const {data, slug} = blog
   >
   </PostViewTitle>
   <p class="post-list-desc mt-2 break-all line-clamp-3 leading-7">
-    {
-      data.description ? data.description : ''
-    }
+    {previewText}
   </p>
 </div>
 <div class="divider-horizontal-mini"></div>

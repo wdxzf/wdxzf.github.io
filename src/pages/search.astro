@@ -4,10 +4,17 @@ import { config } from "@/consts";
 import {t} from '@/i18n/utils'
 
 const includeContent = config.search.includeContent;
+const searchHint = includeContent ? t('search.hintContent') : t('search.hintBasic');
+const searchPlaceholder = includeContent
+  ? t('search.placeholderContent')
+  : t('search.placeholderBasic');
+const searchDescription = includeContent
+  ? "搜索博客文章标题、摘要和正文内容。"
+  : "搜索博客文章标题、摘要、标签和分类。";
 ---
 <IndexPage
   title={t('search.search')}
-  description="搜索博客文章标题、摘要和正文内容。"
+  description={searchDescription}
 >
   <section class="search-shell" data-include-content={String(includeContent)}>
     <aside class="search-hero rounded-2xl p-5 md:p-6">
@@ -17,7 +24,7 @@ const includeContent = config.search.includeContent;
             {t('search.search')}
           </label>
           <p id="search-help" class="mt-2 text-sm leading-6 text-skin-dodge">
-            {t('search.hint')}
+            {searchHint}
           </p>
         </div>
         <div class="search-shortcut rounded-full border border-skin-dodge border-opacity-40 px-3 py-1 text-xs text-skin-dodge">
@@ -31,13 +38,16 @@ const includeContent = config.search.includeContent;
         </span>
         <input
           required
-          maxlength="24"
           id="search"
           class="block w-full rounded-2xl border border-opacity-40 bg-skin-fill text-skin-base py-3 pl-10 pr-3 placeholder:italic placeholder:text-opacity-75 focus:border-skin-accent focus:outline-none"
-          placeholder={t('search.placeholder')}
+          placeholder={searchPlaceholder}
           type="search"
           name="search"
           aria-describedby="search-help"
+          autocomplete="off"
+          autocapitalize="off"
+          enterkeyhint="search"
+          spellcheck="false"
           autofocus
         />
       </div>
@@ -116,7 +126,7 @@ const includeContent = config.search.includeContent;
     <div class="search-empty-state rounded-lg px-4 py-5 text-sm text-skin-dodge">
       <div class="inline-flex items-center gap-2">
         <i class="ri-loader-4-line animate-spin text-skin-active"></i>
-        <span>${t('search.search')}</span>
+        <span>${t('search.loading')}</span>
       </div>
     </div>
   `;
@@ -159,7 +169,7 @@ const includeContent = config.search.includeContent;
   });
 
   searchInput.addEventListener("input", () => {
-    const searchTerm = searchInput.value.trim();
+    const searchTerm = searchInput.value.replace(/\s+/g, ' ').trim();
 
     window.clearTimeout(searchTimeoutId);
     searchTimeoutId = window.setTimeout(() => {
@@ -349,8 +359,10 @@ const includeContent = config.search.includeContent;
 
     try {
       await ensureSearchIndex();
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error(error);
+      updateReadout(null);
+      renderErrorState();
       return;
     }
 
@@ -368,9 +380,20 @@ const includeContent = config.search.includeContent;
           <div>
             <p class="text-base font-medium text-skin-base">${t('search.search')}</p>
             <p class="mt-2 text-sm leading-6 text-skin-dodge">
-              输入文章标题、摘要、标签或分类开始搜索。按 <span class="search-inline-key">/</span> 可快速聚焦搜索框。
+              ${searchShell?.dataset.includeContent === 'true' ? t('search.hintContent') : t('search.hintBasic')}
             </p>
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderErrorState() {
+    resultsListEl.innerHTML = `
+      <div class="search-empty-state rounded-2xl px-5 py-6 text-sm text-skin-dodge">
+        <div class="inline-flex items-center gap-2">
+          <i class="ri-error-warning-line text-skin-active"></i>
+          <span>${t('search.error')}</span>
         </div>
       </div>
     `;
