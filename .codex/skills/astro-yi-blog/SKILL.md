@@ -21,6 +21,7 @@ description: 维护这个 Astro Yi 博客仓库。用于编辑博文、feed 条�
 - 保持 frontmatter 与现有内容 schema 一致。
 - 尽量把文章图片放在 `src/content/blog/images/<slug>/` 下。
 - 使用与当前文章目录结构匹配的相对图片路径。
+- 遵循用户的图片习惯：优先保留 `images/<文章目录>/<文件名>` 这类相对路径；不要擅自改成绝对路径，也不要把图片复制到 `public/`，除非用户明确要求。
 - 除非用户要求重写，否则保留 Markdown 结构、标题和代码块。
 
 ## 站点配置工作流

@@ -2,7 +2,7 @@ import {visit} from "unist-util-visit";
 import path from "path";
 import {existsSync, readFileSync} from "fs";
 import sharp from "sharp";
-import getUrl from "../utils/getUrl.js";
+import {getBlogContentImageUrl} from "../utils/blogContentImages.js";
 
 export function lazyLoadImage() {
   return async function (tree, file) {
@@ -23,7 +23,9 @@ export function lazyLoadImage() {
 async function decorateImageNode(node, file) {
   const properties = node.properties ?? {};
   const source = properties.src;
-  const resolvedSource = resolveSourceValue(source);
+  const rawSource = resolveRawSourceValue(source);
+  const localPath = rawSource ? resolveLocalImagePath(rawSource, file) : null;
+  const resolvedSource = resolveSourceValue(rawSource, localPath);
 
   if (!resolvedSource) {
     return;
@@ -31,28 +33,21 @@ async function decorateImageNode(node, file) {
 
   properties.loading = 'lazy';
   properties.decoding = 'async';
-  properties['data-src'] = resolvedSource;
-
-  const altText = typeof properties.alt === 'string' ? properties.alt : '';
-  if (altText) {
-    properties['data-alt'] = altText;
-  }
+  properties.src = resolvedSource;
 
   if (!properties.width || !properties.height) {
     const dimensions =
       resolveObjectDimensions(source) ||
-      (await resolveImageDimensions(resolvedSource, file));
+      (await resolveImageDimensions(localPath));
 
     if (dimensions?.width && dimensions?.height) {
       properties.width = dimensions.width;
       properties.height = dimensions.height;
     }
   }
-
-  properties.src = getUrl('/spinner.gif');
 }
 
-function resolveSourceValue(source) {
+function resolveRawSourceValue(source) {
   const rawSource =
     typeof source === 'string'
       ? source
@@ -60,12 +55,29 @@ function resolveSourceValue(source) {
         ? source.src
         : '';
 
+  return rawSource;
+}
+
+function resolveSourceValue(rawSource, localPath) {
   if (!rawSource) {
     return '';
   }
 
+  if (rawSource.startsWith('http://') || rawSource.startsWith('https://')) {
+    return rawSource;
+  }
+
+  if (rawSource.startsWith('/')) {
+    return rawSource;
+  }
+
   if (rawSource.startsWith('public/')) {
-    return getUrl(`/${rawSource.replace(/^public\/+/, '')}`);
+    return `/${rawSource.replace(/^public\/+/, '')}`;
+  }
+
+  const blogImageUrl = getBlogContentImageUrl(localPath);
+  if (blogImageUrl) {
+    return blogImageUrl;
   }
 
   return rawSource;
@@ -88,8 +100,7 @@ function resolveObjectDimensions(source) {
   return { width, height };
 }
 
-async function resolveImageDimensions(src, file) {
-  const localPath = resolveLocalImagePath(src, file);
+async function resolveImageDimensions(localPath) {
   if (!localPath) {
     return null;
   }
