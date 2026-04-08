@@ -44,6 +44,14 @@ description: 维护这个 Astro Yi 博客仓库。用于编辑博文、feed 条�
 - 在完成较大改动前运行 `pnpm run build`。
 - 当用户需要本地预览站点时，使用 `pnpm run dev`。
 
+## 提交规范
+
+- Git 提交信息使用 `type: 简短描述` 格式。
+- 提交描述使用中文，保持简短清晰，并以动词开头。
+- 一次提交只做一件事，避免把不相关改动混在同一个提交里。
+- 常用类型包括 `feat`、`fix`、`refactor`、`docs`。
+- 示例：`feat: 新增底盘控制`、`fix: 修复校验错误`、`refactor: 优化协议解析`、`docs: 更新说明文档`。
+
 ## 约束
 
 - 除非明确要求，不要编辑 `dist`、`node_modules` 或生成产物。
