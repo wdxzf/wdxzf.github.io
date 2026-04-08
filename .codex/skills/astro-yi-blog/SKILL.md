@@ -1,4 +1,4 @@
-﻿---
+---
 name: astro-yi-blog
 description: 维护这个 Astro Yi 博客仓库。用于编辑博文、feed 条目、页面、组件、站点配置、图片、导航、评论、分析，或者使用仓库中的 Astro 脚本验证站点。
 ---
@@ -42,6 +42,9 @@ description: 维护这个 Astro Yi 博客仓库。用于编辑博文、feed 条�
 
 - 在代码或配置修改后运行 `pnpm run typecheck`。
 - 在完成较大改动前运行 `pnpm run build`。
+- 在每次准备提交前，先做可提交性检查。
+- 默认至少运行 `pnpm run typecheck`；如果改动涉及内容、构建、路由、配置或部署，提交前再运行 `pnpm run build`。
+- 只有在校验通过，或已经明确定位并告知用户失败原因不影响当前目标时，才执行提交。
 - 当用户需要本地预览站点时，使用 `pnpm run dev`。
 
 ## 提交规范
