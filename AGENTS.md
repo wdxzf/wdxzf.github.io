@@ -13,6 +13,7 @@
 
 - 在 `src/content/blog/*.md` 中编辑博客文章。
 - 在 `src/content/feed/*.md` 中编辑动态 feed 条目。
+- 默认不要修改草稿文章；只有用户明确要求时，才编辑 `draft: true` 的内容。
 - 保持 frontmatter 与现有内容 schema 一致，不要凭空添加未定义字段。
 - 生成博客内容时，注意本项目有 `astro-yi` 特有的 Markdown 指令语法，不能默认退回普通 HTML 或忽略不写。
 - 明确遵循这些自定义语法：`:spoiler[]`、`:btn[]`、`:::tip`、`:::note`、`:::caution`、`:::danger`、`:::collapse`、`::github{repo}`。
