@@ -8,6 +8,7 @@
     "build": "node scripts/run-astro.mjs build",
     "preview": "node scripts/run-astro.mjs preview",
     "typecheck": "node scripts/run-astro.mjs check",
+    "validate:content": "node scripts/validate.mjs",
     "lint": "pnpm run typecheck",
     "astro": "astro"
   },

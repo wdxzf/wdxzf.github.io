@@ -186,12 +186,12 @@ export const infoLinks: SocialLink[] = [
   {
     icon: 'ri-wechat-fill',
     name: 'wechat',
-    outlink: `${site.baseUrl || ''}/微信.webp`,
+    outlink: `${site.baseUrl || ''}/images/contact/wechat.webp`,
   },
   {
     icon: 'ri-qq-fill',
     name: 'QQ',
-    outlink: `${site.baseUrl || ''}/qq.webp`,
+    outlink: `${site.baseUrl || ''}/images/contact/qq.webp`,
   },
   {
     icon: 'ri-bilibili-fill',
