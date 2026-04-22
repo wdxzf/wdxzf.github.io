@@ -3,6 +3,7 @@ title: 手把手教你配置 STM32CubeIDE for VSCode 下基于 OpenOCD 的调试
 description: 介绍如何在 STM32CubeIDE for VSCode 项目中使用 DAPLink 搭配 OpenOCD 完成烧录与调试配置。
 date: 2026-04-08
 lastModified: 2026-04-08
+slug: "stm32cubeide-vscode-openocd-debug"
 category: ["嵌入式开发"]
 tags: ["STM32", "VSCode", "OpenOCD", "DAPLink"]
 ---

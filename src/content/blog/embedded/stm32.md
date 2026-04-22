@@ -2,10 +2,11 @@
 title: "STM32 硬件设计备忘：BOOT0、晶振、SWD 与常见接口细节"
 date: 2026-04-01
 description: "整理 STM32 开发板和控制板设计里最常反复查看的几个硬件细节，包括启动模式、晶振布线、SWD 调试接口、USB 连接与 MOS 管选型。"
+slug: "stm32-hardware-design-notes"
 tags: ["STM32", "PCB", "硬件设计", "SWD", "晶振"]
 category: ["嵌入式"]
 mermaid: true
-toc: true
+draft: true
 donate: false
 ---
 
@@ -15,8 +16,8 @@ donate: false
 
 STM32 上电或复位后，会根据启动配置决定代码从哪里开始执行。大多数项目里，核心目标都很简单：默认从用户 Flash 启动，只有下载或救砖时才切到系统 Bootloader。
 
-![STM32 启动模式示意](images/stm32/image.png)
-![BOOT0 接线参考](images/stm32/image-1.png)
+![STM32 启动模式示意](../images/stm32/image.png)
+![BOOT0 接线参考](../images/stm32/image-1.png)
 
 ```mermaid
 flowchart LR
@@ -53,9 +54,9 @@ STM32 常见的外部时钟方案有两类：无源晶振和有源晶振。它�
 
 无源晶振本身不主动输出时钟，依赖 MCU 内部振荡电路与外部负载电容共同工作。
 
-![无源晶振 两脚插件](images/stm32/image-2.png)
-![无源晶振 四脚贴片](images/stm32/image-3.png)
-![无源晶振运行示意图](images/stm32/image-5.png)
+![无源晶振 两脚插件](../images/stm32/image-2.png)
+![无源晶振 四脚贴片](../images/stm32/image-3.png)
+![无源晶振运行示意图](../images/stm32/image-5.png)
 
 特点：
 
@@ -67,8 +68,8 @@ STM32 常见的外部时钟方案有两类：无源晶振和有源晶振。它�
 
 有源晶振内部自带振荡电路，需要供电，输出的是已经成形的时钟信号。
 
-![有源晶振 四脚贴片](images/stm32/image-4.png)
-![有源晶振运行示意图](images/stm32/image-6.png)
+![有源晶振 四脚贴片](../images/stm32/image-4.png)
+![有源晶振运行示意图](../images/stm32/image-6.png)
 
 特点：
 

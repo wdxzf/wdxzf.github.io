@@ -2,10 +2,12 @@
 title: "PCB 扇孔全攻略：19 个新手和老手都容易忽略的细节"
 date: 2026-04-09
 description: "从过孔选型、BGA 扇出、差分换层到板边 GND 屏蔽，系统梳理 19 个会直接影响 PCB 可制造性、信号完整性和焊接良率的设计细节。"
+slug: "pcb-fanout-guide"
 tags: ["PCB", "硬件设计", "BGA", "高速信号", "EDA"]
 category: ["硬件设计"]
 toc: true
 donate: false
+draft: true
 ---
 
 > 本文基于公众号原文重新整理，删去了广告和推荐流，保留与 PCB 扇孔设计直接相关的经验要点。原文地址：[mp.weixin.qq.com](https://mp.weixin.qq.com/s/whxqCBD4jOtBmih8QAA9zQ)

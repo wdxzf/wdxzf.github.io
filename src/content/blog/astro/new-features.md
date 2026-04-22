@@ -2,6 +2,7 @@
 date: 2024-03-24
 title: New features
 description: More new features specific to this theme.
+slug: astro-theme-new-features
 mermaid: true
 mathjax: true
 category: [astro, feature]

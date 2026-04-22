@@ -2,6 +2,7 @@
 title: "ROS 航点导航功能"
 date: 2026-01-16
 description: "从 move_base Action 单点导航到 waterplus_map_tools 航点管理与自动巡航：可直接落地的节点与集成步骤。"
+slug: "ros-waypoints-navigation"
 tags: ["ROS", "导航", "多点航点", "move_base", "actionlib"]
 category: ["ROS"]
 draft: true

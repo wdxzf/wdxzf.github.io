@@ -12,6 +12,9 @@
 ## 内容工作流
 
 - 在 `src/content/blog/*.md` 中编辑博客文章。
+- `src/content/blog` 支持子目录分类；子目录中的 `.md` 文件同样会被识别为博客文章。
+- 目录本身不会生成页面，只有 `.md` 文件会被收集。
+- 推荐按技术方向或主题划分子目录，例如 `src/content/blog/wsl/xxx.md`、`src/content/blog/stm32/yyy.md`。
 - 在 `src/content/feed/*.md` 中编辑动态 feed 条目。
 - 默认不要修改草稿文章；只有用户明确要求时，才编辑 `draft: true` 的内容。
 - 保持 frontmatter 与现有内容 schema 一致，不要凭空添加未定义字段。

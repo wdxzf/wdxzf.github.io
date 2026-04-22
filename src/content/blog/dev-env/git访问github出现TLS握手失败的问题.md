@@ -27,12 +27,6 @@ curl.exe -I https://github.com  # Windows
 gnutls_handshake() failed: The TLS connection was non-properly terminated
 ```
 
-或
-
-```
-SSL_ERROR_SYSCALL
-```
-
 :::note[两个命令的区别]
 `ping` → 测试能不能连上服务器（网络层）
 

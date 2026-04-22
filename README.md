@@ -53,6 +53,39 @@ npm run dev # preview
 
 将您最喜欢的文章写在 `src/content/blog` 文件夹中，在 `src/content/feed` 文件夹中编写您想发布的动态内容。
 
+### Blog Directory Structure（博客目录说明）
+
+- 博客内容位于：`src/content/blog`
+- All `.md` files under this directory are treated as blog posts
+
+### 规则（Rules）
+
+- 支持子目录分类（Subdirectories are allowed）
+- 只有 `.md` 文件会被识别为文章
+- 目录本身不会生成页面
+
+## 📂 博客子目录说明
+
+本项目的博客内容位于：
+
+`src/content/blog/`
+
+支持使用子目录对文章进行分类，例如：
+
+```text
+src/content/blog/wsl/xxx.md
+src/content/blog/stm32/yyy.md
+src/content/blog/ros/zzz.md
+```
+
+### 说明
+
+- 所有 `.md` 文件（包括子目录中的）都会被识别为博客文章
+- 子目录仅用于分类，不影响文章是否被收集
+- 仅文件会被识别为文章，目录本身不会生成页面
+
+👉 推荐按技术方向或主题划分子目录，便于管理和维护
+
 ```bash
 npm run build # build
 pnpm dev 查看

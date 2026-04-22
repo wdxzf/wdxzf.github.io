@@ -2,6 +2,7 @@
 title: "Git 使用过程中遇到的问题整理"
 description: "记录日常开发中使用 Git 遇到的典型问题与解决方法"
 date: 2026-01-23
+slug: "git-troubleshooting-notes"
 category: ["Git"]
 tags: ["Git", "submodule", "remote"]
 ---

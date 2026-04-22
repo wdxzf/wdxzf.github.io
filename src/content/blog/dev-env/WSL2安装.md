@@ -2,9 +2,10 @@
 title: "WSL2 安装与基础配置记录"
 date: 2026-04-13
 description: "整理 Windows 上安装 WSL2、配置 Ubuntu、检查代理与常用命令的完整流程，适合从零开始快速搭环境。"
+slug: "wsl2-installation-notes"
 tags: ["WSL2", "Windows", "Ubuntu", "开发环境"]
 category: ["开发环境"]
-toc: true
+draft: true
 donate: false
 ---
 
@@ -26,7 +27,7 @@ donate: false
 
 按 `Win + X`，再打开任务管理器，在 CPU 信息里确认“虚拟化”是否已经启用。
 
-![CPU 虚拟化查看界面](images/WSL2安装/image.png)
+![CPU 虚拟化查看界面](../images/WSL2安装/image.png)
 
 如果这里显示未启用，通常需要进 BIOS 打开 Intel VT-x 或 AMD-V。
 
@@ -47,7 +48,7 @@ winget install Microsoft.WindowsTerminal
 
 如果你需要更省事地执行安装类命令，可以把 Windows Terminal 设置成管理员启动。
 
-![修改 Windows Terminal 为管理员](images/WSL2安装/image-2.png)
+![修改 Windows Terminal 为管理员](../images/WSL2安装/image-2.png)
 
 ## 安装 WSL2
 
@@ -125,7 +126,7 @@ wsl -s Ubuntu-20.04
 ### 删除某个发行版
 
 ```powershell
-wsl --unregister Ubuntu
+wsl --unregister Ubuntu #在window下执行
 ```
 
 删除前先用 `wsl -l -v` 看清楚当前发行版名称，避免删错。
@@ -139,7 +140,7 @@ wsl --unregister Ubuntu
 - `C:` 盘通常会挂载到 `/mnt/c`
 - `D:` 盘通常会挂载到 `/mnt/d`
 
-![ls /mnt 后的图片](images/WSL2安装/image-3.png)
+![ls /mnt 后的图片](../images/WSL2安装/image-3.png)
 
 这意味着你可以直接在 WSL 中访问 Windows 文件，也可以在 Windows 编辑器里操作 WSL 项目文件。但从性能和权限角度看，开发项目通常更适合放在 Linux 文件系统内部，而不是长期直接放在 `/mnt/c` 下面。
 
