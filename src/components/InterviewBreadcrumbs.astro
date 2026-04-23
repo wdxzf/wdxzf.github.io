@@ -1,0 +1,81 @@
+---
+import getUrl from '@/utils/getUrl';
+
+type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
+const { items } = Astro.props as { items: BreadcrumbItem[] };
+---
+
+{
+  items.length > 0 && (
+    <nav aria-label="Breadcrumb" class="interview-breadcrumbs">
+      <ol class="interview-breadcrumbs-list">
+        {
+          items.map((item, index) => (
+            <li class="interview-breadcrumbs-item">
+              {
+                item.href ? (
+                  <a href={getUrl(item.href)} class="interview-breadcrumbs-link">
+                    {item.label}
+                  </a>
+                ) : (
+                  <span class="interview-breadcrumbs-current">{item.label}</span>
+                )
+              }
+              {
+                index < items.length - 1 && (
+                  <i class="ri-arrow-right-s-line interview-breadcrumbs-separator" aria-hidden="true"></i>
+                )
+              }
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .interview-breadcrumbs {
+    margin-bottom: 0.8rem;
+  }
+
+  .interview-breadcrumbs-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(var(--color-text), 0.52);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .interview-breadcrumbs-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .interview-breadcrumbs-link {
+    color: rgba(var(--color-text), 0.58);
+    transition: color 0.2s ease;
+  }
+
+  .interview-breadcrumbs-link:hover {
+    color: rgba(var(--color-text), 0.88);
+  }
+
+  .interview-breadcrumbs-current {
+    color: rgba(var(--color-text), 0.86);
+    font-weight: 600;
+  }
+
+  .interview-breadcrumbs-separator {
+    color: rgba(var(--color-text), 0.42);
+    font-size: 1rem;
+  }
+</style>

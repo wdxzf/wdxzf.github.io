@@ -1,0 +1,167 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import InterviewSidebar from '@/components/InterviewSidebar.astro';
+import InterviewToc from '@/components/InterviewToc.astro';
+import MobileToc from '@/components/MobileToc.astro';
+import ScrollToTop from '@/components/ScrollToTop.astro';
+import { ClientRouter } from 'astro:transitions';
+import { config } from '@/consts';
+import type { MarkdownHeading } from 'astro';
+import '@fancyapps/ui/dist/fancybox/fancybox.css';
+
+const {
+  frontmatter,
+  headings = [],
+  currentPath,
+} = Astro.props as {
+  frontmatter: {
+    title: string;
+    description?: string | null;
+  };
+  headings?: MarkdownHeading[];
+  currentPath: string;
+};
+
+const hasToc = headings.some((item) => item.depth === 2 || item.depth === 3);
+const interviewLayoutClass = hasToc
+  ? 'grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)_18rem] 2xl:grid-cols-[21rem_minmax(0,1fr)_19rem] xl:gap-10'
+  : 'grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] 2xl:grid-cols-[21rem_minmax(0,1fr)] xl:gap-10';
+---
+
+<html lang={config.lang}>
+  <BaseHead title={frontmatter.title} description={frontmatter.description ?? undefined} />
+  <ClientRouter />
+
+  <body class="bg-skin-secondary">
+    <Header />
+    <main class="container relative min-h-full max-w-[1800px] p-4 pt-20 pb-32 text-skin-base" id="app">
+      <div class:list={['grid', interviewLayoutClass]}>
+        <div>
+          <div class="sticky top-20">
+            <InterviewSidebar currentPath={currentPath} />
+          </div>
+        </div>
+
+        <div class="min-w-0">
+          <slot />
+        </div>
+
+        {
+          hasToc && (
+            <div class="relative hidden xl:block">
+              <InterviewToc headings={headings} />
+            </div>
+          )
+        }
+
+        {hasToc && <MobileToc headings={headings} />}
+        <ScrollToTop />
+      </div>
+      <Footer />
+    </main>
+  </body>
+</html>
+
+<script>
+  const shouldDecorateExternalLink = (link: HTMLAnchorElement) => {
+    const href = link.getAttribute('href');
+
+    if (
+      !href ||
+      href.startsWith('#') ||
+      href.startsWith('mailto:') ||
+      href.startsWith('tel:')
+    ) {
+      return false;
+    }
+
+    const resolvedUrl = new URL(href, window.location.href);
+    return resolvedUrl.origin !== window.location.origin;
+  };
+
+  const initializeLightbox = async () => {
+    try {
+      const { Fancybox } = await import('@fancyapps/ui/dist/fancybox/fancybox.esm.js');
+      Fancybox.bind('[data-fancybox]');
+    } catch (error) {
+      console.error('Failed to initialize Fancybox.', error);
+    }
+  };
+
+  const markdownBody = document.querySelector('.markdown-body');
+  if (markdownBody) {
+    const images = markdownBody.querySelectorAll<HTMLImageElement>('img');
+    images.forEach((image) => {
+      const imageSource = image.getAttribute('src');
+      if (!imageSource) {
+        return;
+      }
+
+      const imageParent = image.parentElement;
+      if (imageParent?.tagName === 'A') {
+        const anchor = imageParent as HTMLAnchorElement;
+        anchor.href = anchor.getAttribute('href') || imageSource;
+        anchor.setAttribute('data-fancybox', 'gallery');
+        if (image.alt) {
+          anchor.setAttribute('data-caption', image.alt);
+        }
+        return;
+      }
+
+      const anchor = document.createElement('a');
+      anchor.href = imageSource;
+      anchor.setAttribute('data-fancybox', 'gallery');
+      if (image.alt) {
+        anchor.setAttribute('data-caption', image.alt);
+      }
+
+      image.replaceWith(anchor);
+      anchor.appendChild(image);
+    });
+
+    if (images.length > 0) {
+      initializeLightbox();
+    }
+
+    const links = markdownBody.querySelectorAll<HTMLAnchorElement>('a');
+    for (const link of links) {
+      const names = link.getAttributeNames();
+      if (
+        !names.includes('data-footnote-backref') &&
+        !names.includes('data-footnote-ref') &&
+        shouldDecorateExternalLink(link)
+      ) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'nofollow noopener noreferrer');
+      }
+    }
+
+    const spoilers = markdownBody.querySelectorAll<HTMLElement>('[data-spoiler]');
+    const setSpoilerState = (element: HTMLElement, revealed: boolean) => {
+      element.setAttribute('data-revealed', String(revealed));
+      element.setAttribute('aria-pressed', String(revealed));
+    };
+
+    spoilers.forEach((spoiler) => {
+      setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') === 'true');
+
+      spoiler.addEventListener('click', () => {
+        setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') !== 'true');
+      });
+
+      spoiler.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setSpoilerState(spoiler, spoiler.getAttribute('data-revealed') !== 'true');
+        }
+
+        if (event.key === 'Escape') {
+          setSpoilerState(spoiler, false);
+          spoiler.blur();
+        }
+      });
+    });
+  }
+</script>

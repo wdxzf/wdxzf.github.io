@@ -130,6 +130,11 @@ export const categories: NavItem[] = [
     href: "/blog/1",
   },
   {
+    name: "wiki",
+    iconClass: "ri-book-open-line",
+    href: "/interview",
+  },
+  {
     name: "动态",
     iconClass: "ri-lightbulb-flash-line",
     href: "/feed/1",

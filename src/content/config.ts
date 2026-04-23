@@ -87,6 +87,17 @@ const feed = defineCollection({
     donate: z.boolean().default(true),
     comment: z.boolean().default(true),
   })
-})
+});
 
-export const collections = {blog, feed};
+const interview = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional().nullable(),
+    draft: z.boolean().default(false),
+    order: z.number().optional().nullable(),
+    section: z.string().optional().nullable(),
+  }),
+});
+
+export const collections = {blog, feed, interview};

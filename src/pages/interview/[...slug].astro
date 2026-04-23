@@ -1,0 +1,96 @@
+---
+import InterviewBreadcrumbs from '@/components/InterviewBreadcrumbs.astro';
+import InterviewDoc from '@/layouts/InterviewDoc.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection('interview', ({ data }) => {
+    if (!import.meta.env.PROD) {
+      return true;
+    }
+
+    return !data.draft;
+  });
+
+  return entries.map((entry) => ({
+    params: {
+      slug: entry.slug === 'index' ? undefined : entry.slug,
+    },
+    props: {entry},
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as { entry: CollectionEntry<'interview'> };
+const { Content, headings } = await entry.render();
+
+const prettifySegment = (segment: string) => segment.replace(/-/g, ' ');
+
+const slugSegments = entry.slug.split('/').filter(Boolean);
+const nestedSegments = slugSegments.slice(0, -1);
+const folderLabel = slugSegments[0] ? prettifySegment(slugSegments[0]) : '知识库';
+const folderHomeHref = slugSegments[0] ? `/interview/${slugSegments[0]}/00_总索引` : undefined;
+const breadcrumbItems = [
+  ...(folderHomeHref ? [{label: folderLabel, href: folderHomeHref}] : [{label: '知识库'}]),
+  ...nestedSegments.slice(1).map((segment) => ({label: prettifySegment(segment)})),
+  {label: entry.data.title},
+];
+---
+
+<InterviewDoc frontmatter={entry.data} headings={headings} currentPath={Astro.url.pathname}>
+  <section class="wiki-shell px-1 py-2 md:px-2">
+    <div class="mb-9 space-y-3">
+      <InterviewBreadcrumbs items={breadcrumbItems} />
+      <h1 class="text-4xl font-bold leading-tight tracking-tight md:text-5xl">{entry.data.title}</h1>
+      {
+        entry.data.description && (
+          <p class="max-w-3xl text-base leading-8 text-[rgba(var(--color-text),0.66)]">
+            {entry.data.description}
+          </p>
+        )
+      }
+    </div>
+
+    <div class="divider-horizontal"></div>
+
+    <article class="markdown-body article-body wiki-article">
+      <Content />
+    </article>
+  </section>
+</InterviewDoc>
+
+<style is:global>
+  .wiki-shell .divider-horizontal {
+    margin-top: 0;
+    margin-bottom: 1.7rem;
+    border-color: rgba(var(--color-text), 0.1);
+  }
+
+  .wiki-article {
+    padding-top: 0.4rem;
+  }
+
+  .wiki-article h2 {
+    margin-top: 3.05rem;
+    margin-bottom: 1.15rem;
+    border-bottom-color: rgba(var(--color-text), 0.1);
+  }
+
+  .wiki-article h3 {
+    margin-top: 2.2rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .wiki-article :where(p, ul, ol, blockquote, table, details) {
+    line-height: 1.85;
+  }
+
+  .wiki-article blockquote {
+    border-color: rgba(var(--color-text), 0.14);
+    background-color: rgba(var(--color-fill-secondary), 0.32);
+  }
+
+  .wiki-article hr {
+    border-color: rgba(var(--color-text), 0.1);
+  }
+</style>
