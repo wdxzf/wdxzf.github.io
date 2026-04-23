@@ -4,9 +4,9 @@ import getUrl from "@/utils/getUrl";
 const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
 ---
 
-<div class="shadow-lg rounded-lg h-64 w-auto flex flex-col items-center justify-center bg-skin-card p-2">
-  <img class="avatar mb-4" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
-    <div class="mb-2 text-center">{site.motto}</div>
+<div class="shadow-lg rounded-lg min-h-0 w-auto flex flex-col items-center justify-center bg-skin-card px-3 py-4">
+  <img class="avatar mb-3" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
+    <div class="mb-2 text-center leading-7">{site.motto}</div>
   <div class="flex items-center justify-center flex-nowrap whitespace-nowrap">
     {
       activeInfoLinks.map((infoItem) => (

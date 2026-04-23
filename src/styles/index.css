@@ -128,11 +128,11 @@ menu {
   }
 
   .aside-section {
-    @apply mb-6;
+    @apply mb-4;
   }
 
   .aside-group {
-    @apply mb-4;
+    @apply mb-3;
   }
 
   .aside-summary {
@@ -154,13 +154,17 @@ menu {
   }
 
   .aside-group-content {
-    @apply mt-2;
+    @apply mt-1.5;
   }
 
   .aside-link {
     @apply block truncate py-1 hover:text-skin-active;
-    color: rgba(var(--color-text), 0.88);
+    color: rgba(var(--color-text), 0.82);
     transition: color 0.2s ease;
+  }
+
+  .aside-link-more {
+    color: rgba(var(--color-text), 0.6);
   }
 
   .aside-tag {
@@ -888,6 +892,41 @@ menu {
 
 .post-list-desc {
   color: rgba(var(--color-text), 0.86);
+}
+
+.recent-article-list {
+  gap: 0.4rem;
+}
+
+.recent-article-link {
+  display: block;
+  border-bottom: 1px solid rgba(var(--color-text), 0.08);
+  padding: 0.45rem 0 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.recent-article-link:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.recent-article-link:hover .recent-article-title {
+  color: rgb(var(--color-text-active));
+}
+
+.recent-article-title {
+  display: block;
+  color: rgba(var(--color-text), 0.88);
+  line-height: 1.55;
+  transition: color 0.2s ease;
+}
+
+.recent-article-date {
+  display: block;
+  margin-top: 0.18rem;
+  color: rgba(var(--color-text), 0.5);
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 /* 重写markdown样式 */
