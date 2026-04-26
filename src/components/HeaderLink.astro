@@ -21,12 +21,13 @@ const isChildActive = items.some((item) => getPrimarySegment(item.href) === curr
 const isActive = hasChildren
   ? isChildActive || getPrimarySegment(href) === currentSegment
   : getPrimarySegment(href) === currentSegment;
+const useSolidActive = isActive && currentSegment === 'interview';
 ---
 {
   hasChildren ? (
     <details class:list={['header-nav-group', isActive && 'header-nav-group-active']}>
       <summary class="header-nav-trigger" {...props}>
-        <span class:list={['header-nav-trigger-label', isActive && 'header-link-active']}>
+        <span class:list={['header-nav-trigger-label', isActive && 'header-link-active', useSolidActive && 'header-link-active-solid']}>
           <i class={iconClass}></i>
           <span><slot/></span>
         </span>
@@ -60,7 +61,7 @@ const isActive = hasChildren
     <a
       href={getUrl(href)}
       target={target}
-      class:list={['header-nav-link', isActive ? 'header-link-active' : '', 'hover:header-link-hover']}
+      class:list={['header-nav-link', isActive ? 'header-link-active' : '', useSolidActive && 'header-link-active-solid', 'hover:header-link-hover']}
       aria-current={isActive ? 'page' : undefined}
       {...props}
     >

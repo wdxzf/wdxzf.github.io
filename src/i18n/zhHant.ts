@@ -24,7 +24,7 @@ export  const zhHant = {
   'sidebar.allTags': '全部標簽',
   'sidebar.uncategorized': '未分類',
   'sidebar.tags': '標簽',
-  'sidebar.recentArticle': '最近文章',
+  'sidebar.recentArticle': '最近更新',
   'sidebar.recentComments': '最近評論',
   'footer.articleTitle':'本文標題',
   'footer.articleAuthor':'文章作者',

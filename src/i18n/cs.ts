@@ -60,7 +60,7 @@ export  let cs = {
   'sidebar.allCategories': 'Všechny kategorie',
   'sidebar.allTags': 'Všechny štítky',
   'sidebar.categories': 'Kategorie',
-  'sidebar.recentArticle': 'Nedávné články',
+  'sidebar.recentArticle': 'Nedávné aktualizace',
   'sidebar.recentComments': 'Nedávné komentáře',
   'sidebar.tags': 'Štítky',
   'sidebar.uncategorized': 'nekategorizované',

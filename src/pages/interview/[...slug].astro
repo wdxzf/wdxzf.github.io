@@ -1,17 +1,19 @@
 ---
-import InterviewBreadcrumbs from '@/components/InterviewBreadcrumbs.astro';
 import InterviewDoc from '@/layouts/InterviewDoc.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
+import {
+  formatInterviewWordCount,
+  getInterviewPath,
+  getInterviewStats,
+  getVisibleInterviewEntries,
+  isInterviewIndexEntry,
+  sortInterviewEntries,
+} from '@/utils/interview';
+import getUrl from '@/utils/getUrl';
 
 export const getStaticPaths = (async () => {
-  const entries = await getCollection('interview', ({ data }) => {
-    if (!import.meta.env.PROD) {
-      return true;
-    }
-
-    return !data.draft;
-  });
+  const entries = await getVisibleInterviewEntries();
 
   return entries.map((entry) => ({
     params: {
@@ -23,28 +25,58 @@ export const getStaticPaths = (async () => {
 
 const { entry } = Astro.props as { entry: CollectionEntry<'interview'> };
 const { Content, headings } = await entry.render();
-
-const prettifySegment = (segment: string) => segment.replace(/-/g, ' ');
+const allInterviewEntries = sortInterviewEntries(await getVisibleInterviewEntries());
+const indexEntries = allInterviewEntries.filter((item) => !isInterviewIndexEntry(item));
+const isIndexPage = isInterviewIndexEntry(entry);
+const indexStats = indexEntries.map((item) => ({
+  entry: item,
+  ...getInterviewStats(item.body),
+}));
+const totalQuestions = indexStats.reduce((sum, item) => sum + item.questionCount, 0);
+const totalLines = indexStats.reduce((sum, item) => sum + item.lineCount, 0);
+const totalWords = indexStats.reduce((sum, item) => sum + item.wordCount, 0);
+const currentStats = isIndexPage
+  ? {questionCount: totalQuestions, wordCount: totalWords}
+  : getInterviewStats(entry.body);
+const currentEntryIndex = allInterviewEntries.findIndex((item) => item.id === entry.id);
+const prevEntry = currentEntryIndex > 0 ? allInterviewEntries[currentEntryIndex - 1] : undefined;
+const nextEntry =
+  currentEntryIndex >= 0 && currentEntryIndex < allInterviewEntries.length - 1
+    ? allInterviewEntries[currentEntryIndex + 1]
+    : undefined;
 
 const slugSegments = entry.slug.split('/').filter(Boolean);
-const nestedSegments = slugSegments.slice(0, -1);
-const folderLabel = slugSegments[0] ? prettifySegment(slugSegments[0]) : '知识库';
-const folderHomeHref = slugSegments[0] ? `/interview/${slugSegments[0]}/00_总索引` : undefined;
-const breadcrumbItems = [
-  ...(folderHomeHref ? [{label: folderLabel, href: folderHomeHref}] : [{label: '知识库'}]),
-  ...nestedSegments.slice(1).map((segment) => ({label: prettifySegment(segment)})),
-  {label: entry.data.title},
-];
+const folderLabel = slugSegments[0]?.replace(/-/g, ' ') || '知识库';
 ---
 
 <InterviewDoc frontmatter={entry.data} headings={headings} currentPath={Astro.url.pathname}>
-  <section class="wiki-shell px-1 py-2 md:px-2">
-    <div class="mb-9 space-y-3">
-      <InterviewBreadcrumbs items={breadcrumbItems} />
-      <h1 class="text-4xl font-bold leading-tight tracking-tight md:text-5xl">{entry.data.title}</h1>
+  <section class="wiki-shell py-2">
+    <div class="wiki-page-header mb-8 text-center">
+      <h1 class="wiki-title break-all text-2xl font-bold text-center">{entry.data.title}</h1>
+      <div class="post-meta-row post-meta-article wiki-meta-row flex flex-wrap items-center justify-center gap-y-1 mt-3 mb-6 text-skin-dodge" aria-label="文档信息">
+        <div class="post-meta-group">
+          <i class="ri-folder-3-line mr-1" aria-hidden="true"></i>
+          {entry.data.section || folderLabel}
+        </div>
+        <span class="post-meta-divider" aria-hidden="true">|</span>
+        <div class="post-meta-group">
+          <i class="ri-list-check-2 mr-1" aria-hidden="true"></i>
+          {currentStats.questionCount} 题
+        </div>
+        <span class="post-meta-divider" aria-hidden="true">|</span>
+        <div class="post-meta-group">
+          <i class="ri-quill-pen-line mr-1" aria-hidden="true"></i>
+          {formatInterviewWordCount(currentStats.wordCount)}
+        </div>
+        <span class="post-meta-divider" aria-hidden="true">|</span>
+        <div class="post-meta-group">
+          <i class="ri-time-line mr-1" aria-hidden="true"></i>
+          {isIndexPage ? '总索引' : '面试题'}
+        </div>
+      </div>
       {
         entry.data.description && (
-          <p class="max-w-3xl text-base leading-8 text-[rgba(var(--color-text),0.66)]">
+          <p class="wiki-description">
             {entry.data.description}
           </p>
         )
@@ -56,41 +88,282 @@ const breadcrumbItems = [
     <article class="markdown-body article-body wiki-article">
       <Content />
     </article>
+
+    {
+      isIndexPage && (
+        <section class="wiki-index-panel mt-10">
+          <div class="mb-5">
+            <div>
+              <h2 class="text-2xl font-bold leading-tight">文档目录</h2>
+              <p class="mt-2 text-sm leading-6 text-skin-dodge">
+                自动读取 Wiki 文档生成，共 {indexEntries.length} 篇，约 {totalQuestions} 道题，{totalLines} 行内容。
+              </p>
+            </div>
+          </div>
+
+          <div class="wiki-index-table-wrap">
+            <table class="wiki-index-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>文档</th>
+                  <th>题数</th>
+                  <th>行数</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  indexStats.map(({ entry: item, questionCount, lineCount }) => (
+                    <tr>
+                      <td>{String(item.data.order ?? '').padStart(2, '0')}</td>
+                      <td>
+                        <a href={getUrl(getInterviewPath(item))}>{item.data.title}</a>
+                        {
+                          item.data.description && (
+                            <p>{item.data.description}</p>
+                          )
+                        }
+                      </td>
+                      <td>{questionCount}</td>
+                      <td>{lineCount}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      (prevEntry || nextEntry) && (
+        <>
+          <div class="divider-horizontal wiki-nav-divider"></div>
+          <nav class="wiki-page-nav" aria-label="上一篇和下一篇">
+            {
+              prevEntry ? (
+                <a class="wiki-page-nav-link wiki-page-nav-prev" href={getUrl(getInterviewPath(prevEntry))}>
+                  <span class="wiki-page-nav-label">
+                    <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+                    上一篇
+                  </span>
+                  <span class="wiki-page-nav-title">{prevEntry.data.title}</span>
+                </a>
+              ) : (
+                <span class="wiki-page-nav-placeholder" aria-hidden="true"></span>
+              )
+            }
+            {
+              nextEntry ? (
+                <a class="wiki-page-nav-link wiki-page-nav-next" href={getUrl(getInterviewPath(nextEntry))}>
+                  <span class="wiki-page-nav-label">
+                    下一篇
+                    <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                  </span>
+                  <span class="wiki-page-nav-title">{nextEntry.data.title}</span>
+                </a>
+              ) : (
+                <span class="wiki-page-nav-placeholder" aria-hidden="true"></span>
+              )
+            }
+          </nav>
+        </>
+      )
+    }
   </section>
 </InterviewDoc>
 
 <style is:global>
   .wiki-shell .divider-horizontal {
     margin-top: 0;
-    margin-bottom: 1.7rem;
+    margin-bottom: 1.55rem;
     border-color: rgba(var(--color-text), 0.1);
   }
 
+  .wiki-shell {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .wiki-page-header {
+    min-width: 0;
+  }
+
+  .wiki-description {
+    max-width: 48rem;
+    margin: 1rem auto 0;
+    color: rgba(var(--color-text), 0.62);
+    font-size: 0.96rem;
+    line-height: 1.75;
+  }
+
   .wiki-article {
-    padding-top: 0.4rem;
+    padding-top: 0.25rem;
+  }
+
+  .wiki-article > h1:first-child {
+    display: none;
   }
 
   .wiki-article h2 {
-    margin-top: 3.05rem;
+    margin-top: 2.45rem;
     margin-bottom: 1.15rem;
     border-bottom-color: rgba(var(--color-text), 0.1);
+    font-size: 1.45rem;
+    line-height: 1.45;
+  }
+
+  .wiki-article h2::before {
+    width: 3px;
+    height: 0.92em;
+    border-radius: 999px;
+    background-color: rgba(var(--color-text-active), 0.86);
   }
 
   .wiki-article h3 {
-    margin-top: 2.2rem;
+    margin-top: 2rem;
     margin-bottom: 0.9rem;
+    font-size: 1.18rem;
   }
 
   .wiki-article :where(p, ul, ol, blockquote, table, details) {
-    line-height: 1.85;
+    line-height: 1.82;
+  }
+
+  .wiki-article :where(li + li) {
+    margin-top: 0.38rem;
   }
 
   .wiki-article blockquote {
     border-color: rgba(var(--color-text), 0.14);
-    background-color: rgba(var(--color-fill-secondary), 0.32);
+    background-color: rgba(var(--color-text-active), 0.04);
   }
 
   .wiki-article hr {
     border-color: rgba(var(--color-text), 0.1);
+  }
+
+  .wiki-index-panel {
+    border: 1px solid rgba(var(--color-text-active), 0.14);
+    border-radius: 0.55rem;
+    background-color: rgba(var(--color-text-active), 0.035);
+    padding: 1.25rem;
+  }
+
+  .wiki-index-table-wrap {
+    overflow-x: auto;
+  }
+
+  .wiki-index-table {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+  }
+
+  .wiki-index-table th,
+  .wiki-index-table td {
+    border-bottom: 1px solid rgba(var(--color-text-active), 0.12);
+    padding: 0.8rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .wiki-index-table th:nth-child(1),
+  .wiki-index-table td:nth-child(1),
+  .wiki-index-table th:nth-child(3),
+  .wiki-index-table td:nth-child(3),
+  .wiki-index-table th:nth-child(4),
+  .wiki-index-table td:nth-child(4) {
+    width: 5rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .wiki-index-table th:nth-child(1),
+  .wiki-index-table td:nth-child(1) {
+    text-align: center;
+  }
+
+  .wiki-index-table a {
+    font-weight: 700;
+    color: rgba(var(--color-text), 0.92);
+  }
+
+  .wiki-index-table a:hover {
+    color: rgba(var(--color-text-active), 1);
+  }
+
+  .wiki-index-table p {
+    margin-top: 0.35rem;
+    color: rgba(var(--color-text), 0.62);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .wiki-nav-divider {
+    margin-top: 2.4rem !important;
+    margin-bottom: 1.2rem !important;
+  }
+
+  .wiki-page-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .wiki-page-nav-link {
+    min-width: 0;
+    color: rgba(var(--color-text), 0.84);
+    line-height: 1.55;
+  }
+
+  .wiki-page-nav-link:hover {
+    color: rgba(var(--color-text-active), 1);
+  }
+
+  .wiki-page-nav-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: rgba(var(--color-text), 0.52);
+    font-size: 0.82rem;
+  }
+
+  .wiki-page-nav-title {
+    display: block;
+    margin-top: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.96rem;
+    font-weight: 650;
+  }
+
+  .wiki-page-nav-next {
+    text-align: right;
+  }
+
+  @media (max-width: 767px) {
+    .wiki-title {
+      line-height: 1.25;
+    }
+
+    .wiki-index-panel {
+      padding: 1rem;
+    }
+
+    .wiki-page-nav {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+
+    .wiki-page-nav-placeholder {
+      display: none;
+    }
+
+    .wiki-page-nav-next {
+      text-align: left;
+    }
   }
 </style>

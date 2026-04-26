@@ -57,7 +57,7 @@ const isChildGroupActive = (items: { href: string }[]) =>
     <a class="p-4 text-2xl" href={getUrl("/")}>{site.title}</a>
     <div class="flex items-center">
       <div class="hidden xl:block">
-        <div class="flex items-center pr-4 space-x-5">
+        <div class="flex items-center gap-x-9 pr-6">
           {
             categories.map(category => (
               <HeaderLink href={category.href} icon={category.iconClass} target={category.target ? category.target : '_self'} items={category.children ? category.children : []}>{category.name}</HeaderLink>

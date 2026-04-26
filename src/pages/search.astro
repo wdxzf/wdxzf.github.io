@@ -1,30 +1,27 @@
 ---
 import IndexPage from "@/layouts/IndexPage.astro";
 import { config } from "@/consts";
-import {t} from '@/i18n/utils'
 
-const includeContent = config.search.includeContent;
-const searchHint = includeContent ? t('search.hintContent') : t('search.hintBasic');
-const searchPlaceholder = includeContent
-  ? t('search.placeholderContent')
-  : t('search.placeholderBasic');
-const searchDescription = includeContent
-  ? "搜索博客文章标题、摘要和正文内容。"
-  : "搜索博客文章标题、摘要、标签和分类。";
+const includeBlogContent = config.search.includeContent;
+const searchDescription = includeBlogContent
+  ? "搜索博客文章、动态和 Wiki 文档标题、摘要与正文内容。"
+  : "搜索博客文章标题、摘要、标签、分类，以及动态和 Wiki 文档全文。";
 ---
-<IndexPage
-  title={t('search.search')}
-  description={searchDescription}
->
-  <section class="search-shell" data-include-content={String(includeContent)}>
-    <aside class="search-hero rounded-2xl p-5 md:p-6">
-      <div class="flex items-start justify-between gap-4">
+
+<IndexPage title="搜索" description={searchDescription}>
+  <section class="combined-search-shell" data-include-blog-content={String(includeBlogContent)}>
+    <aside class="combined-search-hero p-5 md:p-6">
+      <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <label for="search" class="text-2xl font-semibold text-skin-base">
-            {t('search.search')}
+          <p class="mb-2 inline-flex items-center gap-2 text-sm font-medium text-skin-dodge">
+            <i class="ri-search-eye-line" aria-hidden="true"></i>
+            统一检索
+          </p>
+          <label for="search" class="block text-3xl font-bold leading-tight text-skin-base">
+            搜索博客、Wiki 与动态
           </label>
-          <p id="search-help" class="mt-2 text-sm leading-6 text-skin-dodge">
-            {searchHint}
+          <p id="search-help" class="mt-3 max-w-2xl text-sm leading-6 text-skin-dodge">
+            输入题号、知识点、文章标题、标签或分类。按 <span class="search-inline-key">/</span> 快速聚焦搜索框。
           </p>
         </div>
         <div class="search-shortcut rounded-full border border-skin-dodge border-opacity-40 px-3 py-1 text-xs text-skin-dodge">
@@ -32,15 +29,15 @@ const searchDescription = includeContent
         </div>
       </div>
 
-      <div class="relative mt-5">
-        <span class="absolute inset-y-0 flex items-center pl-2 opacity-75">
-          <i class="ri-search-line text-skin-active ml-1"></i>
+      <div class="relative mt-6">
+        <span class="absolute inset-y-0 flex items-center pl-3 opacity-75">
+          <i class="ri-search-line text-xl text-skin-active"></i>
         </span>
         <input
           required
           id="search"
-          class="block w-full rounded-2xl border border-opacity-40 bg-skin-fill text-skin-base py-3 pl-10 pr-3 placeholder:italic placeholder:text-opacity-75 focus:border-skin-accent focus:outline-none"
-          placeholder={searchPlaceholder}
+          class="combined-search-input block w-full border border-opacity-40 bg-skin-fill text-skin-base py-3.5 pl-12 pr-3 placeholder:italic placeholder:text-opacity-75 focus:border-skin-accent focus:outline-none"
+          placeholder="搜索 FreeRTOS、volatile、WSL、Q12..."
           type="search"
           name="search"
           aria-describedby="search-help"
@@ -51,6 +48,34 @@ const searchDescription = includeContent
           autofocus
         />
       </div>
+
+      <div class="mt-5 grid gap-3 md:grid-cols-[auto_1fr] md:items-center">
+        <div class="search-scope-tabs" role="group" aria-label="搜索范围">
+          <button type="button" class="search-scope-tab" data-scope="all" aria-pressed="true">
+            <i class="ri-layout-grid-line" aria-hidden="true"></i>
+            <span>全部</span>
+            <span class="search-scope-count" data-count="all"></span>
+          </button>
+          <button type="button" class="search-scope-tab" data-scope="blog" aria-pressed="false">
+            <i class="ri-draft-line" aria-hidden="true"></i>
+            <span>博客</span>
+            <span class="search-scope-count" data-count="blog"></span>
+          </button>
+          <button type="button" class="search-scope-tab" data-scope="wiki" aria-pressed="false">
+            <i class="ri-book-open-line" aria-hidden="true"></i>
+            <span>Wiki</span>
+            <span class="search-scope-count" data-count="wiki"></span>
+          </button>
+          <button type="button" class="search-scope-tab" data-scope="feed" aria-pressed="false">
+            <i class="ri-chat-3-line" aria-hidden="true"></i>
+            <span>动态</span>
+            <span class="search-scope-count" data-count="feed"></span>
+          </button>
+        </div>
+        <p class="text-sm leading-6 text-skin-dodge">
+          Blog 适合找写作记录，Wiki 适合查面试题和知识点，动态适合翻近期碎片。
+        </p>
+      </div>
     </aside>
 
     <p id="searchReadout" class="mt-4 text-sm text-skin-dodge"></p>
@@ -59,74 +84,65 @@ const searchDescription = includeContent
     </section>
   </section>
 </IndexPage>
+
 <script>
-  import {t} from '../i18n/utils'
   import Fuse, { type IFuseOptions, type FuseResult } from "fuse.js";
   import {formatDate} from '../utils/formatDate'
   import {dealLabel} from "../utils/dealLabel";
   import getUrl from "../utils/getUrl";
 
+  type SearchScope = 'all' | 'blog' | 'wiki' | 'feed';
+
   type SearchDocument = {
+    type: 'blog' | 'wiki' | 'feed';
     slug: string;
+    href: string;
     title: string;
     description: string;
-    date: string;
-    category: string[] | string | null;
-    tags: string[] | string | null;
+    date?: string;
+    category?: string[] | string | null;
+    tags?: string[] | string | null;
+    section?: string;
+    questionCount?: number;
+    wordCount?: number;
     content?: string;
     excerpt: string;
   };
 
-  const searchShell = document.querySelector<HTMLElement>('.search-shell');
+  const searchShell = document.querySelector<HTMLElement>('.combined-search-shell');
+  const search = document.querySelector<HTMLInputElement>('#search');
+  const searchReadout = document.querySelector<HTMLElement>('#searchReadout');
+  const resultsList = document.querySelector<HTMLDivElement>('#resultsList');
+  const scopeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.search-scope-tab'));
+
   let SEARCH_DATA: SearchDocument[] | null = null;
   let FUSE_INSTANCE: Fuse<SearchDocument> | null = null;
   let searchTimeoutId: number | undefined;
-  const keys: IFuseOptions<SearchDocument>['keys'] = [
-    {
-      name: 'title',
-      weight: 1.3
-    },
-    {
-      name: 'description',
-      weight: 1
-    },
-    {
-      name: 'excerpt',
-      weight: 0.9
-    },
-    {
-      name: 'tags',
-      weight: 0.6
-    },
-    {
-      name: 'category',
-      weight: 0.5
-    }
-  ];
+  let activeScope: SearchScope = 'all';
 
-  if (searchShell?.dataset.includeContent === 'true') {
-    keys.push({
-      name: 'content',
-      weight: 0.7
-    });
-  }
+  const keys: IFuseOptions<SearchDocument>['keys'] = [
+    { name: 'title', weight: 1.35 },
+    { name: 'description', weight: 1 },
+    { name: 'excerpt', weight: 0.9 },
+    { name: 'tags', weight: 0.6 },
+    { name: 'category', weight: 0.5 },
+    { name: 'section', weight: 0.65 },
+    { name: 'content', weight: 0.7 },
+  ];
 
   const FUSE_OPTIONS: IFuseOptions<SearchDocument> = {
     includeScore: true,
     includeMatches: true,
     shouldSort: true,
-    threshold: 0.5,
+    threshold: 0.46,
     keys
-  }
+  };
 
-  const search = document.querySelector<HTMLInputElement>('#search');
-  const searchReadout = document.querySelector<HTMLElement>('#searchReadout');
-  const resultsList = document.querySelector<HTMLDivElement>('#resultsList');
   const loadingMarkup = `
     <div class="search-empty-state rounded-lg px-4 py-5 text-sm text-skin-dodge">
       <div class="inline-flex items-center gap-2">
         <i class="ri-loader-4-line animate-spin text-skin-active"></i>
-        <span>${t('search.loading')}</span>
+        <span>正在加载搜索索引...</span>
       </div>
     </div>
   `;
@@ -140,9 +156,15 @@ const searchDescription = includeContent
   const resultsListEl = resultsList;
 
   window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = (new URLSearchParams(window.location.search).get('q') || '').trim();
-    fetchSearchResults(urlParams);
-    searchInput.value = urlParams;
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = (urlParams.get('q') || '').trim();
+    activeScope = normalizeScope(urlParams.get('scope'));
+    searchInput.value = query;
+    updateScopeTabs();
+    fetchSearchResults(query);
+    if (!query) {
+      ensureSearchIndex().catch((error) => console.error(error));
+    }
   });
 
   window.addEventListener('keydown', (event) => {
@@ -158,6 +180,15 @@ const searchDescription = includeContent
     event.preventDefault();
     searchInput.focus();
     searchInput.select();
+  });
+
+  scopeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeScope = normalizeScope(button.dataset.scope);
+      updateScopeTabs();
+      fetchSearchResults(searchInput.value.replace(/\s+/g, ' ').trim());
+      updateSearchPageUrl(searchInput.value.replace(/\s+/g, ' ').trim());
+    });
   });
 
   searchInput.addEventListener('keydown', (event) => {
@@ -178,9 +209,46 @@ const searchDescription = includeContent
     }, 120);
   });
 
+  function normalizeScope(value: string | null | undefined): SearchScope {
+    return value === 'blog' || value === 'wiki' || value === 'feed' ? value : 'all';
+  }
+
+  function scopeLabel(scope: SearchScope) {
+    if (scope === 'blog') return '博客';
+    if (scope === 'wiki') return 'Wiki';
+    if (scope === 'feed') return '动态';
+    return '全部';
+  }
+
+  function updateScopeTabs() {
+    scopeButtons.forEach((button) => {
+      const selected = normalizeScope(button.dataset.scope) === activeScope;
+      button.classList.toggle('search-scope-tab-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+  }
+
+  function updateScopeCounts() {
+    if (!SEARCH_DATA) return;
+
+    const counts = {
+      all: SEARCH_DATA.length,
+      blog: SEARCH_DATA.filter((item) => item.type === 'blog').length,
+      wiki: SEARCH_DATA.filter((item) => item.type === 'wiki').length,
+      feed: SEARCH_DATA.filter((item) => item.type === 'feed').length,
+    };
+
+    for (const [scope, count] of Object.entries(counts)) {
+      const target = document.querySelector<HTMLElement>(`[data-count="${scope}"]`);
+      if (target) {
+        target.textContent = String(count);
+      }
+    }
+  }
+
   function updateReadout(length: number | null) {
     if (typeof length === 'number') {
-      searchReadoutEl.innerHTML = `<div class="my-3">${t('search.searchLabelOne')}<span class="px-2 font-bold text-skin-active">${length}</span>${t('search.searchLabelTwo')}</div>`
+      searchReadoutEl.innerHTML = `<div class="my-3">在 <span class="px-1 font-bold text-skin-active">${scopeLabel(activeScope)}</span> 中找到 <span class="px-1 font-bold text-skin-active">${length}</span> 条结果</div>`;
     } else {
       searchReadoutEl.innerHTML = "";
     }
@@ -193,6 +261,13 @@ const searchDescription = includeContent
     } else {
       url.searchParams.delete("q");
     }
+
+    if (activeScope === 'all') {
+      url.searchParams.delete('scope');
+    } else {
+      url.searchParams.set('scope', activeScope);
+    }
+
     window.history.replaceState(null, '', url);
   }
 
@@ -200,15 +275,24 @@ const searchDescription = includeContent
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  function getSearchTokens(searchTerm: string) {
+    return Array.from(new Set(searchTerm
+      .split(/\s+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+    ));
+  }
+
   function createHighlightedFragment(text: string, searchTerm: string) {
     const fragment = document.createDocumentFragment();
+    const tokens = getSearchTokens(searchTerm);
 
-    if (!searchTerm) {
+    if (tokens.length === 0) {
       fragment.append(document.createTextNode(text));
       return fragment;
     }
 
-    const reg = new RegExp(escapeRegExp(searchTerm), 'gi');
+    const reg = new RegExp(tokens.map(escapeRegExp).join('|'), 'gi');
     let lastIndex = 0;
 
     for (const match of text.matchAll(reg)) {
@@ -234,18 +318,23 @@ const searchDescription = includeContent
   }
 
   function getSnippet(item: SearchDocument, searchTerm: string) {
-    const normalizedSearch = searchTerm.toLowerCase();
+    const tokens = getSearchTokens(searchTerm).map((token) => token.toLowerCase());
     const snippetSources = [item.description, item.content, item.excerpt].filter(
       (value): value is string => typeof value === 'string' && value.length > 0
     );
 
     for (const source of snippetSources) {
       const sourceText = source.trim();
-      const foundIndex = sourceText.toLowerCase().indexOf(normalizedSearch);
+      const lowerSource = sourceText.toLowerCase();
+      const foundIndex = tokens.reduce((bestIndex, token) => {
+        const index = lowerSource.indexOf(token);
+        if (index < 0) return bestIndex;
+        return bestIndex < 0 ? index : Math.min(bestIndex, index);
+      }, -1);
 
       if (foundIndex >= 0) {
-        const start = Math.max(foundIndex - 48, 0);
-        const end = Math.min(foundIndex + normalizedSearch.length + 96, sourceText.length);
+        const start = Math.max(foundIndex - 52, 0);
+        const end = Math.min(foundIndex + 128, sourceText.length);
         const prefix = start > 0 ? '...' : '';
         const suffix = end < sourceText.length ? '...' : '';
 
@@ -256,17 +345,52 @@ const searchDescription = includeContent
     return item.excerpt || '';
   }
 
-  function createMetaLink(iconClass: string, href: string, text: string) {
-    const link = document.createElement('a');
-    link.className = 'mr-3 flex items-center hover:text-skin-active';
-    link.href = href;
+  function createMetaItem(iconClass: string, text: string, href?: string) {
+    const element = href ? document.createElement('a') : document.createElement('span');
+    element.className = href ? 'search-meta-item search-meta-link' : 'search-meta-item';
+    if (href && element instanceof HTMLAnchorElement) {
+      element.href = href;
+    }
 
     const icon = document.createElement('i');
-    icon.className = `${iconClass} mr-1`;
-    link.append(icon);
-    link.append(document.createTextNode(text));
+    icon.className = iconClass;
+    element.append(icon);
+    element.append(document.createTextNode(text));
 
-    return link;
+    return element;
+  }
+
+  function formatSearchWordCount(count: number) {
+    if (count >= 1000) {
+      return `约 ${Math.round(count / 1000)}k 字`;
+    }
+
+    return `约 ${count} 字`;
+  }
+
+  function appendMetaDivider(container: HTMLElement) {
+    if (container.childElementCount === 0) {
+      return;
+    }
+
+    const divider = document.createElement('span');
+    divider.className = 'post-meta-divider';
+    divider.setAttribute('aria-hidden', 'true');
+    divider.textContent = '|';
+    container.append(divider);
+  }
+
+  function appendMetaItem(container: HTMLElement, item: HTMLElement) {
+    appendMetaDivider(container);
+    container.append(item);
+  }
+
+  function getScopedResults(results: FuseResult<SearchDocument>[]) {
+    if (activeScope === 'all') {
+      return results;
+    }
+
+    return results.filter((result) => result.item.type === activeScope);
   }
 
   function renderResults(results: FuseResult<SearchDocument>[], searchTerm: string) {
@@ -275,7 +399,7 @@ const searchDescription = includeContent
     if (results.length === 0) {
       const emptyState = document.createElement('div');
       emptyState.className = 'search-empty-state rounded-lg px-5 py-6 text-sm text-skin-dodge';
-      emptyState.textContent = t('search.empty');
+      emptyState.textContent = `没有在${scopeLabel(activeScope)}中找到相关结果，试试更短的关键词。`;
       resultsListEl.append(emptyState);
       return;
     }
@@ -283,47 +407,65 @@ const searchDescription = includeContent
     const fragment = document.createDocumentFragment();
 
     results.forEach((result) => {
-      const {title, date, slug, category, tags} = result.item;
+      const item = result.item;
       const article = document.createElement('article');
-      article.className = 'search-result-card my-4 rounded-2xl p-5 md:p-6';
+      article.className = 'search-result-card search-result-card-polished my-3 rounded-lg p-4 md:p-5';
+
+      const header = document.createElement('div');
+      header.className = 'flex flex-col gap-2 md:flex-row md:items-start md:justify-between';
 
       const titleLink = document.createElement('a');
-      titleLink.className = 'text-xl font-semibold leading-8 transition-colors hover:text-skin-active';
-      titleLink.href = getUrl('/blog/') + slug;
-      titleLink.append(createHighlightedFragment(title, searchTerm));
-      article.append(titleLink);
+      titleLink.className = 'search-result-title transition-colors hover:text-skin-active';
+      titleLink.href = getUrl(item.href);
+      titleLink.append(createHighlightedFragment(item.title, searchTerm));
+      header.append(titleLink);
+
+      const badge = document.createElement('span');
+      badge.className = `search-type-label search-type-label-${item.type}`;
+      if (item.type === 'blog') {
+        badge.innerHTML = '<i class="ri-draft-line"></i><span>博客</span>';
+      } else if (item.type === 'wiki') {
+        badge.innerHTML = '<i class="ri-book-open-line"></i><span>Wiki</span>';
+      } else {
+        badge.innerHTML = '<i class="ri-chat-3-line"></i><span>动态</span>';
+      }
+      header.append(badge);
+      article.append(header);
 
       const meta = document.createElement('div');
-      meta.className = 'my-3 flex flex-wrap items-center gap-y-2 text-sm text-skin-dodge';
+      meta.className = 'search-result-meta post-meta-row flex flex-wrap items-center my-2 gap-y-1';
 
-      const dateNode = document.createElement('div');
-      dateNode.className = 'mr-3 flex items-center';
-      dateNode.innerHTML = `<i class="ri-calendar-2-fill mr-1"></i>${formatDate(date)}`;
-      meta.append(dateNode);
+      if (item.type === 'blog') {
+        if (item.date) {
+          appendMetaItem(meta, createMetaItem('ri-calendar-2-fill', formatDate(item.date)));
+        }
 
-      dealLabel(category)
-        .filter((item) => item !== 'uncategorized')
-        .forEach((categoryName) => {
-          meta.append(
-            createMetaLink(
-              'ri-folder-3-line',
-              getUrl('/category/') + categoryName,
-              categoryName
-            )
-          );
+        dealLabel(item.category ?? null)
+          .filter((categoryName) => categoryName !== 'uncategorized')
+          .forEach((categoryName) => {
+            appendMetaItem(meta, createMetaItem('ri-folder-3-line', categoryName, getUrl('/category/') + categoryName));
+          });
+
+        dealLabel(item.tags ?? null).forEach((tagName) => {
+          appendMetaItem(meta, createMetaItem('ri-hashtag', tagName, getUrl('/tags/') + tagName));
         });
+      } else if (item.type === 'wiki') {
+        appendMetaItem(meta, createMetaItem('ri-folder-3-line', item.section || 'Wiki'));
+        appendMetaItem(meta, createMetaItem('ri-question-line', `${item.questionCount ?? 0} 题`));
+        if (typeof item.wordCount === 'number') {
+          appendMetaItem(meta, createMetaItem('ri-quill-pen-line', formatSearchWordCount(item.wordCount)));
+        }
+      } else if (item.date) {
+        appendMetaItem(meta, createMetaItem('ri-calendar-2-fill', formatDate(item.date)));
+      }
 
-      dealLabel(tags).forEach((tagName) => {
-        meta.append(
-          createMetaLink('ri-hashtag', getUrl('/tags/') + tagName, tagName)
-        );
-      });
-
-      article.append(meta);
+      if (meta.childElementCount > 0) {
+        article.append(meta);
+      }
 
       const description = document.createElement('p');
-      description.className = 'break-all leading-7 text-skin-dodge';
-      description.append(createHighlightedFragment(getSnippet(result.item, searchTerm), searchTerm));
+      description.className = 'search-result-excerpt break-all leading-7 text-skin-dodge';
+      description.append(createHighlightedFragment(getSnippet(item, searchTerm), searchTerm));
       article.append(description);
 
       fragment.append(article);
@@ -343,6 +485,8 @@ const searchDescription = includeContent
     }
 
     SEARCH_DATA = await res.json() as SearchDocument[];
+    updateScopeCounts();
+
     if (SEARCH_DATA && !FUSE_INSTANCE) {
       FUSE_INSTANCE = new Fuse(SEARCH_DATA, FUSE_OPTIONS);
     }
@@ -367,20 +511,20 @@ const searchDescription = includeContent
     }
 
     if (!FUSE_INSTANCE) return;
-    const searchResults = FUSE_INSTANCE.search(search);
+    const searchResults = getScopedResults(FUSE_INSTANCE.search(search));
     updateReadout(searchResults.length);
     renderResults(searchResults, search);
   }
 
   function renderIdleState() {
     resultsListEl.innerHTML = `
-      <div class="search-empty-state rounded-2xl px-5 py-6">
-        <div class="flex items-start gap-3">
-          <i class="ri-compass-3-line mt-1 text-lg text-skin-active"></i>
+      <div class="search-empty-state rounded-lg px-5 py-6">
+        <div class="grid gap-4 md:grid-cols-[auto_1fr] md:items-start">
+          <i class="ri-compass-3-line text-2xl text-skin-active"></i>
           <div>
-            <p class="text-base font-medium text-skin-base">${t('search.search')}</p>
+            <p class="text-base font-semibold text-skin-base">输入关键词开始搜索</p>
             <p class="mt-2 text-sm leading-6 text-skin-dodge">
-              ${searchShell?.dataset.includeContent === 'true' ? t('search.hintContent') : t('search.hintBasic')}
+              当前范围：${scopeLabel(activeScope)}。可以搜博客文章、动态，也可以搜 Wiki 里的 Q 编号、函数名、协议名和面试关键词。
             </p>
           </div>
         </div>
@@ -390,12 +534,119 @@ const searchDescription = includeContent
 
   function renderErrorState() {
     resultsListEl.innerHTML = `
-      <div class="search-empty-state rounded-2xl px-5 py-6 text-sm text-skin-dodge">
+      <div class="search-empty-state rounded-lg px-5 py-6 text-sm text-skin-dodge">
         <div class="inline-flex items-center gap-2">
           <i class="ri-error-warning-line text-skin-active"></i>
-          <span>${t('search.error')}</span>
+          <span>搜索索引加载失败，请稍后再试。</span>
         </div>
       </div>
     `;
   }
 </script>
+
+<style>
+  .combined-search-shell {
+    max-width: 64rem;
+  }
+
+  .combined-search-hero {
+    border: 1px solid rgba(var(--color-text), 0.1);
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(135deg, rgba(var(--color-fill-secondary), 0.86), rgba(var(--color-fill-secondary), 0.48)),
+      rgba(var(--color-fill-secondary), 0.58);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+  }
+
+  .combined-search-input {
+    border-radius: 0.65rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .search-scope-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    border: 1px solid rgba(var(--color-text), 0.1);
+    border-radius: 0.65rem;
+    padding: 0.25rem;
+    background-color: rgba(var(--color-fill), 0.42);
+  }
+
+  .search-scope-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 0.45rem;
+    padding: 0.48rem 0.7rem;
+    color: rgba(var(--color-text), 0.68);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .search-scope-tab:hover,
+  .search-scope-tab-active {
+    color: rgba(var(--color-text), 0.96);
+    background-color: rgba(var(--color-fill-secondary), 0.88);
+  }
+
+  .search-scope-count {
+    min-width: 1.45rem;
+    border-radius: 999px;
+    padding: 0.02rem 0.4rem;
+    background-color: rgba(var(--color-text), 0.08);
+    font-size: 0.76rem;
+    text-align: center;
+  }
+
+  .search-result-card-polished {
+    border-radius: 0.65rem;
+  }
+
+  .search-result-title {
+    color: rgba(var(--color-text), 0.94);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .search-type-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    color: rgba(var(--color-text), 0.52);
+    font-size: 0.82rem;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  .search-type-label-wiki {
+    color: rgba(var(--color-text-active), 0.86);
+  }
+
+  .search-result-meta {
+    color: rgba(var(--color-text), 0.58);
+    font-size: 0.88rem;
+  }
+
+  .search-meta-item {
+    display: inline-flex;
+    align-items: center;
+    color: rgba(var(--color-text), 0.58);
+  }
+
+  .search-meta-item i {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+  }
+
+  .search-meta-link:hover {
+    color: rgba(var(--color-text-active), 0.96);
+  }
+
+  .search-result-excerpt {
+    color: rgba(var(--color-text), 0.72);
+    font-size: 0.95rem;
+  }
+</style>

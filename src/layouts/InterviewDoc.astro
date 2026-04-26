@@ -26,8 +26,8 @@ const {
 
 const hasToc = headings.some((item) => item.depth === 2 || item.depth === 3);
 const interviewLayoutClass = hasToc
-  ? 'grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)_18rem] 2xl:grid-cols-[21rem_minmax(0,1fr)_19rem] xl:gap-10'
-  : 'grid-cols-1 gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] 2xl:grid-cols-[21rem_minmax(0,1fr)] xl:gap-10';
+  ? 'grid-cols-1 lg:grid-cols-[17.5rem_minmax(0,1fr)] xl:grid-cols-[17.5rem_minmax(0,820px)_13.75rem]'
+  : 'grid-cols-1 lg:grid-cols-[17.5rem_minmax(0,1fr)] xl:grid-cols-[17.5rem_minmax(0,860px)]';
 ---
 
 <html lang={config.lang}>
@@ -36,21 +36,25 @@ const interviewLayoutClass = hasToc
 
   <body class="bg-skin-secondary">
     <Header />
-    <main class="container relative min-h-full max-w-[1800px] p-4 pt-20 pb-32 text-skin-base" id="app">
-      <div class:list={['grid', interviewLayoutClass]}>
-        <div>
+    <main class="relative mx-auto min-h-full max-w-[1380px] px-4 pt-20 pb-32 text-skin-base md:px-6" id="app">
+      <div
+        id="interview-layout"
+        data-has-toc={String(hasToc)}
+        class:list={['interview-layout grid gap-6 lg:gap-0', interviewLayoutClass]}
+      >
+        <div class="hidden border-r border-[rgba(var(--color-text),0.08)] pr-4 lg:block">
           <div class="sticky top-20">
             <InterviewSidebar currentPath={currentPath} />
           </div>
         </div>
 
-        <div class="min-w-0">
+        <div class="min-w-0 lg:px-8 xl:px-10">
           <slot />
         </div>
 
         {
           hasToc && (
-            <div class="relative hidden xl:block">
+            <div class="relative hidden border-l border-[rgba(var(--color-text),0.08)] pl-6 xl:block">
               <InterviewToc headings={headings} />
             </div>
           )
@@ -64,7 +68,72 @@ const interviewLayoutClass = hasToc
   </body>
 </html>
 
+<style>
+  @media (min-width: 1024px) {
+    .interview-layout {
+      transition: grid-template-columns 0.2s ease;
+    }
+
+    .interview-layout.interview-sidebar-collapsed {
+      grid-template-columns: 3rem minmax(0, 1fr) !important;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .interview-layout[data-has-toc='true'].interview-sidebar-collapsed {
+      grid-template-columns: 3rem minmax(0, 820px) 13.75rem !important;
+    }
+  }
+</style>
+
 <script>
+  const INTERVIEW_SIDEBAR_COLLAPSED_KEY = 'interview-sidebar-collapsed';
+
+  const initializeInterviewSidebarCollapse = () => {
+    const layout = document.querySelector<HTMLElement>('#interview-layout');
+    const toggle = document.querySelector<HTMLButtonElement>('#interview-sidebar-toggle');
+
+    if (!layout || !toggle) {
+      return;
+    }
+
+    const setCollapsed = (collapsed: boolean) => {
+      layout.classList.toggle('interview-sidebar-collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.setAttribute('title', collapsed ? '展开左侧索引' : '收起左侧索引');
+      toggle.setAttribute('aria-label', collapsed ? '展开左侧索引' : '收起左侧索引');
+
+      try {
+        localStorage.setItem(INTERVIEW_SIDEBAR_COLLAPSED_KEY, String(collapsed));
+      } catch {
+        // Ignore storage failures and keep the toggle usable.
+      }
+
+      if (!collapsed) {
+        document.dispatchEvent(new CustomEvent('interview-sidebar:expanded'));
+      }
+    };
+
+    let shouldCollapse = false;
+    try {
+      shouldCollapse = localStorage.getItem(INTERVIEW_SIDEBAR_COLLAPSED_KEY) === 'true';
+    } catch {
+      shouldCollapse = false;
+    }
+
+    setCollapsed(shouldCollapse);
+
+    if (toggle.dataset.collapseReady !== 'true') {
+      toggle.dataset.collapseReady = 'true';
+      toggle.addEventListener('click', () => {
+        setCollapsed(!layout.classList.contains('interview-sidebar-collapsed'));
+      });
+    }
+  };
+
+  document.addEventListener('astro:page-load', initializeInterviewSidebarCollapse);
+  initializeInterviewSidebarCollapse();
+
   const shouldDecorateExternalLink = (link: HTMLAnchorElement) => {
     const href = link.getAttribute('href');
 

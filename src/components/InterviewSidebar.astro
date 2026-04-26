@@ -1,6 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
 import getUrl from '@/utils/getUrl';
+import {
+  getInterviewPath,
+  getVisibleInterviewEntries,
+  sortInterviewEntries,
+} from '@/utils/interview';
 
 const { currentPath } = Astro.props as { currentPath: string };
 
@@ -21,24 +25,7 @@ const normalizePath = (value: string) => {
 };
 
 const normalizedCurrentPath = normalizePath(currentPath);
-const interviewEntries = await getCollection('interview', ({ data }) => {
-  if (!import.meta.env.PROD) {
-    return true;
-  }
-
-  return !data.draft;
-});
-
-const sortEntries = [...interviewEntries].sort((a, b) => {
-  const orderA = a.data.order ?? Number.MAX_SAFE_INTEGER;
-  const orderB = b.data.order ?? Number.MAX_SAFE_INTEGER;
-
-  if (orderA !== orderB) {
-    return orderA - orderB;
-  }
-
-  return a.slug.localeCompare(b.slug, 'zh-Hans-CN');
-});
+const sortEntries = sortInterviewEntries(await getVisibleInterviewEntries());
 
 const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: string; href: string; active: boolean}>; active: boolean}>>((accumulator, entry) => {
   const [folder] = entry.slug.split('/');
@@ -52,7 +39,7 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
     accumulator.push(group);
   }
 
-  const href = getUrl(`/interview/${entry.slug}`);
+  const href = getUrl(getInterviewPath(entry));
   const active = normalizePath(href) === normalizedCurrentPath;
 
   group.items.push({
@@ -66,13 +53,20 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 }, []);
 ---
 
-<aside class="flex flex-col px-1 py-2 lg:max-h-[calc(100vh-6rem)]">
-  <div class="aside-widget">
-    <i class="ri-book-open-line menu-icon"></i>
-    Wiki
-  </div>
+<aside class="interview-sidebar-shell flex flex-col py-2 lg:max-h-[calc(100vh-6rem)]">
+  <button
+    type="button"
+    id="interview-sidebar-toggle"
+    class="interview-sidebar-toggle"
+    aria-controls="interview-sidebar-content"
+    aria-expanded="true"
+    aria-label="收起左侧索引"
+    title="收起左侧索引"
+  >
+    <i class="ri-arrow-left-s-line interview-sidebar-toggle-icon" aria-hidden="true"></i>
+  </button>
 
-  <nav aria-label="Wiki sidebar" class="interview-sidebar-scroll space-y-4 lg:flex-1 lg:overflow-y-auto lg:pr-2">
+  <nav id="interview-sidebar-content" aria-label="Wiki sidebar" class="interview-sidebar-scroll lg:flex-1 lg:overflow-y-auto lg:pr-2">
     {
       groups.map((group) => (
         <details
@@ -116,27 +110,76 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 </aside>
 
 <style>
+  .interview-sidebar-shell {
+    min-width: 0;
+    transition: padding 0.2s ease;
+  }
+
+  .interview-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-bottom: 0.55rem;
+    border: 1px solid rgba(var(--color-text), 0.1);
+    border-radius: 0.45rem;
+    background-color: rgba(var(--color-fill-secondary), 0.55);
+    color: rgba(var(--color-text), 0.62);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .interview-sidebar-toggle:hover {
+    color: rgb(var(--color-text-active));
+    background-color: rgba(var(--color-text), 0.05);
+  }
+
+  .interview-sidebar-toggle-icon {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+
+  :global(.interview-sidebar-collapsed) .interview-sidebar-shell {
+    align-items: center;
+    padding-right: 0;
+  }
+
+  :global(.interview-sidebar-collapsed) .interview-sidebar-toggle {
+    align-self: center;
+    margin-bottom: 0;
+  }
+
+  :global(.interview-sidebar-collapsed) .interview-sidebar-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  :global(.interview-sidebar-collapsed) .interview-sidebar-scroll {
+    display: none;
+  }
+
   .interview-folder {
-    padding: 0.1rem 0 0.2rem;
+    padding: 0.9rem 0;
     border-top: 1px solid rgba(var(--color-text), 0.08);
   }
 
   .interview-folder:first-child {
     border-top: 0;
+    padding-top: 0;
   }
 
   .interview-folder-summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.2rem 0;
+    gap: 0.6rem;
+    padding: 0.15rem 0.45rem;
     cursor: pointer;
     list-style: none;
     color: rgba(var(--color-text), 0.94);
-    font-size: 1.02rem;
-    font-weight: 800;
-    line-height: 1.5;
+    font-size: 0.96rem;
+    font-weight: 750;
+    line-height: 1.45;
     transition: color 0.2s ease;
   }
 
@@ -150,13 +193,12 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 
   .interview-folder-title {
     word-break: break-word;
-    letter-spacing: 0.01em;
   }
 
   .interview-folder-icon {
     flex: 0 0 auto;
-    font-size: 1.1rem;
-    color: rgba(var(--color-text-active), 0.9);
+    font-size: 1rem;
+    color: rgba(var(--color-text), 0.62);
     transition: transform 0.2s ease, color 0.2s ease;
   }
 
@@ -175,12 +217,13 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 
   .interview-sidebar-link {
     display: block;
-    border-radius: 0;
-    padding: 0.78rem 1rem 0.78rem 1.2rem;
+    border-radius: 0.35rem;
+    padding: 0.5rem 0.65rem 0.5rem 1rem;
     color: rgba(var(--color-text), 0.74);
     white-space: normal;
     word-break: break-word;
-    line-height: 1.6;
+    font-size: 0.94rem;
+    line-height: 1.5;
     position: relative;
     transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     border: 0;
@@ -192,15 +235,15 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 
   .interview-sidebar-link:hover {
     color: rgba(var(--color-text), 0.9);
-    background-color: rgba(var(--color-text), 0.03);
+    background-color: rgba(var(--color-text), 0.025);
   }
 
   .interview-sidebar-link-active {
-    background-color: transparent;
-    color: rgba(var(--color-text), 0.92);
+    background-color: rgba(var(--color-text-active), 0.08);
+    color: rgba(var(--color-text-active), 0.98);
     font-weight: 700;
-    padding-left: 1.35rem;
-    box-shadow: inset 3px 0 0 rgba(var(--color-text-active), 0.82);
+    padding-left: 1rem;
+    box-shadow: inset 2px 0 0 rgba(var(--color-text-active), 0.84);
   }
 
   .interview-sidebar-link-active .interview-sidebar-link-text {
@@ -209,11 +252,11 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 
   .interview-sidebar-scroll {
     scrollbar-width: thin;
-    scrollbar-color: rgba(var(--color-text), 0.28) transparent;
+    scrollbar-color: rgba(var(--color-text), 0.18) transparent;
   }
 
   .interview-sidebar-scroll::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   .interview-sidebar-scroll::-webkit-scrollbar-track {
@@ -222,7 +265,7 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
 
   .interview-sidebar-scroll::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background-color: rgba(var(--color-text), 0.22);
+    background-color: rgba(var(--color-text), 0.16);
   }
 </style>
 
@@ -245,6 +288,34 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
     } catch {
       // Ignore storage failures and keep sidebar usable.
     }
+  };
+
+  const scrollActiveInterviewSidebarLinkIntoView = (behavior: ScrollBehavior = 'auto') => {
+    const scrollContainer = document.querySelector<HTMLElement>('#interview-sidebar-content');
+    const activeLink = scrollContainer?.querySelector<HTMLElement>('.interview-sidebar-link-active');
+
+    if (!scrollContainer || !activeLink || getComputedStyle(scrollContainer).display === 'none') {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const activeRect = activeLink.getBoundingClientRect();
+      const isAbove = activeRect.top < containerRect.top;
+      const isBelow = activeRect.bottom > containerRect.bottom;
+
+      if (!isAbove && !isBelow) {
+        return;
+      }
+
+      const offset =
+        activeRect.top - containerRect.top - containerRect.height / 2 + activeRect.height / 2;
+
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollTop + offset,
+        behavior,
+      });
+    });
   };
 
   const initializeInterviewSidebarState = () => {
@@ -274,8 +345,13 @@ const groups = sortEntries.reduce<Array<{title: string; items: Array<{title: str
         writeOpenFolders(Array.from(nextFolders));
       });
     });
+
+    scrollActiveInterviewSidebarLinkIntoView();
   };
 
   document.addEventListener('astro:page-load', initializeInterviewSidebarState);
+  document.addEventListener('interview-sidebar:expanded', () => {
+    scrollActiveInterviewSidebarLinkIntoView('smooth');
+  });
   initializeInterviewSidebarState();
 </script>

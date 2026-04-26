@@ -15,13 +15,14 @@ const filtersHeadings = headings
       <button
         type="button"
         id="mobile-toc-toggle"
-        class="floating-action-btn fixed right-4 bottom-5 mx-0 xl:hidden"
+        class="floating-action-btn mobile-toc-toggle fixed right-4 bottom-5 mx-0 xl:hidden"
         aria-controls="mobile-toc-shell"
         aria-expanded="false"
         aria-label={t('blog.tableOfContent')}
         title={t('blog.tableOfContent')}
       >
         <i class="ri-list-check"></i>
+        <span class="mobile-toc-toggle-label">{t('blog.tableOfContent')}</span>
       </button>
 
       <div
@@ -88,6 +89,14 @@ const filtersHeadings = headings
     position: fixed;
     inset: 0;
     z-index: 30;
+  }
+
+  .mobile-toc-toggle {
+    width: auto;
+    gap: 0.35rem;
+    padding: 0 0.8rem;
+    font-size: 0.88rem;
+    font-weight: 650;
   }
 
   .mobile-toc-backdrop {

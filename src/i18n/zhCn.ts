@@ -29,7 +29,7 @@ export const zhCn = {
   'sidebar.uncategorized': '未分类',
   'sidebar.tags': '标签',
   'sidebar.allTags': '全部标签',
-  'sidebar.recentArticle': '最近文章',
+  'sidebar.recentArticle': '最近更新',
   'sidebar.recentComments': '最近评论',
   'footer.articleTitle': '本文标题',
   'footer.articleAuthor': '文章作者',

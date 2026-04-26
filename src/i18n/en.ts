@@ -59,7 +59,7 @@ export  const en = {
   'sidebar.allCategories': 'All categories',
   'sidebar.allTags': 'All tags',
   'sidebar.categories': 'Categories',
-  'sidebar.recentArticle': 'Recent Articles',
+  'sidebar.recentArticle': 'Recent Updates',
   'sidebar.recentComments': 'Recent Comments',
   'sidebar.tags': 'Tags',
   'sidebar.uncategorized': 'uncategorized',

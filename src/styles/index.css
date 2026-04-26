@@ -82,6 +82,20 @@ menu {
     @apply underline underline-offset-4 decoration-wavy decoration-skin-base;
   }
 
+  .header-link-active-solid {
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-color: rgb(var(--color-text-active));
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.75rem;
+    color: rgb(var(--color-text-active));
+  }
+
+  .header-link-active-solid:hover {
+    text-decoration-style: solid;
+    text-decoration-color: rgb(var(--color-text-active));
+  }
+
   .header-btn {
     @apply cursor-pointer border rounded py-1 px-2 bg-skin-fill hover:text-skin-active mx-2 z-10
   }
@@ -165,6 +179,19 @@ menu {
 
   .aside-link-more {
     color: rgba(var(--color-text), 0.6);
+  }
+
+  .aside-link-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .aside-link-count {
+    flex: 0 0 auto;
+    color: rgba(var(--color-text), 0.48);
+    font-size: 0.78rem;
   }
 
   .aside-tag {
@@ -921,12 +948,19 @@ menu {
   transition: color 0.2s ease;
 }
 
+.recent-article-meta,
 .recent-article-date {
   display: block;
   margin-top: 0.18rem;
   color: rgba(var(--color-text), 0.5);
   font-size: 0.82rem;
   line-height: 1.4;
+}
+
+.recent-article-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 /* 重写markdown样式 */

@@ -150,11 +150,6 @@ export const categories: NavItem[] = [
     href: "/archive/1",
   },
   {
-    name: "留言",
-    iconClass: "ri-chat-1-line",
-    href: "/message",
-  },
-  {
     name: "搜索",
     iconClass: "ri-search-line",
     href: "/search",
@@ -174,6 +169,11 @@ export const categories: NavItem[] = [
         iconClass: 'ri-user-5-line',
         href: '/friends',
         target: '_self',
+      },
+      {
+        name: '留言',
+        iconClass: 'ri-chat-1-line',
+        href: '/message',
       },
     ]
   }
