@@ -8,7 +8,8 @@ category: ["嵌入式开发"]
 tags: ["STM32", "VSCode", "OpenOCD", "DAPLink"]
 ---
 
-> 本文由 [简悦 SimpRead](http://ksria.com/simpread/) 转码， 原文地址 [341536.xyz](https://341536.xyz/posts/stm32-vscode-openocd-debug/)
+> 原文地址 [341536.xyz](https://341536.xyz/posts/stm32-vscode-openocd-debug/)
+> 官方视频 [视频](https://www.stmcu.com.cn/video/)
 
 > 如果你在使用 STM32CubeIDE for VSCode 插件，可能会发现它默认的烧录工具只完美支持正版 STLink。
 

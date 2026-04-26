@@ -19,6 +19,18 @@ STM32 上电或复位后，会根据启动配置决定代码从哪里开始执�
 ![STM32 启动模式示意](../images/stm32/image.png)
 ![BOOT0 接线参考](../images/stm32/image-1.png)
 
+上电/复位
+↓
+芯片读取 BOOT0 和 BOOT1 状态
+↓
+决定从 Flash / System Memory / SRAM 启动
+↓
+开始运行你的 main() 程序
+↓
+PB2 可以由程序重新配置成普通 GPIO
+
+也就是说，BOOT1 不是一直控制启动地址，它只是启动瞬间参与判断。
+
 ```mermaid
 flowchart LR
   A[上电 / 复位] --> B{BOOT0}
