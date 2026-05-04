@@ -92,7 +92,7 @@ function validateMarkdownFile(filePath, collection) {
 }
 
 function extractFrontmatter(raw, filePath) {
-  const normalized = raw.startsWith('\uFEFF') ? raw.slice(1) : raw;
+  const normalized = (raw.startsWith('\uFEFF') ? raw.slice(1) : raw).replace(/\r\n/g, '\n');
   if (!normalized.startsWith('---\n')) {
     errors.push(formatMessage(filePath, 1, '缺少 frontmatter 起始分隔符 ---'));
     return null;

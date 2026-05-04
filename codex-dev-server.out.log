@@ -1,0 +1,155 @@
+
+> astro-blog@0.0.18 dev D:\Users\w\Desktop\wdxzf.github.io
+> node scripts/run-astro.mjs dev "--" "--host" "127.0.0.1" "--port" "4321"
+
+[2m02:40:29[22m [34m[types][39m Generated [2m2ms[22m
+[2m02:40:30[22m [34m[content][39m Syncing content
+[2m02:40:31[22m [34m[content][39m Synced content
+[2m02:40:31[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[2m02:40:31[22m [34m[vite][39m Port 4321 is in use, trying another one...
+[2m02:40:31[22m [34m[vite][39m Port 4322 is in use, trying another one...
+
+[42m[1m astro [22m[49m [32mv5.16.8[39m [2mready in[22m 3599 [2mms[22m
+
+[2m┃[22m Local    [36mhttp://localhost:4323/[39m
+[2m┃[22m Network  [2muse --host to expose[22m
+
+[2m02:40:31[22m [32mwatching for file changes...[39m
+[2m02:41:03[22m [34m[200][39m / [2m3534ms[22m
+[2m02:42:26[22m [34m[200][39m / [2m60ms[22m
+[2m02:45:29[22m [34m[watch][39m src/layouts/BlogPost.astro
+[2m02:45:29[22m [34m[watch][39m src/layouts/BlogPost.astro
+[2m02:45:29[22m [34m[watch][39m src/layouts/InterviewDoc.astro
+[2m02:45:29[22m [34m[watch][39m src/layouts/InterviewDoc.astro
+[2m02:45:29[22m [34m[watch][39m src/layouts/IndexPage.astro
+[2m02:45:29[22m [34m[watch][39m src/layouts/IndexPage.astro
+[2m02:45:29[22m [34m[watch][39m /src/components/Profile.astro?astro&type=style&index=0&lang.css
+[2m02:45:29[22m [34m[watch][39m /src/components/Profile.astro?astro&type=style&index=0&lang.css
+[2m02:45:31[22m [34m[200][39m / [2m439ms[22m
+[2m02:45:42[22m [34m[200][39m / [2m55ms[22m
+[2m02:46:13[22m [34m[200][39m / [2m11ms[22m
+[33m[1m02:47:38[22m [WARN] [router][39m A `getStaticPaths()` route pattern was matched, but no matching static path was found for requested path `/interview/`.
+
+Possible dynamic routes being matched: src/pages/interview/[...slug].astro.
+[2m02:47:38[22m [33m[404][39m /interview/ [2m11ms[22m
+[2m02:47:49[22m [34m[200][39m / [2m12ms[22m
+[2m02:49:10[22m [34m[200][39m /blog/astro/markdown-cn [2m38ms[22m
+[2m02:49:11[22m [34m[200][39m /_astro/ec.r9qfg.css [2m1ms[22m
+[2m02:49:11[22m [34m[200][39m /_astro/ec.dy9ns.js [2m1ms[22m
+[2m02:49:18[22m [34m[200][39m / [2m10ms[22m
+[2m02:49:19[22m [33m[302][39m /interview [2m2ms[22m
+[2m02:49:19[22m [34m[200][39m /interview/嵌入式八股文/00_总索引 [2m39ms[22m
+[2m02:49:23[22m [34m[200][39m / [2m10ms[22m
+[2m02:51:26[22m [34m[watch][39m /src/styles/index.css
+[2m02:51:26[22m [34m[watch][39m src/components/Profile.astro
+[2m02:51:26[22m [34m[watch][39m src/components/Toc.astro
+[2m02:51:26[22m [34m[watch][39m src/components/Toc.astro
+[2m02:51:26[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m02:51:26[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m02:51:30[22m [34m[200][39m / [2m1210ms[22m
+[2m02:51:30[22m [34m[200][39m / [2m161ms[22m
+[2m02:51:59[22m [34m[200][39m / [2m12ms[22m
+[2m02:52:40[22m [34m[200][39m / [2m45ms[22m
+[2m02:54:13[22m [34m[watch][39m /src/styles/index.css
+[2m02:54:13[22m [34m[watch][39m src/components/Profile.astro
+[2m02:54:13[22m [34m[watch][39m src/components/Toc.astro
+[2m02:54:13[22m [34m[watch][39m src/components/Toc.astro
+[2m02:54:13[22m [34m[watch][39m src/layouts/BlogPost.astro
+[2m02:54:13[22m [34m[watch][39m src/layouts/BlogPost.astro
+[2m02:54:13[22m [34m[watch][39m src/layouts/IndexPage.astro
+[2m02:54:13[22m [34m[watch][39m src/layouts/IndexPage.astro
+[2m02:54:13[22m [34m[watch][39m src/layouts/InterviewDoc.astro
+[2m02:54:13[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m02:54:13[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m02:54:17[22m [34m[200][39m / [2m1201ms[22m
+[2m02:54:17[22m [34m[200][39m / [2m1203ms[22m
+[2m03:06:03[22m [34m[watch][39m /src/styles/index.css
+[2m03:06:03[22m [34m[watch][39m src/components/Profile.astro
+[2m03:06:06[22m [34m[200][39m / [2m1271ms[22m
+[2m03:06:06[22m [34m[200][39m / [2m1272ms[22m
+[2m03:06:20[22m [34m[200][39m / [2m53ms[22m
+[2m03:06:38[22m [34m[200][39m / [2m11ms[22m
+[2m03:06:59[22m [34m[watch][39m /src/styles/index.css
+[2m03:07:02[22m [34m[200][39m / [2m1072ms[22m
+[2m03:07:31[22m [34m[200][39m / [2m46ms[22m
+[2m03:07:48[22m [34m[200][39m / [2m11ms[22m
+[2m03:11:01[22m [34m[watch][39m /src/styles/index.css
+[2m03:11:01[22m [34m[watch][39m src/components/Profile.astro
+[2m03:11:04[22m [34m[200][39m / [2m1394ms[22m
+[2m03:11:04[22m [34m[200][39m / [2m1395ms[22m
+[2m03:11:18[22m [34m[200][39m / [2m51ms[22m
+[2m03:11:36[22m [34m[200][39m / [2m12ms[22m
+[2m03:12:12[22m [34m[200][39m / [2m50ms[22m
+[2m03:39:33[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:39:33[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:39:35[22m [34m[200][39m / [2m638ms[22m
+[2m03:39:39[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:39:39[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:39:41[22m [34m[200][39m / [2m570ms[22m
+[2m03:40:47[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:40:47[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:40:48[22m [34m[200][39m / [2m609ms[22m
+[2m03:41:01[22m [34m[watch][39m src/components/Profile.astro
+[2m03:41:02[22m [34m[200][39m / [2m606ms[22m
+[2m03:41:26[22m [34m[watch][39m /src/styles/index.css
+[2m03:41:29[22m [34m[200][39m / [2m1093ms[22m
+[2m03:41:38[22m [34m[watch][39m /src/styles/index.css
+[2m03:41:42[22m [34m[200][39m / [2m1099ms[22m
+[2m03:42:17[22m [34m[200][39m / [2m9ms[22m
+[2m03:43:24[22m [34m[200][39m / [2m44ms[22m
+[2m03:51:17[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:51:17[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:51:19[22m [34m[200][39m / [2m617ms[22m
+[2m03:51:25[22m [34m[watch][39m /src/styles/index.css
+[2m03:51:28[22m [34m[200][39m / [2m1219ms[22m
+[2m03:51:40[22m [34m[200][39m / [2m52ms[22m
+[2m03:51:56[22m [34m[200][39m / [2m12ms[22m
+[2m03:52:36[22m [34m[200][39m / [2m37ms[22m
+[2m03:56:48[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:56:48[22m [34m[watch][39m src/components/BlogAside.astro
+[2m03:56:49[22m [34m[200][39m / [2m585ms[22m
+[2m03:57:01[22m [34m[watch][39m /src/styles/index.css
+[2m03:57:04[22m [34m[200][39m / [2m1330ms[22m
+[2m03:57:34[22m [34m[200][39m / [2m40ms[22m
+[2m03:57:58[22m [34m[200][39m / [2m41ms[22m
+[2m03:58:32[22m [34m[200][39m /blog/astro/markdown-cn [2m12ms[22m
+[2m03:58:34[22m [34m[200][39m / [2m7ms[22m
+[2m04:00:24[22m [34m[watch][39m src/components/BlogAside.astro
+[2m04:00:24[22m [34m[watch][39m src/components/BlogAside.astro
+[2m04:00:26[22m [34m[200][39m / [2m489ms[22m
+[2m04:00:30[22m [34m[watch][39m /src/styles/index.css
+[2m04:00:33[22m [34m[200][39m / [2m1234ms[22m
+[2m04:00:43[22m [34m[200][39m / [2m44ms[22m
+[2m04:01:05[22m [34m[200][39m / [2m8ms[22m
+[2m04:01:35[22m [34m[watch][39m src/components/BlogAside.astro
+[2m04:01:35[22m [34m[watch][39m src/components/BlogAside.astro
+[2m04:01:36[22m [34m[200][39m / [2m452ms[22m
+[2m04:01:46[22m [34m[watch][39m /src/styles/index.css
+[2m04:01:49[22m [34m[200][39m / [2m1184ms[22m
+[2m04:02:16[22m [34m[200][39m / [2m8ms[22m
+[2m04:02:53[22m [34m[200][39m /blog/astro/markdown-cn [2m16ms[22m
+[2m04:05:30[22m [33m[302][39m /interview [2m3ms[22m
+[2m04:05:30[22m [34m[200][39m /interview/嵌入式八股文/00_总索引 [2m55ms[22m
+[2m04:05:38[22m [34m[200][39m /feed/1 [2m14ms[22m
+[2m04:05:42[22m [34m[200][39m /blog/1 [2m7ms[22m
+[2m04:05:46[22m [34m[200][39m /category [2m8ms[22m
+[2m04:05:47[22m [34m[200][39m /category [2m6ms[22m
+[2m04:05:48[22m [34m[200][39m /category [2m7ms[22m
+[2m04:05:51[22m [34m[200][39m /tags [2m7ms[22m
+[2m04:05:56[22m [34m[200][39m /interview/嵌入式八股文/05_操作系统原理面试题 [2m29ms[22m
+[2m04:07:10[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m04:07:10[22m [34m[watch][39m src/components/InterviewToc.astro
+[2m04:07:11[22m [34m[200][39m /interview/嵌入式八股文/05_操作系统原理面试题 [2m649ms[22m
+[2m04:07:27[22m [34m[watch][39m src/components/Toc.astro
+[2m04:07:27[22m [34m[watch][39m src/components/Toc.astro
+[2m04:07:28[22m [34m[200][39m /interview/嵌入式八股文/05_操作系统原理面试题 [2m628ms[22m
+[2m04:08:01[22m [34m[200][39m /interview/嵌入式八股文/05_操作系统原理面试题 [2m27ms[22m
+[2m04:09:56[22m [34m[200][39m /blog/1 [2m12ms[22m
+[2m04:09:57[22m [34m[200][39m /blog/drv8701-motor-driver-notes [2m11ms[22m
+[2m04:10:00[22m [34m[200][39m /blog/1 [2m7ms[22m
+[2m04:10:01[22m [34m[200][39m /blog/astro/markdown-cn [2m9ms[22m
+[2m04:10:08[22m [33m[302][39m /interview [2m2ms[22m
+[2m04:10:08[22m [34m[200][39m /interview/嵌入式八股文/00_总索引 [2m26ms[22m
+[2m04:10:09[22m [34m[200][39m /interview/嵌入式八股文/02_c基础面试题 [2m32ms[22m
+[2m04:11:41[22m [34m[200][39m /blog/1 [2m8ms[22m
+[2m04:11:42[22m [34m[200][39m /blog/drv8701-motor-driver-notes [2m9ms[22m
