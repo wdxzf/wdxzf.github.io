@@ -1,23 +1,21 @@
 ---
-title: 手把手教你配置 STM32CubeIDE for VSCode 下基于 OpenOCD 的调试配置
+title: 配置 STM32CubeIDE for VSCode 下基于 OpenOCD 的烧录与调试
 description: 介绍如何在 STM32CubeIDE for VSCode 项目中使用 DAPLink 搭配 OpenOCD 完成烧录与调试配置。
 date: 2026-04-08
-lastModified: 2026-04-08
+lastModified: 2026-04-28
 slug: "stm32cubeide-vscode-openocd-debug"
 category: ["嵌入式开发"]
 tags: ["STM32", "VSCode", "OpenOCD", "DAPLink"]
 ---
 
 > 原文地址 [341536.xyz](https://341536.xyz/posts/stm32-vscode-openocd-debug/)
-> 官方视频 [视频](https://www.stmcu.com.cn/video/)
+> 官方视频 [STM32CubeIDE for VSCode 相关视频](https://www.stmcu.com.cn/video/)
 
-> 如果你在使用 STM32CubeIDE for VSCode 插件，可能会发现它默认的烧录工具只完美支持正版 STLink。
+如果你在使用 **STM32CubeIDE for VSCode** 插件，可能会发现它默认的烧录方式更偏向 STLink和Jlink。对于一些 DAPLink、CMSIS-DAP 或兼容调试器，直接使用插件默认配置时，可能会遇到识别不稳定、路径解析错误、烧录失败等问题。
 
-如果你在使用 STM32CubeIDE for VSCode 插件，可能会发现它默认的烧录工具只完美支持正版 STLink。市面上几十块钱的仿制 STLink 经常出现连接不稳定、烧录失败、甚至无法识别的” 玄学” 问题。
+为了解决这些问题，可以使用 **DAPLink + OpenOCD** 的方式接管烧录与调试。这样做的好处是配置清晰、工具链通用，而且不局限于 STM32，也适合大部分 ARM Cortex-M 芯片。
 
-为了彻底解决这个问题，我们推荐使用 DAPLink 调试器配合 OpenOCD。这不仅能解决烧录问题，还能让你拥有一套适用于几乎所有 ARM 芯片（不仅限于 STM32）的通用开发环境。本教程将以 STM32CubeIDE for VSCode 生成的项目为基础，教你如何” 外挂” OpenOCD 来接管烧录和调试工作。
-
-> 本教程虽然以 STM32CubeIDE for VSCode 为例，但同样适用于任何基于 OpenOCD 的工具链配置，只需要稍作修改。
+> 本文以 STM32F103C8T6 和 STM32CubeIDE for VSCode 生成的 CMake 工程为例。其他 STM32 系列只需要修改 OpenOCD 的 target 配置文件，例如 F4 使用 `stm32f4x.cfg`，H7 使用 `stm32h7x.cfg`。
 
 > WARNING
 > 
@@ -43,17 +41,17 @@ tags: ["STM32", "VSCode", "OpenOCD", "DAPLink"]
 1.  插上调试器。
 2.  右键此电脑，在右键菜单选择 `管理`。打开设备管理器，看是否有 `CMSIS-DAP` 或 `WinUSB` 设备。
 
-安装 OpenOCD[](#安装-openocd)
+## 安装 OpenOCD
 -------------------------
 
 OpenOCD 可以通过 Scoop 安装或者在 GitHub Release 直装（直装后建议添加 OpenOCD 到环境变量）。
 
+### 使用 Scoop 安装
 推荐使用 [Scoop](https://scoop.sh/) 安装 OpenOCD，方便后续的维护
 
-1.  在开始菜单搜索 `PowerShell`，启动 PoweShell
-2.  安装 Scoop
+打开 PowerShell，执行：
 
-```
+```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
 
@@ -82,72 +80,119 @@ For bug reports, read
 
 VSCode 本身只是一个编辑器，并不懂烧录，我们需要写一个” 任务说明书” 告诉它该怎么做。
 
+也可以关注 `STM32 Debug Configurator` 这类新插件，不过本文仍以手动编写 `tasks.json` 的方式说明，方便理解每一项配置的作用。
+
 ### 创建烧录任务[](#创建烧录任务)
 
 1.  在 VSCode 中打开你的项目
 2.  在.vscode文件夹下创建 `tasks.json`文件
 3.  **完全替换**文件内容如下（注意看注释修改芯片型号）:
 
-```
+```jsonc
 {
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Flash Target",
+            // 编译 Debug 版本
+            "label": "Build Debug",
             "type": "shell",
-            "command": "openocd",
+            "command": "cmake",
             "args": [
-                "-f", "interface/cmsis-dap.cfg", // 使用 DAPLink
-                "-f", "target/stm32f1x.cfg", // 根据你的芯片修改！例如 stm32f4x.cfg, stm32h7x.cfg
-                // 下面这行代码会自动获取 STM32CubeIDE 插件编译出的 elf 文件路径,如果环境不是基于 STM32CubeIDE for VSCode 则需要将环境变量替换为具体可执行文件位置，具体可以问 AI
-                "-c", "program ${command:st-stm32-ide-debug-launch.get-projects-binary-from-context1} verify reset exit"
+                "--build",
+                "--preset",
+                "Debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
+            "options": {
+                // 保证 cmake 能在工程根目录找到 CMakePresets.json
+                "cwd": "${workspaceFolder}"
             },
             "presentation": {
                 "echo": true,
                 "reveal": "always"
-            }
+            },
+            "problemMatcher": []
+        },
+        {
+            // 编译后烧录到 STM32
+            "label": "Flash Target",
+            "type": "shell",
+            "command": "openocd",
+
+            // 烧录前先执行 Build Debug，避免烧录旧程序
+            "dependsOn": "Build Debug",
+
+            "args": [
+                // 使用 CMSIS-DAP / DAPLink 调试器
+                "-f",
+                "interface/cmsis-dap.cfg",
+
+                // STM32F103C8T6 属于 STM32F1 系列
+                // 如果是 F4/H7 等芯片，需要改成对应配置文件
+                "-f",
+                "target/stm32f1x.cfg",
+
+                // 烧录 ELF 文件
+                // 使用相对路径 + cwd，避免 Windows 反斜杠被 OpenOCD 误解析
+                // 请把 F103C8t6_DiffCar.elf 改成你自己工程实际生成的 ELF 文件名
+                "-c",
+                "program build/Debug/F103C8t6_DiffCar.elf verify reset exit"
+            ],
+            "options": {
+                // 让 build/Debug/... 从工程根目录开始查找
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+
+                // true 表示 Ctrl + Shift + B 会直接执行编译 + 烧录
+                // 如果你只想默认编译，不想默认烧录，可以改成 false
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }
-
 ```
+
+换到其他工程时，主要检查下面几项：
+
+1. `build/Debug/xxx.elf` 中的 `xxx.elf` 是否为当前工程生成的 ELF 文件名。
+2. `--preset Debug` 是否和当前工程的 CMake preset 名称一致。
+3. `target/stm32f1x.cfg` 是否匹配当前芯片系列。
+4. `interface/cmsis-dap.cfg` 是否匹配当前下载器。
 
 ### 开始烧录[](#开始烧录)
 
 配置完成后，按 `Ctrl + Shift + P`，输入 “Run Task”，选择 “Flash Target” 即可开始烧录。
+也可以直接按 `Ctrl + Shift + B`。如果上面的 `Flash Target` 设置为默认 build 任务，VS Code 会自动执行编译并烧录。
 
-### 添加一键烧录按钮[](#添加一键烧录按钮)
+### 添加一键烧录按钮
 
-不想每次按快捷键？装个插件做个按钮。
+如果不想每次都打开命令面板，可以安装 `Task Buttons` 插件。
 
-`Ctrl + Shift + X`，打开扩展页，搜索 `Task Buttons` 并安装
+1. 按 `Ctrl + Shift + X` 打开扩展页面
+2. 搜索 `Task Buttons` 并安装
+3. 打开 VS Code 设置，进入 `settings.json`
+4. 添加下面配置
 
-![][img-0]VSCode Task Buttons 扩展安装页面
-
-`Ctrl + ,` 打开设置页，在 `Extensions` -> `VsCodeTaskButtons` 找到 `Tasks`，选择 `Edit in settings.json`
-
-![][img-1]VSCode Task Buttons 设置页面配置
-
-在 `settings.json` 追加：
-
-```
-    "VsCodeTaskButtons.tasks": [
-        {
-            "label": "$(play) Flash Target",
-            "task": "Flash Target",
-            "tooltip": "Flash the ordered MCU"
-        }
-    ],
-
+```jsonc
+"VsCodeTaskButtons.tasks": [
+    {
+        "label": "$(play) Flash Target",
+        "task": "Flash Target",
+        "tooltip": "Build and flash STM32 target"
+    }
+]
 ```
 
 > TIP
 > 
-> **task.json 本质上是一张” 自动化任务说明书”**
+> `tasks.json` 本质上是一份自动化任务说明书。它告诉 VS Code：执行哪个命令、传入哪些参数、在哪个目录下执行。这样就能把 OpenOCD 这种命令行工具接入 VS Code 的图形界面。
 > 
 > VSCode 只懂得编辑文字。你想让它帮你做点” 额外的事”，比如烧录程序，但它自己完全不知道” 烧录” 是什么。
 > 
@@ -266,10 +311,10 @@ VSCode 本身只是一个编辑器，并不懂烧录，我们需要写一个” 
 参考教程[](#参考教程)
 -------------
 
-### 视频教程[](#视频教程)
+## 参考教程
 
-*   [[STM32 + VS Code] 用 DAPLink + OpenOCD 调试 - XRobot 官方教程 0.2 节](https://www.bilibili.com/video/BV1bnnZz2ESg)
-*   [【Windows】VSCode 开发 STM32，但是使用 cmake+clangd+ninja+arm-gcc，全套开源工具链，编译烧录调试无压力。](https://www.bilibili.com/video/BV1X4XAYiEkV)
+- [[STM32 + VS Code] 用 DAPLink + OpenOCD 调试 - XRobot 官方教程 0.2 节](https://www.bilibili.com/video/BV1bnnZz2ESg)
+- [【Windows】VSCode 开发 STM32，但是使用 cmake+clangd+ninja+arm-gcc，全套开源工具链，编译烧录调试无压力。](https://www.bilibili.com/video/BV1X4XAYiEkV)
 
 
 4月8号遇到问题
