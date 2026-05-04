@@ -13,7 +13,7 @@ const filteredHeadings = headings
   filteredHeadings.length > 0 && (
     <div
       id="interview-toc"
-      class="sticky px-3 py-3 my-4 rounded-lg shadow-lg bg-skin-card top-20 interview-toc-panel"
+      class="sticky my-4 top-20 interview-toc-panel"
     >
       <div class="aside-widget">
         <i class="ri-list-check menu-icon"></i>
@@ -39,11 +39,18 @@ const filteredHeadings = headings
 
       <style>
         .interview-toc-panel {
-          border: 1px solid rgba(var(--color-text), 0.08);
+          overflow: hidden;
+          padding: 0;
+          border: 1px solid rgba(var(--color-text), 0.045);
+          border-radius: 0.5rem;
+          background-color: rgba(var(--color-fill-secondary), 0.12);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.014);
         }
 
         .interview-toc-list {
-          gap: 8px;
+          gap: 2px;
+          margin-top: 0;
+          padding: 0.42rem 0.52rem 0.56rem;
           scrollbar-width: thin;
           scrollbar-color: rgba(var(--color-text), 0.16) transparent;
         }
@@ -63,17 +70,17 @@ const filteredHeadings = headings
 
         .interview-toc-link {
           display: block;
-          padding: 6px 10px 6px 12px;
-          border-radius: 6px;
-          color: rgba(var(--color-text), 0.85);
-          line-height: 1.5;
-          transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+          padding: 0.22rem 0.4rem 0.22rem 0.52rem;
+          border-radius: 0.32rem;
+          color: rgba(var(--color-text), 0.82);
+          font-size: 0.8rem;
+          line-height: 1.32;
+          transition: color 0.2s ease, background-color 0.2s ease;
         }
 
         .interview-toc-link:hover {
           color: rgb(var(--color-text-active));
-          background-color: rgba(var(--color-text), 0.06);
-          transform: translateX(1px);
+          background-color: rgba(var(--color-text), 0.04);
         }
 
         .interview-toc-depth-2 .interview-toc-link {
@@ -81,20 +88,20 @@ const filteredHeadings = headings
         }
 
         .interview-toc-depth-3 {
-          margin-left: 10px;
-          border-left: 1px dashed rgba(var(--color-text), 0.2);
+          margin-left: 0.42rem;
+          border-left: 1px solid rgba(var(--color-text), 0.12);
         }
 
         .interview-toc-depth-3 .interview-toc-link {
-          font-size: 0.95rem;
-          color: rgba(var(--color-text), 0.75);
-          padding-left: 12px;
+          padding-left: 0.58rem;
+          color: rgba(var(--color-text), 0.7);
+          font-size: 0.76rem;
         }
 
         .interview-toc-link.active-heading {
           color: #cc7a00;
           font-weight: 600;
-          background-color: rgba(var(--color-text), 0.08);
+          background-color: rgba(var(--color-text-active), 0.075);
           position: relative;
         }
 
@@ -104,7 +111,7 @@ const filteredHeadings = headings
           left: 0;
           top: 50%;
           transform: translateY(-50%);
-          width: 4px;
+          width: 3px;
           height: 60%;
           border-radius: 999px;
           background-color: #cc7a00;

@@ -4,10 +4,12 @@ import getUrl from "@/utils/getUrl";
 const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
 ---
 
-<div class="shadow-lg rounded-lg min-h-0 w-auto flex flex-col items-center justify-center bg-skin-card px-3 py-4">
-  <img class="avatar mb-3" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
-    <div class="mb-2 text-center leading-7">{site.motto}</div>
-  <div class="flex items-center justify-center flex-nowrap whitespace-nowrap">
+<div class="profile-card min-h-0 w-auto bg-skin-card">
+  <img class="profile-avatar" src={site.avatar.startsWith('http') ? site.avatar : getUrl(site.avatar)} alt="avatar"/>
+  <div class="profile-content">
+    <div class="profile-author">{site.author}</div>
+    <div class="profile-motto">{site.motto}</div>
+    <div class="profile-links">
     {
       activeInfoLinks.map((infoItem) => (
         <a
@@ -22,5 +24,73 @@ const activeInfoLinks = infoLinks.filter((infoItem) => infoItem.outlink);
         </a>
       ))
     }
+    </div>
   </div>
 </div>
+
+<style>
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    min-height: 4.7rem;
+    padding: 0.72rem 0.82rem;
+    border: 1px solid rgba(var(--color-text), 0.08);
+    border-radius: 0.5rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.045);
+  }
+
+  .profile-avatar {
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 auto;
+    border-radius: 9999px;
+    object-fit: cover;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+  }
+
+  .profile-content {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .profile-author {
+    color: rgb(var(--color-text));
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .profile-motto {
+    margin-top: 0.1rem;
+    color: rgba(var(--color-text), 0.68);
+    font-size: 0.7rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-links {
+    display: flex;
+    align-items: center;
+    gap: 0.08rem;
+    margin-top: 0.28rem;
+    white-space: nowrap;
+  }
+
+  .profile-links :global(.social-link) {
+    margin: 0;
+    width: 1.18rem;
+    height: 1.18rem;
+    border-radius: 999px;
+  }
+
+  .profile-links :global(.social-link:hover) {
+    background-color: rgba(var(--color-text), 0.06);
+  }
+
+  .profile-links :global(.social-link i) {
+    font-size: 0.92rem;
+  }
+</style>

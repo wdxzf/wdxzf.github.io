@@ -11,8 +11,12 @@ import {getVisibleInterviewEntries, getInterviewPath, isInterviewIndexEntry} fro
 import {execFileSync} from "node:child_process";
 import {statSync} from "node:fs";
 import {join} from "node:path";
+
 const blogs = await getCollectionByName('blog')
+const feeds = await getCollectionByName('feed')
 const wikiEntries = (await getVisibleInterviewEntries()).filter((entry) => !isInterviewIndexEntry(entry));
+const MAX_VISIBLE_TAGS = 16;
+
 const sortTaxonomyEntries = (entries: [string, number][]) =>
   entries.sort(([nameA, countA], [nameB, countB]) => {
     if (nameA === 'uncategorized') return 1;
@@ -30,15 +34,20 @@ const sortedTags = sortTaxonomyEntries(
 );
 const visibleCategories = sortedCategories.slice(0, 8);
 const hasMoreCategories = sortedCategories.length > visibleCategories.length;
-const visibleTags =
-  site.asideTagsMaxSize > 0 ? sortedTags.slice(0, site.asideTagsMaxSize) : sortedTags;
-const hasMoreTags = site.asideTagsMaxSize > 0 && sortedTags.length > site.asideTagsMaxSize;
+const visibleTagSize = site.asideTagsMaxSize > 0
+  ? Math.min(site.asideTagsMaxSize, MAX_VISIBLE_TAGS)
+  : MAX_VISIBLE_TAGS;
+const visibleTags = sortedTags.slice(0, visibleTagSize);
+const hasMoreTags = sortedTags.length > visibleTags.length;
+
 const getBlogUpdatedAt = (blog: typeof blogs[number]) => {
   return new Date(blog.data.lastModified || blog.data.date || 0);
 };
+
 const wikiUpdateCache = ((globalThis as typeof globalThis & {
   __wikiUpdateCache?: Map<string, number>;
 }).__wikiUpdateCache ??= new Map<string, number>());
+
 const getWikiUpdatedAt = (entry: typeof wikiEntries[number]) => {
   const cachedTime = wikiUpdateCache.get(entry.id);
   if (cachedTime) {
@@ -73,17 +82,30 @@ const getWikiUpdatedAt = (entry: typeof wikiEntries[number]) => {
   wikiUpdateCache.set(entry.id, updatedAt.getTime());
   return updatedAt;
 };
+
 const formatRecentDate = (date: Date) => {
   return date.toLocaleDateString('zh-CN', {
     month: '2-digit',
     day: '2-digit',
   }).replace(/\//g, '-');
 };
+
+const getFeedTitle = (feed: typeof feeds[number]) => {
+  if (feed.data.title) {
+    return feed.data.title;
+  }
+
+  return feed.body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean) || '动态';
+};
+
 const recentUpdates = [
   ...blogs.map((blog) => ({
     href: getUrl("/blog/") + blog.slug,
     title: blog.data.title,
-    type: '博客',
+    type: 'Blog',
     updatedAt: getBlogUpdatedAt(blog),
   })),
   ...wikiEntries.map((entry) => ({
@@ -92,20 +114,26 @@ const recentUpdates = [
     type: 'Wiki',
     updatedAt: getWikiUpdatedAt(entry),
   })),
+  ...feeds.map((feed) => ({
+    href: getUrl("/feed/") + feed.slug,
+    title: getFeedTitle(feed),
+    type: '动态',
+    updatedAt: new Date(feed.data.date || 0),
+  })),
 ]
   .filter((item) => item.updatedAt.getTime() > 0)
   .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
   .slice(0, site.recentBlogSize);
 ---
 
-<details class="aside-section aside-group" open>
+<details class="aside-section aside-section-recent aside-group" open>
   <summary class="aside-widget aside-summary">
-    <div class="flex items-center">
+    <div class="aside-widget-title">
       <i class="ri-time-line menu-icon"></i> {t('sidebar.recentArticle')}
     </div>
     <i class="ri-arrow-down-s-line aside-summary-icon"></i>
   </summary>
-  <div class="aside-group-content recent-article-list flex flex-col gap-1.5">
+  <div class="aside-group-content recent-article-list flex flex-col">
     {
       recentUpdates.map((item) => (
         <a
@@ -115,9 +143,8 @@ const recentUpdates = [
         >
           <span class="recent-article-title">{item.title}</span>
           <span class="recent-article-meta">
-            <span>{item.type}</span>
-            <span aria-hidden="true">·</span>
-            <span>{formatRecentDate(item.updatedAt)}</span>
+            <span class="recent-article-type">{item.type}</span>
+            <span class="recent-article-date">{formatRecentDate(item.updatedAt)}</span>
           </span>
         </a>
       ))
@@ -127,29 +154,31 @@ const recentUpdates = [
 
 {
   sortedCategories.length > 0 && (
-    <details class="aside-section aside-group">
+    <details class="aside-section aside-section-plain aside-group" open>
       <summary class="aside-widget aside-summary">
-        <div class="flex items-center">
+        <div class="aside-widget-title">
           <i class="ri-folder-3-line menu-icon"/>{t('sidebar.categories')}
         </div>
         <i class="ri-arrow-down-s-line aside-summary-icon"></i>
       </summary>
-      <div class="aside-group-content">
+      <div class="aside-group-content aside-category-grid">
         {
           visibleCategories.map(([category, count]) => (
             <a
-              class="aside-link truncate block"
+              class="aside-link aside-category-link"
               title={category + " (" + count + ")"}
               href={getUrl("/category/") + category}
             >
-              {(category === 'uncategorized' ? t('sidebar.uncategorized') : category) + " (" + count + ")"}
+              <span class="aside-link-label">{category === 'uncategorized' ? t('sidebar.uncategorized') : category}</span>
+              <span class="aside-link-count">{count}</span>
             </a>
           ))
         }
         {
           hasMoreCategories && (
-            <a class="aside-link aside-link-more truncate block" title={t('more')} href={getUrl("/category")}>
-              {t('more')} »
+            <a class="aside-link aside-link-more aside-more-row" title={t('more')} href={getUrl("/category")}>
+              <span class="aside-link-label">{t('more')}</span>
+              <span class="aside-link-count">»</span>
             </a>
           )
         }
@@ -160,9 +189,9 @@ const recentUpdates = [
 
 {
   visibleTags.length > 0 && (
-    <details class="aside-section aside-group">
+    <details class="aside-section aside-section-plain aside-group">
       <summary class="aside-widget aside-summary">
-        <div class="flex items-center">
+        <div class="aside-widget-title">
           <i class="ri-hashtag menu-icon"/>
           {t('sidebar.tags')}
         </div>
@@ -183,7 +212,10 @@ const recentUpdates = [
         {
           hasMoreTags &&
           (
-            <a class="aside-tag inline-block truncate" title={t('more')} href={getUrl("/tags")}>{t('more')} »</a>
+            <a class="aside-link aside-link-more aside-more-row" title={t('more')} href={getUrl("/tags")}>
+              <span class="aside-link-label">{t('more')}</span>
+              <span class="aside-link-count">»</span>
+            </a>
           )
         }
       </div>
